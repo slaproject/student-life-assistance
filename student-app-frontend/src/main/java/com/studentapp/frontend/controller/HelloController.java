@@ -151,6 +151,18 @@ public class HelloController {
     }
     
     private Stage getCurrentStage() {
-        return (Stage) getCurrentStage().getScene().getWindow();
+        // Get the stage from the scene of any node
+        try {
+            // Try to get stage from the scene
+            return (Stage) javafx.scene.Node.class.cast(this).getScene().getWindow();
+        } catch (Exception e) {
+            // Alternative approach: get from any visible window
+            for (javafx.stage.Window window : javafx.stage.Window.getWindows()) {
+                if (window instanceof Stage && window.isShowing()) {
+                    return (Stage) window;
+                }
+            }
+            return null;
+        }
     }
 }
