@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.BorderPane?>
 
-<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.studentapp.frontend.controller.HelloController">
-    
-    <!-- Menu Bar at the top -->
     <top>
         <MenuBar>
             <Menu text="File">
@@ -21,33 +16,29 @@
                 <SeparatorMenuItem/>
                 <MenuItem text="Exit" onAction="#handleExitAction"/>
             </Menu>
-            
             <Menu text="Student">
                 <MenuItem text="Academic Records" onAction="#handleAcademicRecordsAction"/>
                 <MenuItem text="Schedule" onAction="#handleScheduleAction"/>
                 <MenuItem text="Assignments" onAction="#handleAssignmentsAction"/>
                 <MenuItem text="Grades" onAction="#handleGradesAction"/>
             </Menu>
-            
             <Menu text="Finance">
                 <MenuItem text="Budget Tracker" onAction="#handleBudgetAction"/>
                 <MenuItem text="Expenses" onAction="#handleExpensesAction"/>
                 <MenuItem text="Financial Aid" onAction="#handleFinancialAidAction"/>
             </Menu>
-            
             <Menu text="Resources">
                 <MenuItem text="Library" onAction="#handleLibraryAction"/>
                 <MenuItem text="Campus Map" onAction="#handleCampusMapAction"/>
                 <MenuItem text="Student Services" onAction="#handleStudentServicesAction"/>
             </Menu>
-            
             <Menu text="Help">
                 <MenuItem text="User Guide" onAction="#handleUserGuideAction"/>
                 <MenuItem text="About" onAction="#handleAboutAction"/>
             </Menu>
         </MenuBar>
     </top>
-    
-    <!-- No <center> block, controller will set center content -->
-    
-</BorderPane>
+    <center>
+        <!-- Dynamic content will be loaded here by HelloController -->
+    </center>
+</BorderPane> 
