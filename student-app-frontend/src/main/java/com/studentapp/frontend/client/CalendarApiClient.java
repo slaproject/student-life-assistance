@@ -101,12 +101,15 @@ public class CalendarApiClient {
         byte[] input = jsonInput.getBytes("utf-8");
         os.write(input, 0, input.length);
       }
-      int code = conn.getResponseCode();
-      if (code == 200) {
-        return "Signup successful!";
-      } else {
-        return "Signup failed: " + code;
+      InputStream is = (conn.getResponseCode() < 400) ? conn.getInputStream() : conn.getErrorStream();
+      String responseBody = null;
+      if (is != null) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        responseBody = s.hasNext() ? s.next() : "";
+        is.close();
       }
+      conn.disconnect();
+      return responseBody != null && !responseBody.isEmpty() ? responseBody : "Signup failed: " + conn.getResponseCode();
     } catch (Exception e) {
       return "Signup error: " + e.getMessage();
     }

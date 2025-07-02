@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<VBox spacing="20" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.studentapp.frontend.controller.SignupController" style="-fx-padding: 75;">
+    <Label text="Create an Account" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+    <Label text="Sign up to get started" style="-fx-font-size: 16px; -fx-text-fill: gray;" />
+    <Label fx:id="errorLabel" text="" style="-fx-text-fill: red; -fx-font-size: 14px;" />
+    <TextField fx:id="usernameField" promptText="Username" style="-fx-pref-width: 250;" />
+    <TextField fx:id="emailField" promptText="Email" style="-fx-pref-width: 250;" />
+    <PasswordField fx:id="passwordField" promptText="Password" style="-fx-pref-width: 250;" />
+    <Button text="Sign Up" onAction="#handleSignup" style="-fx-pref-width: 350; -fx-background-color: #4CAF50; -fx-text-fill: white;" />
+    <Hyperlink text="Already have an account? Login" onAction="#goToLogin" style="-fx-text-fill: #4CAF50;" />
+    <Label text="" style="-fx-padding: 1;" />
+</VBox>
