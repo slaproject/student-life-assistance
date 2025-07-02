@@ -5,41 +5,38 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class AuthController {
+public class LoginController {
     @FXML
     private TextField usernameField;
     @FXML
-    private TextField emailField;
-    @FXML
     private PasswordField passwordField;
+    @FXML
+    private Label errorLabel;
 
     private String jwtToken;
-
-    public void handleSignup() {
-        String username = usernameField.getText();
-        String email = emailField.getText();
-        String password = passwordField.getText();
-        String response = CalendarApiClient.signup(username, email, password);
-        showAlert("Signup", response);
-
-        // Reset fields after signup
-        usernameField.clear();
-        emailField.clear();
-        passwordField.clear();
-    }
 
     public void handleLogin() {
         String username = usernameField.getText();
         String password = passwordField.getText();
+
+        if (username == null || username.isEmpty()) {
+            errorLabel.setText("Username cannot be empty");
+            return;
+        }
+        if (password == null || password.isEmpty()) {
+            errorLabel.setText("Password cannot be empty");
+            return;
+        }
+
         String token = CalendarApiClient.login(username, password);
         if (token != null && !token.equals("Invalid username or password")) {
             this.jwtToken = token;
-            showAlert("Login", "Login successful!");
+            errorLabel.setText("");
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/studentapp/frontend/main-view.fxml"));
                 Parent mainRoot = loader.load();
@@ -48,22 +45,27 @@ public class AuthController {
                 Stage stage = (Stage) usernameField.getScene().getWindow();
                 stage.setScene(new Scene(mainRoot, 900, 700));
             } catch (Exception e) {
-                showAlert("Error", "Failed to load main view: " + e.getMessage());
+                errorLabel.setText("Failed to load main view: " + e.getMessage());
             }
         } else {
-            showAlert("Login", "Invalid username or password");
+            errorLabel.setText("Invalid username or password");
         }
     }
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    public void goToSignup() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/studentapp/frontend/signup-view.fxml"));
+            Parent signupRoot = loader.load();
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setScene(new Scene(signupRoot, 450, 450));
+        } catch (Exception e) {
+            errorLabel.setText("Failed to load signup view: " + e.getMessage());
+        }
     }
 
     public String getJwtToken() {
         return jwtToken;
     }
-} 
+}
+
+

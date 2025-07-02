@@ -23,9 +23,11 @@ public class AuthController {
 
     @PostMapping("/signup")
     public String registerUser(@RequestBody User user) {
-        if (userRepository.findByUsername(user.getUsername()).isPresent() ||
-            userRepository.findByEmail(user.getEmail()).isPresent()) {
-            return "Username or email already exists";
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            return "Username already exists";
+        }
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return "Email already exists";
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
@@ -44,4 +46,4 @@ public class AuthController {
         }
         return "Invalid username or password";
     }
-} 
+}
