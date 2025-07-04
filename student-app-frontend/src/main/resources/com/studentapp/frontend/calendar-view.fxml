@@ -3,5 +3,5 @@
 
 <VBox fx:id="rootVBox" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.studentapp.frontend.controller.CalendarController">
-    <!-- The CalendarView Java class will be injected here by the controller -->
+    
 </VBox> 

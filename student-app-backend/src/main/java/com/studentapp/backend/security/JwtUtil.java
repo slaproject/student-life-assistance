@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class JwtUtil {
@@ -45,5 +46,15 @@ public class JwtUtil {
     public String extractUsername(String token) {
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
         return claims.getSubject();
+    }
+
+    public UUID extractUserIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
+
+        String userId = (String) claims.get("userId");
+        return UUID.fromString(userId);
     }
 } 

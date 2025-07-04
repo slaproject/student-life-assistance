@@ -19,6 +19,7 @@ public class CalendarApiClient {
 
   private final String backendUrl = "http://localhost:8080/api/calendar/events";
   private final ObjectMapper objectMapper = new ObjectMapper();
+  private String jwtToken;
 
   public CalendarApiClient() {
     objectMapper.registerModule(new JavaTimeModule());
@@ -31,13 +32,18 @@ public class CalendarApiClient {
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
       conn.setRequestMethod("GET");
       conn.setRequestProperty("Accept", "application/json");
+      if (jwtToken != null) {
+        conn.setRequestProperty("Authorization", "Bearer " + jwtToken);
+      }
       if (conn.getResponseCode() != 200) {
+        System.out.println("Failed to get events. Response code: " + conn.getResponseCode());
         return new ArrayList<>();
       }
       InputStream is = conn.getInputStream();
       List<CalendarEvent> events = objectMapper.readValue(is, new TypeReference<List<CalendarEvent>>(){});
       is.close();
       conn.disconnect();
+      System.out.println("Retrieved " + events.size() + " events from API");
       return events;
     } catch (Exception e) {
       e.printStackTrace();
@@ -51,11 +57,23 @@ public class CalendarApiClient {
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
       conn.setRequestMethod("POST");
       conn.setRequestProperty("Content-Type", "application/json");
+      System.out.println("CalendarApiClient " + jwtToken);
+      if (jwtToken != null) {
+        conn.setRequestProperty("Authorization", "Bearer " + jwtToken);
+      } else {
+        System.out.println("No JWT token found");
+      }
       conn.setDoOutput(true);
       OutputStream os = conn.getOutputStream();
       objectMapper.writeValue(os, event);
       os.flush();
       os.close();
+      System.out.println(conn.getResponseCode());
+      InputStream errorStream = conn.getErrorStream();
+      if (errorStream != null) {
+        String errorResponse = new String(errorStream.readAllBytes(), StandardCharsets.UTF_8);
+        System.out.println("Error Response: " + errorResponse);
+      }
       if (conn.getResponseCode() != 200) {
         return null;
       }
@@ -63,6 +81,7 @@ public class CalendarApiClient {
       CalendarEvent created = objectMapper.readValue(is, CalendarEvent.class);
       is.close();
       conn.disconnect();
+      System.out.println("Hello   " + created.getEventName()+ " " + created.getEventType());
       return created;
     } catch (Exception e) {
       e.printStackTrace();
@@ -75,11 +94,18 @@ public class CalendarApiClient {
     return addEvent(event);
   }
 
+  public void setJwtToken(String token) {
+    this.jwtToken = token;
+  }
+
   public boolean deleteEvent(String id) {
     try {
       URL url = new URL(backendUrl + "/" + id);
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
       conn.setRequestMethod("DELETE");
+      if (jwtToken != null) {
+        conn.setRequestProperty("Authorization", "Bearer " + jwtToken);
+      }
       int responseCode = conn.getResponseCode();
       conn.disconnect();
       return responseCode == 200 || responseCode == 204;

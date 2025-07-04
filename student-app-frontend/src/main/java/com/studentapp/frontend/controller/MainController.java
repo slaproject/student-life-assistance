@@ -5,38 +5,22 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.Node;
 import com.studentapp.frontend.view.CalendarView;
 import com.studentapp.frontend.client.CalendarApiClient;
-import com.studentapp.common.model.CalendarEvent;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.ButtonType;
-import javafx.scene.layout.GridPane;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.util.Pair;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import java.io.File;
-import com.studentapp.frontend.controller.CalendarController;
 
-public class HelloController {
+public class MainController {
     @FXML
     private BorderPane rootPane;
 
     private CalendarApiClient apiClient = new CalendarApiClient();
     private CalendarView calendarView;
+    private String jwtToken;
     private CalendarController calendarController;
 
     public void setCenterContent(Node node) {
@@ -197,6 +181,10 @@ public class HelloController {
         }
     }
 
+    public void setJwtToken(String token) {
+        this.jwtToken = token;
+    }
+
     @FXML
     public void initialize() {
         showCalendar();
@@ -207,8 +195,8 @@ public class HelloController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/studentapp/frontend/calendar-view.fxml"));
             Node calendarRoot = loader.load();
             calendarController = loader.getController();
-            // Optionally, set the JWT token if you have it:
-            // calendarController.setJwtToken(token);
+            System.out.println("Main Controller: "+jwtToken);
+            calendarController.setJwtToken(jwtToken);
             setCenterContent(calendarRoot);
         } catch (Exception e) {
             e.printStackTrace();

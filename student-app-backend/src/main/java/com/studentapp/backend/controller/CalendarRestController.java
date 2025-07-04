@@ -10,35 +10,26 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/calendar")
 public class CalendarRestController {
 
   private final CalendarService calendarService;
-  @Autowired
-  private JwtUtil jwtUtil;
+  private final JwtUtil jwtUtil;
 
-  public CalendarRestController(CalendarService calendarService) {
+  @Autowired
+  public CalendarRestController(CalendarService calendarService, JwtUtil jwtUtil) {
     this.calendarService = calendarService;
+    this.jwtUtil = jwtUtil;
   }
 
-  private UUID extractUserIdFromRequest(HttpServletRequest request) throws NoSuchFieldException {
+  private UUID extractUserIdFromRequest(HttpServletRequest request) {
     String authHeader = request.getHeader("Authorization");
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
       String token = authHeader.substring(7);
-      String userIdStr = null;
-      try {
-        userIdStr = (String) io.jsonwebtoken.Jwts.parser()
-          .setSigningKey((String) jwtUtil.getClass().getDeclaredField("jwtSecret").get(jwtUtil))
-          .parseClaimsJws(token)
-          .getBody()
-          .get("userId");
-      } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
-      }
-      return UUID.fromString(userIdStr);
+      return jwtUtil.extractUserIdFromToken(token);
     }
     throw new RuntimeException("Invalid or missing Authorization header");
   }
