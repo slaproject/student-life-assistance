@@ -63,12 +63,17 @@ public class CalendarController implements Initializable {
 
     private void loadEventsForMonth(YearMonth yearMonth) {
         new Thread(() -> {
+            apiClient.setJwtToken(jwtToken); // Ensure JWT token is set
             List<CalendarEvent> events = apiClient.getEvents();
+            System.out.println("Events retrieved: " + events.size());
             allEvents = events;
+            
+            // Remove the yearMonth filter to show all events
             Map<LocalDate, List<CalendarEvent>> eventsByDate = events.stream()
-                    .filter(e -> e.getStartTime() != null &&
-                            YearMonth.from(e.getStartTime().toLocalDate()).equals(yearMonth))
+                    .filter(e -> e.getStartTime() != null)
                     .collect(Collectors.groupingBy(e -> e.getStartTime().toLocalDate()));
+            
+            System.out.println("Events by date: " + eventsByDate);
             Platform.runLater(() -> calendarView.updateCalendar(yearMonth, eventsByDate));
         }).start();
     }
@@ -182,6 +187,7 @@ public class CalendarController implements Initializable {
     }
 
     private void handleDeleteEvent(CalendarEvent event) {
+        apiClient.setJwtToken(jwtToken);
         apiClient.deleteEvent(event.getId());
         loadEventsForMonth(calendarView.getCurrentYearMonth());
     }
