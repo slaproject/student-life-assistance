@@ -34,14 +34,16 @@ public class LoginController {
         }
 
         String token = CalendarApiClient.login(username, password);
+        System.out.println("Login Controller Token : " + token);
         if (token != null && !token.equals("Invalid username or password")) {
             this.jwtToken = token;
             errorLabel.setText("");
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/studentapp/frontend/main-view.fxml"));
                 Parent mainRoot = loader.load();
-                com.studentapp.frontend.controller.HelloController helloController = loader.getController();
-                helloController.showCalendar();
+                MainController mainController = loader.getController();
+                mainController.setJwtToken(jwtToken);
+                mainController.showCalendar();
                 Stage stage = (Stage) usernameField.getScene().getWindow();
                 stage.setScene(new Scene(mainRoot, 900, 700));
             } catch (Exception e) {

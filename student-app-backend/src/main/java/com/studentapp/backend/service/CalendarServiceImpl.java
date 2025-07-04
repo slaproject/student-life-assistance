@@ -22,9 +22,6 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   public CalendarEvent saveEvent(CalendarEvent event, UUID userId) {
     event.setUserId(userId);
-    if (event.getId() == null || event.getId().isEmpty()) {
-      event.setId(UUID.randomUUID().toString());
-    }
     return calendarRepository.save(event);
   }
 

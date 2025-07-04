@@ -88,11 +88,11 @@ public class CalendarView extends VBox {
 
     addEventButton = new Button("Add Event");
     addEventButton.setOnAction(e -> {
-      System.out.println("Add Event button clicked. selectedDate=" + selectedDate);
+      System.out.println("[DEBUG] Add Event button clicked. selectedDate=" + selectedDate + ", onAddEvent=" + (onAddEvent != null));
       if (onAddEvent != null && selectedDate != null) {
         onAddEvent.accept(selectedDate);
       } else {
-        System.out.println("No date selected for Add Event.");
+        System.out.println("[DEBUG] No date selected for Add Event or onAddEvent is null.");
       }
     });
 
@@ -192,9 +192,9 @@ public class CalendarView extends VBox {
 
     dayCell.getChildren().add(dayLabel);
 
-    selectedDate = cellDate;
     dayCell.setOnMouseClicked(e -> {
       if (e.getButton() == MouseButton.PRIMARY) {
+        selectedDate = cellDate;
         if (onDayClick != null) {
           onDayClick.accept(cellDate);
         }
@@ -253,7 +253,6 @@ public class CalendarView extends VBox {
 
   public void setJwtToken(String token) {
     this.jwtToken = token;
-    refreshEvents();
   }
 
   public void loadAndDisplayEvents() {

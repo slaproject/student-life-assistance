@@ -10,12 +10,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 
 @Entity
 @Table(name = "calendar_events")
 public class CalendarEvent {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
   private String id;
 
   @Column(name = "event_name", nullable = false)
@@ -50,7 +53,6 @@ public class CalendarEvent {
 
   public CalendarEvent(String title,String description, LocalDateTime startTime,
                        LocalDateTime endTime, String meetingLinks) {
-    this.id = java.util.UUID.randomUUID().toString();
     this.eventName = title;
     this.description = description;
     this.startTime = startTime;
