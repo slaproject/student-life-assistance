@@ -54,6 +54,11 @@ public class CalendarController implements Initializable {
         }
     }
 
+    public void clearJwtToken() {
+        this.jwtToken = null;
+        apiClient.clearJwtToken();
+    }
+
     private void setupListeners() {
         calendarView.setOnMonthChangeListener(this::loadEventsForMonth);
         calendarView.setOnAddEventListener(this::handleAddEvent);

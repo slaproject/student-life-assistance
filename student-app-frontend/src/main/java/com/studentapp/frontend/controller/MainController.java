@@ -3,6 +3,8 @@ package com.studentapp.frontend.controller;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.FileChooser;
@@ -201,6 +203,33 @@ public class MainController {
         } catch (Exception e) {
             e.printStackTrace();
             showInfoAlert("Error", "Failed to load calendar view: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleLogoutAction() {
+        try {
+            // Clear the JWT token in CalendarController
+            if (calendarController != null) {
+                calendarController.clearJwtToken();
+            }
+
+            // Clear the JWT token in MainController
+            this.jwtToken = null;
+
+            // Load the login view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/studentapp/frontend/login-view.fxml"));
+            Parent loginRoot = loader.load();
+
+            // Set the login view in the current stage
+            Stage stage = getCurrentStage();
+            if (stage != null) {
+                stage.setScene(new Scene(loginRoot));
+                stage.show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showInfoAlert("Error", "Failed to logout: " + e.getMessage());
         }
     }
 }
