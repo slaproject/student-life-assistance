@@ -50,7 +50,8 @@ public class SignupController {
         if (response == null) {
             errorLabel.setText("Signup failed. Please try again.");
         } else if (response.equalsIgnoreCase("User registered successfully")) {
-            errorLabel.setText("");
+            errorLabel.setStyle("-fx-text-fill: green;");
+            errorLabel.setText("Signup successful! You can now log in.");
             usernameField.clear();
             emailField.clear();
             passwordField.clear();

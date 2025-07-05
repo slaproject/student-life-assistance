@@ -98,6 +98,10 @@ public class CalendarApiClient {
     this.jwtToken = token;
   }
 
+  public void clearJwtToken() {
+    this.jwtToken = null;
+  }
+
   public boolean deleteEvent(String id) {
     try {
       URL url = new URL(backendUrl + "/" + id);

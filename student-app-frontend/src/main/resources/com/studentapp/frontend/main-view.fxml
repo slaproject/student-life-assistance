@@ -36,9 +36,12 @@
                 <MenuItem text="User Guide" onAction="#handleUserGuideAction"/>
                 <MenuItem text="About" onAction="#handleAboutAction"/>
             </Menu>
+            <Menu text="Account">
+                <MenuItem text="Logout" onAction="#handleLogoutAction"/>
+            </Menu>
         </MenuBar>
     </top>
     <center>
         <!-- Dynamic content will be loaded here by HelloController -->
     </center>
-</BorderPane> 
+</BorderPane>
