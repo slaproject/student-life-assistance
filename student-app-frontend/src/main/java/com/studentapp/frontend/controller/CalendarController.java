@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.Priority;
 
 public class CalendarController implements Initializable {
     @FXML
@@ -43,6 +44,7 @@ public class CalendarController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         calendarView = new CalendarView();
         rootVBox.getChildren().add(calendarView);
+        VBox.setVgrow(calendarView, Priority.ALWAYS);
         setupListeners();
         loadEventsForMonth(YearMonth.now());
     }
