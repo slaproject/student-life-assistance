@@ -44,10 +44,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-/**
- * A passive Calendar view component that only displays data.
- * It is managed by a controller and has no knowledge of services or APIs.
- */
+  /**
+   * A passive Calendar view component that only displays data.
+   * It is managed by a controller and has no knowledge of services or APIs.
+   * 
+   * New behavior: Clicking on a date directly opens the add event dialog.
+   * The legacy "Add Event" button is hidden by default.
+   */
 public class CalendarView extends VBox {
 
   private YearMonth currentYearMonth;
@@ -66,12 +69,19 @@ public class CalendarView extends VBox {
     this.currentYearMonth = YearMonth.now();
     this.selectedDate = LocalDate.now(); // Default to today
 
-    // Initialize components
     monthYearLabel = new Label();
     monthYearLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
     monthYearLabel.setAlignment(Pos.CENTER);
+    monthYearLabel.setMaxHeight(40);
+    monthYearLabel.setMaxWidth(Double.MAX_VALUE); // Allow label to expand
+    // Remove fixed minWidth and prefWidth for centering
+    // GridPane alignment for centering
+    javafx.geometry.HPos hCenter = javafx.geometry.HPos.CENTER;
+    javafx.scene.layout.GridPane.setHalignment(monthYearLabel, hCenter);
 
     Button previousMonthButton = new Button("←");
+    previousMonthButton.setMinWidth(40);
+    previousMonthButton.setPrefWidth(40);
     previousMonthButton.setOnAction(e -> {
       currentYearMonth = currentYearMonth.minusMonths(1);
       if (onMonthChange != null) {
@@ -80,6 +90,8 @@ public class CalendarView extends VBox {
     });
 
     Button nextMonthButton = new Button("→");
+    nextMonthButton.setMinWidth(40);
+    nextMonthButton.setPrefWidth(40);
     nextMonthButton.setOnAction(e -> {
       currentYearMonth = currentYearMonth.plusMonths(1);
       if (onMonthChange != null) {
@@ -87,20 +99,57 @@ public class CalendarView extends VBox {
       }
     });
 
+    Button goToButton = new Button("Go To");
+    goToButton.setMinWidth(60);
+    goToButton.setPrefWidth(60);
+    goToButton.setOnAction(e -> showGoToMonthDialog());
+
     calendarGrid = new GridPane();
     calendarGrid.setHgap(2);
-    calendarGrid.setVgap(2);
+    calendarGrid.setVgap(4);
     calendarGrid.setAlignment(Pos.CENTER);
     VBox.setVgrow(calendarGrid, Priority.ALWAYS);
     calendarGrid.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
     calendarGrid.setMinHeight(400);
-    calendarGrid.setMinWidth(600);
     calendarGrid.setStyle("-fx-background-color: #f8f8f8;");
 
-    HBox navigationBar = new HBox(10, previousMonthButton, monthYearLabel, nextMonthButton);
-    navigationBar.setAlignment(Pos.CENTER);
+    // Use GridPane for consistent navigation layout
+    GridPane navigationGrid = new GridPane();
+    navigationGrid.setHgap(10);
+    navigationGrid.setVgap(5);
+    navigationGrid.setAlignment(Pos.CENTER);
+    
+    // Add column constraints for consistent positioning
+    ColumnConstraints leftCol = new ColumnConstraints();
+    leftCol.setPrefWidth(40);
+    leftCol.setMinWidth(40);
+    leftCol.setMaxWidth(40);
+    
+    ColumnConstraints centerCol = new ColumnConstraints();
+    centerCol.setPrefWidth(200);
+    centerCol.setMinWidth(200);
+    centerCol.setHgrow(Priority.ALWAYS);
+    
+    ColumnConstraints rightCol = new ColumnConstraints();
+    rightCol.setPrefWidth(40);
+    rightCol.setMinWidth(40);
+    rightCol.setMaxWidth(40);
+    
+    ColumnConstraints goToCol = new ColumnConstraints();
+    goToCol.setPrefWidth(60);
+    goToCol.setMinWidth(60);
+    goToCol.setMaxWidth(60);
+    
+    navigationGrid.getColumnConstraints().addAll(leftCol, centerCol, rightCol, goToCol);
+    
+    navigationGrid.add(previousMonthButton, 0, 0);
+    navigationGrid.add(monthYearLabel, 1, 0);
+    navigationGrid.add(nextMonthButton, 2, 0);
+    navigationGrid.add(goToButton, 3, 0);
 
-    addEventButton = new Button("Add Event");
+    // Add Event button is no longer needed since clicking on a date directly opens the add event dialog
+    // Keeping the button for now but making it optional - can be removed later if desired
+    addEventButton = new Button("Add Event (Legacy)");
     addEventButton.setOnAction(e -> {
       System.out.println("[DEBUG] Add Event button clicked. selectedDate=" + selectedDate + ", onAddEvent=" + (onAddEvent != null));
       if (onAddEvent != null && selectedDate != null) {
@@ -109,15 +158,21 @@ public class CalendarView extends VBox {
         System.out.println("[DEBUG] No date selected for Add Event or onAddEvent is null.");
       }
     });
+    // Hide the button by default since the new flow doesn't need it
+    addEventButton.setVisible(false);
 
-    this.getChildren().addAll(navigationBar, calendarGrid, addEventButton);
+    // Add some padding/margin to navigation
+    VBox.setMargin(navigationGrid, new Insets(16, 0, 24, 0));
+
+    // Only the calendar grid should grow vertically
+    VBox.setVgrow(calendarGrid, Priority.ALWAYS);
+
+    this.getChildren().addAll(navigationGrid, calendarGrid, addEventButton);
     this.setFillWidth(true);
-    this.setPrefHeight(600);
-    this.setPrefWidth(900);
-    this.setPadding(new Insets(10));
-    this.setSpacing(10);
+    this.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+    this.setPadding(new Insets(4, 16, 16, 16)); // Minimal top padding, others unchanged
+    this.setSpacing(0); // Let margins handle spacing
     this.setStyle("-fx-background-color: white; -fx-border-color: #cccccc; -fx-border-width: 1;");
-    // Load events after UI setup (if jwtToken is set later, call refreshEvents())
   }
 
   /**
@@ -126,38 +181,49 @@ public class CalendarView extends VBox {
    * @param events A map where the key is a date and the value is a list of events for that date.
    */
   public void updateCalendar(YearMonth yearMonth, Map<LocalDate, List<CalendarEvent>> events) {
-    System.out.println("updateCalendar called for: " + yearMonth + ", events.size=" + (events != null ? events.size() : 0));
+    System.out.println("[DEBUG] updateCalendar called for: " + yearMonth + ", events.size=" + (events != null ? events.size() : 0));
     if (events != null) {
       events.forEach((date, eventList) -> {
-        System.out.println("Date: " + date + " has " + eventList.size() + " events");
+        System.out.println("[DEBUG] Date: " + date + " has " + eventList.size() + " events");
       });
     }
     this.currentYearMonth = yearMonth;
     calendarGrid.getChildren().clear();
     calendarGrid.getColumnConstraints().clear();
     calendarGrid.getRowConstraints().clear();
+    
+    // Make columns responsive - each column takes equal width
     for (int i = 0; i < 7; i++) {
       ColumnConstraints colConst = new ColumnConstraints();
       colConst.setPercentWidth(100.0 / 7);
       colConst.setFillWidth(true);
+      colConst.setMinWidth(80); // Minimum width for readability
       calendarGrid.getColumnConstraints().add(colConst);
     }
+    
+    // Make rows responsive - header row and 6 data rows
     for (int i = 0; i < 7; i++) {
       RowConstraints rowConst = new RowConstraints();
-      rowConst.setPercentHeight(100.0 / 7);
-      rowConst.setFillHeight(true);
+      if (i == 0) {
+        // Header row - reduced height
+        rowConst.setPrefHeight(24);
+        rowConst.setMinHeight(24);
+      } else {
+        // Data rows - expand to fill available space
+        rowConst.setPercentHeight(100.0 / 6);
+        rowConst.setFillHeight(true);
+        rowConst.setMinHeight(80); // Minimum height for events
+      }
       calendarGrid.getRowConstraints().add(rowConst);
     }
 
     monthYearLabel.setText(currentYearMonth.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + currentYearMonth.getYear());
 
-    // Day headers
     String[] dayNames = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     for (int i = 0; i < 7; i++) {
       Label dayHeader = new Label(dayNames[i]);
       dayHeader.setAlignment(Pos.CENTER);
       dayHeader.setFont(Font.font("System", FontWeight.BOLD, 12));
-      dayHeader.setPrefSize(80, 30);
       dayHeader.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
       dayHeader.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #cccccc; -fx-border-width: 1;");
       calendarGrid.add(dayHeader, i, 0);
@@ -172,31 +238,26 @@ public class CalendarView extends VBox {
       for (int col = 0; col < 7; col++) {
         if (row == 1 && col < dayOfWeek) {
           addEmptyCell(col, row);
-          System.out.println("Added empty cell at (" + col + ", " + row + ")");
         } else if (dayNumber <= currentYearMonth.lengthOfMonth()) {
           LocalDate cellDate = currentYearMonth.atDay(dayNumber);
           List<CalendarEvent> dayEvents = events.getOrDefault(cellDate, Collections.emptyList());
           VBox dayCell = createDayCell(dayNumber, dayEvents);
           calendarGrid.add(dayCell, col, row);
-          System.out.println("Added day cell for day " + dayNumber + " at (" + col + ", " + row + ")");
           dayNumber++;
         } else {
           addEmptyCell(col, row);
-          System.out.println("Added empty cell at (" + col + ", " + row + ")");
         }
       }
     }
-    System.out.println("calendarGrid children count after update: " + calendarGrid.getChildren().size());
   }
 
   private VBox createDayCell(int day, List<CalendarEvent> events) {
     VBox dayCell = new VBox(2);
-    dayCell.setPrefSize(80, 60);
+    dayCell.setPrefSize(100, 60);
     dayCell.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
     dayCell.setAlignment(Pos.TOP_LEFT);
     dayCell.setPadding(new Insets(2));
-    dayCell.setMinWidth(80);
-    dayCell.setMinHeight(60);
+    dayCell.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1;");
 
     LocalDate cellDate = currentYearMonth.atDay(day);
 
@@ -212,41 +273,79 @@ public class CalendarView extends VBox {
 
     dayCell.getChildren().add(dayLabel);
 
+    // Add hover effects to indicate clickability
+    dayCell.setOnMouseEntered(e -> {
+      dayCell.setCursor(javafx.scene.Cursor.HAND);
+      dayCell.setStyle("-fx-background-color: #f0f8ff; -fx-border-color: #4CAF50; -fx-border-width: 2;");
+    });
+    
+    dayCell.setOnMouseExited(e -> {
+      dayCell.setCursor(javafx.scene.Cursor.DEFAULT);
+      if (cellDate.equals(LocalDate.now())) {
+        dayCell.setStyle("-fx-background-color: #e3f2fd; -fx-border-color: black; -fx-border-width: 2;");
+      } else {
+        dayCell.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1;");
+      }
+    });
+
     dayCell.setOnMouseClicked(e -> {
       if (e.getButton() == MouseButton.PRIMARY) {
         selectedDate = cellDate;
+        // Directly trigger add event when a date is clicked
+        if (onAddEvent != null) {
+          onAddEvent.accept(cellDate);
+        }
+        // Also call the day click listener for any other functionality
         if (onDayClick != null) {
           onDayClick.accept(cellDate);
         }
       }
     });
 
-    // Add event rectangles
+    // Add event rectangles with scrolling
     if (!events.isEmpty()) {
-      System.out.println("Creating " + events.size() + " event rectangles for day " + day);
-      VBox eventsContainer = new VBox(1);
+      System.out.println("[DEBUG] Adding " + events.size() + " events for day " + day);
+      
+      // Create a scrollable container for events
+      javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane();
+      scrollPane.setMaxWidth(Double.MAX_VALUE);
+      scrollPane.setMaxHeight(100); // Limit height to prevent taking all space
+      scrollPane.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
+      scrollPane.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
+      scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
+      scrollPane.setPadding(new Insets(0));
+      scrollPane.setFitToWidth(true);
+      
+      VBox eventsContainer = new VBox(2);
       eventsContainer.setAlignment(Pos.TOP_LEFT);
       eventsContainer.setMaxWidth(Double.MAX_VALUE);
-      VBox.setVgrow(eventsContainer, Priority.ALWAYS);
+      eventsContainer.setPadding(new Insets(2));
+      eventsContainer.setStyle("-fx-background-color: transparent;");
       
       for (CalendarEvent event : events) {
-        StackPane eventRectangle = createEventRectangle(event, 72); // Use fixed width for now
+        StackPane eventRectangle = createEventRectangle(event);
         eventsContainer.getChildren().add(eventRectangle);
+        System.out.println("[DEBUG] Added event rectangle for: " + event.getEventName());
       }
       
-      dayCell.getChildren().add(eventsContainer);
+      scrollPane.setContent(eventsContainer);
+      VBox.setVgrow(scrollPane, Priority.NEVER); // Don't grow to fill all space
+      dayCell.getChildren().add(scrollPane);
+    } else {
+      System.out.println("[DEBUG] No events for day " + day);
     }
 
     return dayCell;
   }
 
-  private StackPane createEventRectangle(CalendarEvent event, double cellWidth) {
+  private StackPane createEventRectangle(CalendarEvent event) {
+    System.out.println("[DEBUG] Creating event rectangle for: " + event.getEventName() + " with type: " + event.getEventType());
+    
     // Create a rectangle for the event
     Rectangle rectangle = new Rectangle();
-    rectangle.setHeight(14);
-    rectangle.setWidth(cellWidth - 8); // Dynamic width based on cell
-    rectangle.setArcWidth(3);
-    rectangle.setArcHeight(3);
+    rectangle.setHeight(18);
+    rectangle.setArcWidth(4);
+    rectangle.setArcHeight(4);
     
     // Set color based on event type
     Color eventColor = getEventTypeColor(event.getEventType());
@@ -261,9 +360,8 @@ public class CalendarView extends VBox {
     }
     
     Text eventText = new Text(displayText);
-    eventText.setFont(Font.font("System", 8));
+    eventText.setFont(Font.font("System", 9));
     eventText.setFill(Color.WHITE);
-    eventText.setWrappingWidth(cellWidth - 12); // Dynamic text wrapping
     
     // Create StackPane to overlay text on rectangle
     StackPane eventPane = new StackPane();
@@ -271,9 +369,18 @@ public class CalendarView extends VBox {
     eventPane.setAlignment(Pos.CENTER_LEFT);
     eventPane.setPadding(new Insets(1));
     eventPane.setMaxWidth(Double.MAX_VALUE);
+    eventPane.setMinHeight(18);
+    eventPane.setPrefHeight(18);
+    
+    // Bind rectangle width to pane width
+    rectangle.widthProperty().bind(eventPane.widthProperty().subtract(4));
+    eventText.setWrappingWidth(0); // Let text wrap naturally
     
     // Add click handler for event details popup
     eventPane.setOnMouseClicked(ev -> {
+      // Stop event propagation to prevent the day cell click handler from firing
+      ev.consume();
+      
       if (ev.getButton() == MouseButton.PRIMARY) {
         showEventDetailsPopup(event);
       } else if (ev.getButton() == MouseButton.SECONDARY) {
@@ -289,15 +396,21 @@ public class CalendarView extends VBox {
     
     // Add hover effect
     eventPane.setOnMouseEntered(ev -> {
+      // Stop event propagation to prevent day cell hover effects
+      ev.consume();
       rectangle.setStroke(Color.WHITE);
       rectangle.setStrokeWidth(1.5);
       eventPane.setCursor(javafx.scene.Cursor.HAND);
+      eventPane.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 2, 0, 0, 1);");
     });
     
     eventPane.setOnMouseExited(ev -> {
+      // Stop event propagation to prevent day cell hover effects
+      ev.consume();
       rectangle.setStroke(Color.BLACK);
       rectangle.setStrokeWidth(0.5);
       eventPane.setCursor(javafx.scene.Cursor.DEFAULT);
+      eventPane.setStyle("");
     });
     
     return eventPane;
@@ -310,29 +423,28 @@ public class CalendarView extends VBox {
     
     switch (eventType) {
       case MEETING:
-        return Color.BLUE;
+        return Color.rgb(52, 152, 219); 
       case PERSONAL:
-        return Color.GREEN;
+        return Color.rgb(46, 204, 113); 
       case FINANCIAL:
-        return Color.ORANGE;
+        return Color.rgb(230, 126, 34);
       case APPOINTMENT:
-        return Color.PURPLE;
+        return Color.rgb(155, 89, 182); 
       case OTHER:
       default:
-        return Color.GRAY;
+        return Color.rgb(149, 165, 166); 
     }
   }
 
   private void showEventDetailsPopup(CalendarEvent event) {
     Dialog<CalendarEvent> dialog = new Dialog<>();
-    dialog.setTitle("Event Details");
-    dialog.setHeaderText(event.getEventName());
+    dialog.setTitle(event.getEventName().toString());
     dialog.setResizable(true);
     dialog.setWidth(500);
-    dialog.setHeight(400);
+    dialog.setHeight(500);
 
-    // Create custom dialog pane
     DialogPane dialogPane = dialog.getDialogPane();
+    // Restore the default close button
     dialogPane.getButtonTypes().addAll(ButtonType.CLOSE);
 
     // Create form layout
@@ -390,7 +502,7 @@ public class CalendarView extends VBox {
 
     // Create buttons
     Button editButton = new Button("Edit");
-    editButton.setStyle("-fx-background-color: #87CEEB; -fx-text-fill: white; -fx-font-weight: bold;");
+    editButton.setStyle("-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold; -fx-border-color:rgb(109, 109, 109); -fx-border-width: 2;");
     
     Button deleteButton = new Button("Delete");
     deleteButton.setStyle("-fx-background-color: #FF6B6B; -fx-text-fill: white; -fx-font-weight: bold;");
@@ -401,7 +513,6 @@ public class CalendarView extends VBox {
     buttonBox.getChildren().addAll(editButton, deleteButton);
     grid.add(buttonBox, 1, 6);
 
-    // Edit button functionality
     editButton.setOnAction(e -> {
       boolean isEditing = !nameField.isEditable();
       if (isEditing) {
@@ -413,7 +524,7 @@ public class CalendarView extends VBox {
         typeCombo.setDisable(false);
         linksField.setEditable(true);
         editButton.setText("Save");
-        editButton.setStyle("-fx-background-color: #32CD32; -fx-text-fill: white; -fx-font-weight: bold;");
+        editButton.setStyle("-fx-background-color: #32CD32; -fx-text-fill: white; -fx-font-weight: bold; -fx-border-color: #32CD32; -fx-border-width: 2;");
       } else {
         // Save changes
         try {
@@ -439,7 +550,7 @@ public class CalendarView extends VBox {
           typeCombo.setDisable(true);
           linksField.setEditable(false);
           editButton.setText("Edit");
-          editButton.setStyle("-fx-background-color: #87CEEB; -fx-text-fill: white; -fx-font-weight: bold;");
+          editButton.setStyle("-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold; -fx-border-color:rgb(109, 109, 109); -fx-border-width: 2;");
           
         } catch (Exception ex) {
           Alert errorAlert = new Alert(AlertType.ERROR);
@@ -455,7 +566,7 @@ public class CalendarView extends VBox {
     deleteButton.setOnAction(e -> {
       Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
       confirmAlert.setTitle("Confirm Delete");
-      confirmAlert.setHeaderText("Delete Event");
+      // confirmAlert.setHeaderText("Delete Event");
       confirmAlert.setContentText("Are you sure you want to delete this event?");
       
       Optional<ButtonType> result = confirmAlert.showAndWait();
@@ -473,10 +584,83 @@ public class CalendarView extends VBox {
 
   private void addEmptyCell(int col, int row) {
     Label emptyLabel = new Label("");
-    emptyLabel.setPrefSize(80, 60);
     emptyLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
     emptyLabel.setStyle("-fx-background-color: #fafafa; -fx-border-color: black; -fx-border-width: 1;");
     calendarGrid.add(emptyLabel, col, row);
+  }
+
+  private void showGoToMonthDialog() {
+    Dialog<YearMonth> dialog = new Dialog<>();
+    dialog.setTitle("Go to Month");
+    dialog.setResizable(false);
+    dialog.setWidth(300);
+    dialog.setHeight(200);
+
+    DialogPane dialogPane = dialog.getDialogPane();
+    dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+    // Create form layout
+    GridPane grid = new GridPane();
+    grid.setHgap(10);
+    grid.setVgap(10);
+    grid.setPadding(new Insets(20, 20, 10, 20));
+
+    // Month selection
+    Label monthLabel = new Label("Month:");
+    ComboBox<String> monthCombo = new ComboBox<>();
+    monthCombo.getItems().addAll(
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    );
+    monthCombo.setValue(currentYearMonth.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
+    monthCombo.setPrefWidth(150);
+    grid.add(monthLabel, 0, 0);
+    grid.add(monthCombo, 1, 0);
+
+    // Year selection
+    Label yearLabel = new Label("Year:");
+    ComboBox<Integer> yearCombo = new ComboBox<>();
+    int currentYear = currentYearMonth.getYear();
+    for (int year = currentYear - 10; year <= currentYear + 10; year++) {
+      yearCombo.getItems().add(year);
+    }
+    yearCombo.setValue(currentYear);
+    yearCombo.setPrefWidth(150);
+    grid.add(yearLabel, 0, 1);
+    grid.add(yearCombo, 1, 1);
+
+    dialogPane.setContent(grid);
+
+    // Set result converter
+    dialog.setResultConverter(dialogButton -> {
+      if (dialogButton == ButtonType.OK) {
+        try {
+          String selectedMonth = monthCombo.getValue();
+          Integer selectedYear = yearCombo.getValue();
+          
+          if (selectedMonth != null && selectedYear != null) {
+            // Convert month name to month number
+            java.time.Month month = java.time.Month.valueOf(selectedMonth.toUpperCase());
+            return YearMonth.of(selectedYear, month);
+          }
+        } catch (Exception e) {
+          Alert errorAlert = new Alert(AlertType.ERROR);
+          errorAlert.setTitle("Error");
+          errorAlert.setHeaderText("Invalid Selection");
+          errorAlert.setContentText("Please select valid month and year.");
+          errorAlert.showAndWait();
+        }
+      }
+      return null;
+    });
+
+    Optional<YearMonth> result = dialog.showAndWait();
+    result.ifPresent(yearMonth -> {
+      currentYearMonth = yearMonth;
+      if (onMonthChange != null) {
+        onMonthChange.accept(currentYearMonth);
+      }
+    });
   }
 
   public void setOnMonthChangeListener(Consumer<YearMonth> listener) {
@@ -493,6 +677,14 @@ public class CalendarView extends VBox {
 
   public void setOnDeleteEventListener(Consumer<CalendarEvent> listener) { this.onDeleteEvent = listener; }
 
+  /**
+   * Optionally show the legacy "Add Event" button.
+   * By default, the button is hidden since clicking on dates directly opens the add event dialog.
+   */
+  public void setShowLegacyAddButton(boolean show) {
+    addEventButton.setVisible(show);
+  }
+
   public YearMonth getCurrentYearMonth() {
     return currentYearMonth;
   }
@@ -502,12 +694,30 @@ public class CalendarView extends VBox {
   }
 
   public void loadAndDisplayEvents() {
-    if (jwtToken == null) return;
+    if (jwtToken == null) {
+      System.out.println("[DEBUG] JWT token is null, cannot load events");
+      return;
+    }
+    System.out.println("[DEBUG] Loading events with JWT token: " + jwtToken.substring(0, Math.min(20, jwtToken.length())) + "...");
+    
     String eventsJson = com.studentapp.frontend.client.CalendarApiClient.getEvents(jwtToken);
+    System.out.println("[DEBUG] Received events JSON: " + eventsJson);
+    
     List<CalendarEvent> events = new Gson().fromJson(eventsJson, new TypeToken<List<CalendarEvent>>(){}.getType());
-    Map<LocalDate, List<CalendarEvent>> eventsByDate = events.stream()
-        .collect(Collectors.groupingBy(event -> event.getStartTime().toLocalDate()));
-    updateCalendar(currentYearMonth, eventsByDate);
+    System.out.println("[DEBUG] Parsed " + (events != null ? events.size() : 0) + " events");
+    
+    if (events != null) {
+      Map<LocalDate, List<CalendarEvent>> eventsByDate = events.stream()
+          .collect(Collectors.groupingBy(event -> event.getStartTime().toLocalDate()));
+      System.out.println("[DEBUG] Grouped events by date: " + eventsByDate.size() + " dates have events");
+      eventsByDate.forEach((date, eventList) -> {
+        System.out.println("[DEBUG] Date " + date + " has " + eventList.size() + " events");
+      });
+      updateCalendar(currentYearMonth, eventsByDate);
+    } else {
+      System.out.println("[DEBUG] Events list is null, updating calendar with empty map");
+      updateCalendar(currentYearMonth, Collections.emptyMap());
+    }
   }
 
   public void refreshEvents() {
