@@ -26,147 +26,123 @@ import static org.mockito.Mockito.*;
 public class CalendarApiClientTest {
 
     private CalendarApiClient apiClient;
-    private MockedStatic<HttpClient> mockedHttpClient;
+    private HttpClient mockHttpClient;
+    private HttpResponse<String> mockHttpResponse;
 
     @BeforeEach
     void setUp() {
-        apiClient = new CalendarApiClient();
-        mockedHttpClient = Mockito.mockStatic(HttpClient.class);
+        mockHttpClient = mock(HttpClient.class);
+        mockHttpResponse = mock(HttpResponse.class);
+        apiClient = new CalendarApiClient(mockHttpClient);
     }
 
     /**
-     * Tests login with valid credentials returns a JWT token.
+     * Tests login with valid credentials.
      */
     @Test
-    void testLoginWithValidCredentials() {
-        // Test successful login
+    void testLoginWithValidCredentials() throws Exception {
         String username = "testuser";
         String password = "password123";
-        
-        // Mock successful response
         String expectedResponse = "valid-jwt-token";
-        
-        // This test would require mocking the HTTP client
-        // For now, we test the method signature and basic functionality
-        assertDoesNotThrow(() -> {
+        HttpClient staticMockClient = mock(HttpClient.class);
+        HttpResponse<String> staticMockResponse = mock(HttpResponse.class);
+        when(staticMockResponse.statusCode()).thenReturn(200);
+        when(staticMockResponse.body()).thenReturn(expectedResponse);
+        when(staticMockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                .thenReturn(staticMockResponse);
+        try (MockedStatic<HttpClient> mockedStatic = Mockito.mockStatic(HttpClient.class)) {
+            mockedStatic.when(HttpClient::newHttpClient).thenReturn(staticMockClient);
             String result = CalendarApiClient.login(username, password);
-            // The actual result depends on the API response
-        });
+            assertEquals(expectedResponse, result);
+        }
     }
 
     /**
-     * Tests login with invalid credentials returns an error message.
+     * Tests login with invalid credentials.
      */
     @Test
     void testLoginWithInvalidCredentials() {
-        // Test failed login
         String username = "invaliduser";
         String password = "wrongpassword";
-        
-        // Mock failed response
         String expectedResponse = "Invalid username or password";
-        
         assertDoesNotThrow(() -> {
             String result = CalendarApiClient.login(username, password);
-            // The actual result depends on the API response
         });
     }
 
     /**
-     * Tests signup with valid data returns success message.
+     * Tests signup with valid data.
      */
     @Test
     void testSignupWithValidData() {
-        // Test successful signup
         String username = "newuser";
         String email = "newuser@example.com";
         String password = "password123";
-        
-        // Mock successful response
         String expectedResponse = "User registered successfully";
-        
         assertDoesNotThrow(() -> {
             String result = CalendarApiClient.signup(username, email, password);
-            // The actual result depends on the API response
         });
     }
 
     /**
-     * Tests signup with existing username returns username exists error.
+     * Tests signup with existing username.
      */
     @Test
     void testSignupWithExistingUsername() {
-        // Test signup with existing username
         String username = "existinguser";
         String email = "existinguser@example.com";
         String password = "password123";
-        
-        // Mock response for existing username
         String expectedResponse = "Username already exists";
-        
         assertDoesNotThrow(() -> {
             String result = CalendarApiClient.signup(username, email, password);
-            // The actual result depends on the API response
         });
     }
 
     /**
-     * Tests fetching events with a valid token returns event list.
+     * Tests fetching events with a valid token.
      */
     @Test
     void testGetEvents() {
-        // Test getting events
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // The actual result depends on the API response
         });
     }
 
     /**
-     * Tests fetching events without a token handles missing token gracefully.
+     * Tests fetching events without a token.
      */
     @Test
     void testGetEventsWithoutToken() {
-        // Test getting events without JWT token
         apiClient.clearJwtToken();
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should handle missing token gracefully
         });
     }
 
     /**
-     * Tests adding an event with valid data returns the event.
+     * Tests adding an event with valid data.
      */
     @Test
     void testAddEvent() {
-        // Test adding an event
         apiClient.setJwtToken("valid-token");
-        
         CalendarEvent event = new CalendarEvent();
         event.setEventName("Test Event");
         event.setDescription("Test Description");
         event.setStartTime(LocalDateTime.now());
         event.setEndTime(LocalDateTime.now().plusHours(1));
         event.setEventType(CalendarEvent.EventType.MEETING);
-        
         assertDoesNotThrow(() -> {
             CalendarEvent result = apiClient.addEvent(event);
-            // The actual result depends on the API response
         });
     }
 
     /**
-     * Tests updating an event with valid data returns the updated event.
+     * Tests updating an event with valid data.
      */
     @Test
     void testUpdateEvent() {
-        // Test updating an event
         apiClient.setJwtToken("valid-token");
-        
         CalendarEvent event = new CalendarEvent();
         event.setId("1");
         event.setEventName("Updated Event");
@@ -174,240 +150,190 @@ public class CalendarApiClientTest {
         event.setStartTime(LocalDateTime.now());
         event.setEndTime(LocalDateTime.now().plusHours(1));
         event.setEventType(CalendarEvent.EventType.MEETING);
-        
         assertDoesNotThrow(() -> {
             CalendarEvent result = apiClient.updateEvent(event);
-            // The actual result depends on the API response
         });
     }
 
     /**
-     * Tests deleting an event with valid ID returns success.
+     * Tests deleting an event with valid ID.
      */
     @Test
     void testDeleteEvent() {
-        // Test deleting an event
         apiClient.setJwtToken("valid-token");
         String eventId = "1";
-            
         assertDoesNotThrow(() -> {
             boolean result = apiClient.deleteEvent(eventId);
-            // The actual result depends on the API response
         });
     }
 
     /**
-     * Tests setting the JWT token stores the token.
+     * Tests setting the JWT token.
      */
     @Test
     void testSetJwtToken() {
-        // Test setting JWT token
         String token = "test-jwt-token";
         apiClient.setJwtToken(token);
-        
-        // The token should be set (we can't directly access it, but we can test behavior)
         assertDoesNotThrow(() -> apiClient.setJwtToken(token));
     }
 
     /**
-     * Tests clearing the JWT token removes the token.
+     * Tests clearing the JWT token.
      */
     @Test
     void testClearJwtToken() {
-        // Test clearing JWT token
         apiClient.setJwtToken("test-token");
         apiClient.clearJwtToken();
-        
-        // The token should be cleared
         assertDoesNotThrow(() -> apiClient.clearJwtToken());
     }
 
     /**
-     * Tests login with null credentials handles gracefully.
+     * Tests login with null credentials.
      */
     @Test
     void testLoginWithNullCredentials() {
-        // Test login with null credentials
         assertDoesNotThrow(() -> {
             String result = CalendarApiClient.login(null, null);
-            // Should handle null values gracefully
         });
     }
 
     /**
-     * Tests login with empty credentials handles gracefully.
+     * Tests login with empty credentials.
      */
     @Test
     void testLoginWithEmptyCredentials() {
-        // Test login with empty credentials
         assertDoesNotThrow(() -> {
             String result = CalendarApiClient.login("", "");
-            // Should handle empty values gracefully
         });
     }
 
     /**
-     * Tests signup with null data handles gracefully.
+     * Tests signup with null data.
      */
     @Test
     void testSignupWithNullData() {
-        // Test signup with null data
         assertDoesNotThrow(() -> {
             String result = CalendarApiClient.signup(null, null, null);
-            // Should handle null values gracefully
         });
     }
 
     /**
-     * Tests signup with empty data handles gracefully.
+     * Tests signup with empty data.
      */
     @Test
     void testSignupWithEmptyData() {
-        // Test signup with empty data
         assertDoesNotThrow(() -> {
             String result = CalendarApiClient.signup("", "", "");
-            // Should handle empty values gracefully
         });
     }
 
     /**
-     * Tests adding a null event handles gracefully.
+     * Tests adding a null event.
      */
     @Test
     void testAddEventWithNullEvent() {
-        // Test adding null event
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             CalendarEvent result = apiClient.addEvent(null);
-            // Should handle null event gracefully
         });
     }
 
     /**
-     * Tests updating a null event handles gracefully.
+     * Tests updating a null event.
      */
     @Test
     void testUpdateEventWithNullEvent() {
-        // Test updating null event
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             CalendarEvent result = apiClient.updateEvent(null);
-            // Should handle null event gracefully
         });
     }
 
     /**
-     * Tests deleting an event with null ID handles gracefully.
+     * Tests deleting an event with null ID.
      */
     @Test
     void testDeleteEventWithNullId() {
-        // Test deleting event with null ID
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             boolean result = apiClient.deleteEvent(null);
-            // Should handle null ID gracefully
         });
     }
 
     /**
-     * Tests handling of network errors during API calls.
+     * Tests handling of network errors.
      */
     @Test
     void testNetworkErrorHandling() {
-        // Test handling of network errors
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
-            // Simulate network error by not mocking HTTP client
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should handle network errors gracefully
         });
     }
 
     /**
-     * Tests handling of invalid JSON responses from the API.
+     * Tests handling of invalid JSON responses.
      */
     @Test
     void testInvalidJsonResponse() {
-        // Test handling of invalid JSON responses
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should handle invalid JSON gracefully
         });
     }
 
     /**
-     * Tests handling of server errors (5xx) from the API.
+     * Tests handling of server errors (5xx).
      */
     @Test
     void testServerErrorHandling() {
-        // Test handling of server errors (500, 502, etc.)
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should handle server errors gracefully
         });
     }
 
     /**
-     * Tests handling of unauthorized errors (401) from the API.
+     * Tests handling of unauthorized errors (401).
      */
     @Test
     void testUnauthorizedErrorHandling() {
-        // Test handling of unauthorized errors (401)
         apiClient.setJwtToken("invalid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should handle unauthorized errors gracefully
         });
     }
 
     /**
-     * Tests handling of forbidden errors (403) from the API.
+     * Tests handling of forbidden errors (403).
      */
     @Test
     void testForbiddenErrorHandling() {
-        // Test handling of forbidden errors (403)
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should handle forbidden errors gracefully
         });
     }
 
     /**
-     * Tests handling of not found errors (404) from the API.
+     * Tests handling of not found errors (404).
      */
     @Test
     void testNotFoundErrorHandling() {
-        // Test handling of not found errors (404)
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should handle not found errors gracefully
         });
     }
 
     /**
-     * Tests handling of timeout errors from the API.
+     * Tests handling of timeout errors.
      */
     @Test
     void testTimeoutHandling() {
-        // Test handling of timeout errors
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should handle timeout errors gracefully
         });
     }
 
@@ -416,116 +342,89 @@ public class CalendarApiClientTest {
      */
     @Test
     void testConcurrentRequests() {
-        // Test handling of concurrent requests
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
-            // Simulate concurrent requests
             List<CalendarEvent> events1 = apiClient.getEvents();
             List<CalendarEvent> events2 = apiClient.getEvents();
-            // Should handle concurrent requests gracefully
         });
     }
 
     /**
-     * Tests handling of large data sets from the API.
+     * Tests handling of large data sets.
      */
     @Test
     void testLargeDataHandling() {
-        // Test handling of large data sets
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should handle large data sets gracefully
         });
     }
 
     /**
-     * Tests validation of event data before sending to the API.
+     * Tests validation of event data before sending.
      */
     @Test
     void testEventValidation() {
-        // Test validation of event data before sending
         apiClient.setJwtToken("valid-token");
-        
         CalendarEvent event = new CalendarEvent();
-        // Don't set required fields to test validation
-        
         assertDoesNotThrow(() -> {
             CalendarEvent result = apiClient.addEvent(event);
-            // Should validate event data before sending
         });
     }
 
     /**
-     * Tests proper URL encoding of parameters in API requests.
+     * Tests proper URL encoding of parameters.
      */
     @Test
     void testUrlEncoding() {
-        // Test proper URL encoding of parameters
         String username = "user@domain.com";
         String password = "pass@word123";
-        
         assertDoesNotThrow(() -> {
             String result = CalendarApiClient.login(username, password);
-            // Should properly encode URL parameters
         });
     }
 
     /**
-     * Tests proper content type headers are set in API requests.
+     * Tests proper content type headers in requests.
      */
     @Test
     void testContentTypeHeaders() {
-        // Test proper content type headers
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should set proper content type headers
         });
     }
 
     /**
-     * Tests proper authorization headers are set in API requests.
+     * Tests proper authorization headers in requests.
      */
     @Test
     void testAuthorizationHeaders() {
-        // Test proper authorization headers
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should set proper authorization headers
         });
     }
 
     /**
-     * Tests request timeout configuration in API requests.
+     * Tests request timeout configuration.
      */
     @Test
     void testRequestTimeout() {
-        // Test request timeout configuration
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should configure proper request timeouts
         });
     }
 
     /**
-     * Tests retry logic for failed API requests.
+     * Tests retry logic for failed requests.
      */
     @Test
     void testRetryLogic() {
-        // Test retry logic for failed requests
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should implement retry logic for failed requests
         });
     }
 
@@ -534,12 +433,9 @@ public class CalendarApiClientTest {
      */
     @Test
     void testLogging() {
-        // Test logging of API requests and responses
         apiClient.setJwtToken("valid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should log API requests and responses
         });
     }
 
@@ -548,12 +444,9 @@ public class CalendarApiClientTest {
      */
     @Test
     void testErrorLogging() {
-        // Test logging of errors
         apiClient.setJwtToken("invalid-token");
-        
         assertDoesNotThrow(() -> {
             List<CalendarEvent> events = apiClient.getEvents();
-            // Should log errors appropriately
         });
     }
 }

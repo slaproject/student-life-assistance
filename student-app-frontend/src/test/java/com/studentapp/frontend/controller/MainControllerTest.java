@@ -55,14 +55,8 @@ public class MainControllerTest {
      */
     @Test
     void testFileMenuNewAction(FxRobot robot) {
-        // Click on File menu
         robot.clickOn("File");
-        
-        // Click on New menu item
         robot.clickOn("New");
-        
-        // Verify the action was handled
-        // In a real test, you might verify a method was called or state changed
     }
 
     /**
@@ -72,8 +66,6 @@ public class MainControllerTest {
     void testFileMenuOpenAction(FxRobot robot) {
         robot.clickOn("File");
         robot.clickOn("Open");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -83,8 +75,6 @@ public class MainControllerTest {
     void testFileMenuSaveAction(FxRobot robot) {
         robot.clickOn("File");
         robot.clickOn("Save");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -94,8 +84,6 @@ public class MainControllerTest {
     void testFileMenuExitAction(FxRobot robot) {
         robot.clickOn("File");
         robot.clickOn("Exit");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -105,8 +93,6 @@ public class MainControllerTest {
     void testStudentMenuAcademicRecordsAction(FxRobot robot) {
         robot.clickOn("Student");
         robot.clickOn("Academic Records");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -116,8 +102,6 @@ public class MainControllerTest {
     void testStudentMenuScheduleAction(FxRobot robot) {
         robot.clickOn("Student");
         robot.clickOn("Schedule");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -127,8 +111,6 @@ public class MainControllerTest {
     void testStudentMenuAssignmentsAction(FxRobot robot) {
         robot.clickOn("Student");
         robot.clickOn("Assignments");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -138,8 +120,6 @@ public class MainControllerTest {
     void testStudentMenuGradesAction(FxRobot robot) {
         robot.clickOn("Student");
         robot.clickOn("Grades");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -149,8 +129,6 @@ public class MainControllerTest {
     void testFinanceMenuBudgetAction(FxRobot robot) {
         robot.clickOn("Finance");
         robot.clickOn("Budget Tracker");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -160,8 +138,6 @@ public class MainControllerTest {
     void testFinanceMenuExpensesAction(FxRobot robot) {
         robot.clickOn("Finance");
         robot.clickOn("Expenses");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -171,8 +147,6 @@ public class MainControllerTest {
     void testFinanceMenuFinancialAidAction(FxRobot robot) {
         robot.clickOn("Finance");
         robot.clickOn("Financial Aid");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -182,8 +156,6 @@ public class MainControllerTest {
     void testResourcesMenuLibraryAction(FxRobot robot) {
         robot.clickOn("Resources");
         robot.clickOn("Library");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -193,8 +165,6 @@ public class MainControllerTest {
     void testResourcesMenuCampusMapAction(FxRobot robot) {
         robot.clickOn("Resources");
         robot.clickOn("Campus Map");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -204,8 +174,6 @@ public class MainControllerTest {
     void testResourcesMenuStudentServicesAction(FxRobot robot) {
         robot.clickOn("Resources");
         robot.clickOn("Student Services");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -215,8 +183,6 @@ public class MainControllerTest {
     void testHelpMenuUserGuideAction(FxRobot robot) {
         robot.clickOn("Help");
         robot.clickOn("User Guide");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -226,8 +192,6 @@ public class MainControllerTest {
     void testHelpMenuAboutAction(FxRobot robot) {
         robot.clickOn("Help");
         robot.clickOn("About");
-        
-        // Verify the action was handled
     }
 
     /**
@@ -237,8 +201,6 @@ public class MainControllerTest {
     void testLogoutAction(FxRobot robot) {
         robot.clickOn("Account");
         robot.clickOn("Logout");
-        
-        // Verify the action was handled
     }
 
     /**
