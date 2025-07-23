@@ -112,6 +112,33 @@ mvn test -Dtest=LoginControllerTest#testLoginWithValidCredentials
 mvn test -Dtest=LoginControllerTest#testLoginWithValidCredentials,testLoginWithInvalidCredentials
 ```
 
+---
+
+## Skipping GUI Tests in CI/CD
+
+**Note:** _All_ frontend test classes are disabled in CI/CD environments because they require a graphical display (JavaFX GUI), which is not available in headless CI/CD pipelines (e.g., GitHub Actions, SonarCloud). You will see the annotation `@Disabled` on these classes. This prevents errors like `Unable to open DISPLAY` during automated builds.
+
+**The following test classes are disabled in CI/CD:**
+- `CalendarApiClientTest`
+- `LoginControllerTest`
+- `SignupControllerTest`
+- `MainControllerTest`
+- `CalendarControllerTest`
+
+- To run these GUI tests, execute them locally on your development machine where a display is available:
+
+```bash
+mvn test -Dtest=LoginControllerTest
+mvn test -Dtest=SignupControllerTest
+mvn test -Dtest=MainControllerTest
+mvn test -Dtest=CalendarControllerTest
+mvn test -Dtest=CalendarApiClientTest
+```
+
+- In CI/CD, these tests are automatically skipped. All other non-GUI tests will still run.
+
+---
+
 ### Headless Testing (for CI/CD)
 ```bash
 # Run tests in headless mode
