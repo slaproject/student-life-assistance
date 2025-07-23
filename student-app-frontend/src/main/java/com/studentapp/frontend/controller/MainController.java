@@ -232,4 +232,15 @@ public class MainController {
             showInfoAlert("Error", "Failed to logout: " + e.getMessage());
         }
     }
+
+    @FXML
+    private void handleTimerAction() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/studentapp/frontend/timer-view.fxml"));
+            Parent timerRoot = loader.load();
+            setCenterContent(timerRoot);
+        } catch (Exception e) {
+            showInfoAlert("Timer", "Failed to load Timer page: " + e.getMessage());
+        }
+    }
 }
