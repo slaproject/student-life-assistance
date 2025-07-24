@@ -22,10 +22,12 @@ import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 import org.mockito.Mockito;
 import org.testfx.util.WaitForAsyncUtils;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * Unit tests for SignupController, covering user registration, validation, and error handling.
  */
+@Disabled("Disabled in CI/CD due to JavaFX GUI tests requiring a display. Run locally for GUI testing.")
 @ExtendWith(ApplicationExtension.class)
 public class SignupControllerTest {
 

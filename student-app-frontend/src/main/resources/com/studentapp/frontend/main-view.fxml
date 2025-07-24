@@ -21,6 +21,7 @@
                 <MenuItem text="Schedule" onAction="#handleScheduleAction"/>
                 <MenuItem text="Assignments" onAction="#handleAssignmentsAction"/>
                 <MenuItem text="Grades" onAction="#handleGradesAction"/>
+                <MenuItem text="Timer" onAction="#handleTimerAction"/>
             </Menu>
             <Menu text="Finance">
                 <MenuItem text="Budget Tracker" onAction="#handleBudgetAction"/>
