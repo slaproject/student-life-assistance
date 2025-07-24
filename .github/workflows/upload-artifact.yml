@@ -14,4 +14,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mssql-jdbc-12.10.1
-          path: student-app-backend/src/lib/mssql-jdbc-12.10.1.jre11.jar 
+          path: student-app-backend/src/main/mssql-jdbc-12.10.1.jre11.jar 
