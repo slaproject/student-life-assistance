@@ -24,18 +24,20 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        if (username == null || username.isEmpty()) {
+        // Trim whitespace and check if empty
+        if (username == null || username.trim().isEmpty()) {
             errorLabel.setText("Username cannot be empty");
             return;
         }
-        if (password == null || password.isEmpty()) {
+        if (password == null || password.trim().isEmpty()) {
             errorLabel.setText("Password cannot be empty");
             return;
         }
 
-        String token = CalendarApiClient.login(username, password);
+        // Use trimmed values for login
+        String token = CalendarApiClient.login(username.trim(), password.trim());
         System.out.println("Login Controller Token : " + token);
-        if (token != null && !token.equals("Invalid username or password")) {
+        if (token != null && !token.equals("Invalid username or password") && !token.startsWith("Login error:")) {
             this.jwtToken = token;
             errorLabel.setText("");
             try {

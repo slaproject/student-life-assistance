@@ -11,6 +11,17 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class SignupController {
+    public interface SignupService {
+        String signup(String username, String email, String password);
+    }
+
+    private SignupService signupService = CalendarApiClient::signup;
+
+    // For testing
+    public void setSignupService(SignupService signupService) {
+        this.signupService = signupService;
+    }
+
     @FXML
     private TextField usernameField;
     @FXML
@@ -20,16 +31,21 @@ public class SignupController {
     @FXML
     private Label errorLabel;
 
+    // Helper to sanitize input by removing HTML tags
+    private String sanitizeInput(String input) {
+        return input == null ? null : input.replaceAll("<[^>]*>", "");
+    }
+
     public void handleSignup() {
-        String username = usernameField.getText();
-        String email = emailField.getText();
-        String password = passwordField.getText();
+        String username = sanitizeInput(usernameField.getText());
+        String email = sanitizeInput(emailField.getText());
+        String password = sanitizeInput(passwordField.getText());
 
         if (username == null || username.isEmpty()) {
             errorLabel.setText("Username cannot be empty");
             return;
         }
-        if (email == null || email.isEmpty() || !email.contains("@")) {
+        if (email == null || email.isEmpty() || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
             errorLabel.setText("Please enter a valid email address");
             return;
         }
@@ -46,7 +62,7 @@ public class SignupController {
             return;
         }
 
-        String response = CalendarApiClient.signup(username, email, password);
+        String response = signupService.signup(username, email, password);
         if (response == null) {
             errorLabel.setText("Signup failed. Please try again.");
         } else if (response.equalsIgnoreCase("User registered successfully")) {
