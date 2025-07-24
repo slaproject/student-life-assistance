@@ -39,7 +39,7 @@ import static org.testfx.matcher.control.LabeledMatchers.hasText;
  */
 @Disabled("Disabled in CI/CD due to JavaFX GUI tests requiring a display. Run locally for GUI testing.")
 @ExtendWith(ApplicationExtension.class)
-public class CalendarControllerTest {
+class CalendarControllerTest {
 
     private Stage stage;
     private CalendarController calendarController;
