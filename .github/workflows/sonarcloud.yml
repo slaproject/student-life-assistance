@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download mssql-jdbc-12.10.1.jre11.jar artifact
+      - name: Download mssql-jdbc-12.10.1 artifact
         uses: actions/download-artifact@v4
         with:
           name: mssql-jdbc-12.10.1
@@ -21,7 +21,7 @@ jobs:
       - name: Install mssql-jdbc-12.10.1.jre11.jar to local Maven repo
         run: |
           mvn install:install-file \
-            -Dfile=mssql-jdbc-12.10.1.jre11.jar \
+            -Dfile=mssql-jdbc-12.10.1/mssql-jdbc-12.10.1.jre11.jar \
             -DgroupId=com.microsoft.sqlserver \
             -DartifactId=mssql-jdbc \
             -Dversion=12.10.1.jre11 \
