@@ -17,6 +17,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: mssql-jdbc-12.10.1
+          
+      - name: Move JAR to workspace root
+        run: mv mssql-jdbc-12.10.1/mssql-jdbc-12.10.1.jre11.jar .
+
 
       - name: Install mssql-jdbc-12.10.1.jre11.jar to local Maven repo
         run: |
