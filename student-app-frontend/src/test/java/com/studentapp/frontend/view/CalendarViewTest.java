@@ -2,13 +2,7 @@ package com.studentapp.frontend.view;
 
 import com.studentapp.common.model.CalendarEvent;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +12,6 @@ import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
-
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -27,25 +19,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.testfx.api.FxAssert.verifyThat;
-import static org.testfx.matcher.control.LabeledMatchers.hasText;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Unit tests for CalendarView, covering calendar rendering, event display, and user interaction.
  */
 @ExtendWith(ApplicationExtension.class)
-public class CalendarViewTest {
+class CalendarViewTest {
 
     private CalendarView calendarView;
     private Stage stage;
 
     @Start
-    private void start(Stage stage) throws IOException {
+    private void start(Stage stage){
         this.stage = stage;
         
         // Create CalendarView directly instead of loading from FXML
@@ -207,16 +197,16 @@ public class CalendarViewTest {
     }
 
     /**
-     * Tests calendar navigation functionality (e.g., month changes).
+     * Parameterized test for calendar view visibility scenarios.
      */
-    @Test
-    void testCalendarNavigation(FxRobot robot) {
-        // Test calendar navigation (previous/next month)
-        // Note: CalendarView doesn't have navigation buttons in the current implementation
-        // This test verifies the calendar view is functional
-        
-        assertNotNull(calendarView);
-        assertTrue(calendarView.isVisible());
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "CalendarNavigation", "AddEventButton", "CurrentMonthDisplay",
+        "CalendarResponsiveness", "GridLayout", "ExportFunctionality", "PrintFunctionality"
+    })
+    void testCalendarViewVisibleScenarios(String scenario, FxRobot robot) {
+        assertNotNull(calendarView, scenario + ": calendarView should not be null");
+        assertTrue(calendarView.isVisible(), scenario + ": calendarView should be visible");
     }
 
     /**
@@ -255,32 +245,6 @@ public class CalendarViewTest {
         // Test clicking on an event
         // This would typically involve clicking on an event element
         assertNotNull(calendarView);
-    }
-
-    /**
-     * Tests add event button functionality (if present).
-     */
-    @Test
-    void testAddEventButton(FxRobot robot) {
-        // Test add event button functionality
-        // Note: CalendarView doesn't have an add event button in the current implementation
-        // This test verifies the calendar view is functional
-        
-        assertNotNull(calendarView);
-        assertTrue(calendarView.isVisible());
-    }
-
-    /**
-     * Tests display of the current month in the calendar view.
-     */
-    @Test
-    void testCurrentMonthDisplay(FxRobot robot) {
-        // Test current month display
-        // Note: CalendarView doesn't have a month label in the current implementation
-        // This test verifies the calendar view is functional
-        
-        assertNotNull(calendarView);
-        assertTrue(calendarView.isVisible());
     }
 
     /**

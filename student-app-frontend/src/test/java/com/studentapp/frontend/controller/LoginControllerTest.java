@@ -19,6 +19,7 @@ import org.testfx.util.WaitForAsyncUtils;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
@@ -26,7 +27,7 @@ import static org.testfx.matcher.control.LabeledMatchers.hasText;
  * Unit tests for LoginController, covering authentication, form validation, and navigation.
  */
 @ExtendWith(ApplicationExtension.class)
-public class LoginControllerTest {
+class LoginControllerTest {
 
     private LoginController loginController;
     private Stage stage;
@@ -40,8 +41,6 @@ public class LoginControllerTest {
         
         stage.setScene(new Scene(root));
         stage.show();
-        
-        // Wait for the scene to be fully loaded
         WaitForAsyncUtils.waitForFxEvents();
     }
 
@@ -63,13 +62,7 @@ public class LoginControllerTest {
         robot.clickOn("#passwordField");
         robot.write("wrongpass");
         robot.clickOn("Login");
-        
-        // Wait a bit for the error message to appear
         robot.sleep(1000);
-        
-        // Since the backend is not running, we get a connection error
-        // The LoginController should still show "Invalid username or password"
-        // because the connection error is not equal to "Invalid username or password"
         verifyThat("#errorLabel", hasText("Invalid username or password"));
     }
 
@@ -136,19 +129,6 @@ public class LoginControllerTest {
         verifyThat("#errorLabel", hasText("Invalid username or password"));
     }
 
-    /**
-     * Tests navigation to signup screen from login.
-     */
-    @Test
-    void testGoToSignupButton(FxRobot robot) {
-        robot.sleep(2000);
-        
-        // Click on the "Don't have an account? Sign up" hyperlink
-        robot.clickOn("Don't have an account? Sign up");
-        
-        // Verify navigation occurred (this would be handled by the application)
-        // In a real test, you might verify the scene changed or a method was called
-    }
 
     /**
      * Tests login button accessibility and visibility.
@@ -156,12 +136,12 @@ public class LoginControllerTest {
     @Test
     void testLoginButtonAccessibility(FxRobot robot) {
         robot.sleep(2000);
-        
-        // Verify login button is accessible
         Button loginButton = robot.lookup("Login").queryAs(Button.class);
-        assert loginButton != null;
-        assert loginButton.isVisible();
-        assert !loginButton.isDisabled();
+        assertDoesNotThrow(() -> {
+            assert loginButton != null;
+            assert loginButton.isVisible();
+            assert !loginButton.isDisabled();
+        });
     }
 
     /**
@@ -176,11 +156,8 @@ public class LoginControllerTest {
         
         robot.clickOn("#passwordField");
         robot.write("testpass123");
-        
-        // Press Enter key to trigger login
         robot.press(javafx.scene.input.KeyCode.ENTER);
         
-        // Verify login was attempted
         verifyThat("#errorLabel", hasText(""));
     }
 
@@ -191,7 +168,6 @@ public class LoginControllerTest {
     void testFormValidation(FxRobot robot) {
         robot.sleep(2000);
         
-        // Test various validation scenarios
         robot.clickOn("Login");
         verifyThat("#errorLabel", hasText("Username cannot be empty"));
         
@@ -207,18 +183,14 @@ public class LoginControllerTest {
     @Test
     void testInputFieldBehavior(FxRobot robot) {
         robot.sleep(2000);
-        
-        // Test input field behavior
         TextField usernameField = robot.lookup("#usernameField").queryAs(TextField.class);
         PasswordField passwordField = robot.lookup("#passwordField").queryAs(PasswordField.class);
-        
         robot.clickOn("#usernameField");
         robot.write("testuser");
-        assert usernameField.getText().equals("testuser");
-        
+        org.junit.jupiter.api.Assertions.assertEquals("testuser", usernameField.getText());
         robot.clickOn("#passwordField");
         robot.write("testpass");
-        assert passwordField.getText().equals("testpass");
+        org.junit.jupiter.api.Assertions.assertEquals("testpass", passwordField.getText());
     }
 
     /**
@@ -227,11 +199,7 @@ public class LoginControllerTest {
     @Test
     void testErrorLabelVisibility(FxRobot robot) {
         robot.sleep(2000);
-        
-        // Test that error label is initially empty
         verifyThat("#errorLabel", hasText(""));
-        
-        // Test error message display
         robot.clickOn("Login");
         verifyThat("#errorLabel", hasText("Username cannot be empty"));
     }
@@ -242,29 +210,20 @@ public class LoginControllerTest {
     @Test
     void testFormReset(FxRobot robot) {
         robot.sleep(2000);
-        
-        // Fill form with data
         robot.clickOn("#usernameField");
         robot.write("testuser");
         robot.clickOn("#passwordField");
         robot.write("testpass");
-        
-        // Verify data is entered
         TextField usernameField = robot.lookup("#usernameField").queryAs(TextField.class);
-        PasswordField passwordField = robot.lookup("#passwordField").queryAs(PasswordField.class);
-        
-        assert usernameField.getText().equals("testuser");
-        assert passwordField.getText().equals("testpass");
-        
-        // Clear fields manually
+        PasswordField passwordField = robot.lookup("#passwordField").queryAs(PasswordField.class);      
+        org.junit.jupiter.api.Assertions.assertEquals("testuser", usernameField.getText());
+        org.junit.jupiter.api.Assertions.assertEquals("testpass", passwordField.getText());
         robot.clickOn("#usernameField");
         robot.eraseText(8);
         robot.clickOn("#passwordField");
         robot.eraseText(8);
-        
-        // Verify fields are cleared
-        assert usernameField.getText().isEmpty();
-        assert passwordField.getText().isEmpty();
+        org.junit.jupiter.api.Assertions.assertEquals("", usernameField.getText());
+        org.junit.jupiter.api.Assertions.assertEquals("", passwordField.getText());
     }
 
     /**
@@ -273,20 +232,13 @@ public class LoginControllerTest {
     @Test
     void testKeyboardNavigation(FxRobot robot) {
         robot.sleep(2000);
-        
-        // Test keyboard navigation
         robot.clickOn("#usernameField");
         robot.write("test");
-        robot.press(javafx.scene.input.KeyCode.TAB);
-        
-        // Should be in password field now
+        robot.press(javafx.scene.input.KeyCode.TAB);  
         robot.write("password");
         robot.press(javafx.scene.input.KeyCode.TAB);
-        
-        // Should be on login button
         robot.press(javafx.scene.input.KeyCode.ENTER);
-        
-        // Verify login was attempted
+
         verifyThat("#errorLabel", hasText(""));
     }
 
@@ -296,15 +248,15 @@ public class LoginControllerTest {
     @Test
     void testFormAccessibility(FxRobot robot) {
         robot.sleep(2000);
-        
-        // Test that all form elements are accessible
         TextField usernameField = robot.lookup("#usernameField").queryAs(TextField.class);
         PasswordField passwordField = robot.lookup("#passwordField").queryAs(PasswordField.class);
         Button loginButton = robot.lookup("Login").queryAs(Button.class);
-        
-        assert usernameField != null && usernameField.isVisible();
-        assert passwordField != null && passwordField.isVisible();
-        assert loginButton != null && loginButton.isVisible();
+        org.junit.jupiter.api.Assertions.assertNotNull(usernameField);
+        org.junit.jupiter.api.Assertions.assertTrue(usernameField.isVisible());
+        org.junit.jupiter.api.Assertions.assertNotNull(passwordField);
+        org.junit.jupiter.api.Assertions.assertTrue(passwordField.isVisible());
+        org.junit.jupiter.api.Assertions.assertNotNull(loginButton);
+        org.junit.jupiter.api.Assertions.assertTrue(loginButton.isVisible());
     }
 
     /**
@@ -313,12 +265,9 @@ public class LoginControllerTest {
     @Test
     void testResponsiveDesign(FxRobot robot) {
         robot.sleep(2000);
-        
-        // Test that the form is responsive
-        // This is a basic test - in a real scenario you might test different window sizes
         TextField usernameField = robot.lookup("#usernameField").queryAs(TextField.class);
-        assert usernameField.isVisible();
-        assert usernameField.getWidth() > 0;
+        org.junit.jupiter.api.Assertions.assertTrue(usernameField.isVisible());
+        org.junit.jupiter.api.Assertions.assertTrue(usernameField.getWidth() > 0);
     }
 
     /**
@@ -327,16 +276,11 @@ public class LoginControllerTest {
     @Test
     void testInputSanitization(FxRobot robot) {
         robot.sleep(2000);
-        
-        // Test input sanitization
         robot.clickOn("#usernameField");
         robot.write("test<script>alert('xss')</script>user");
-        
         TextField usernameField = robot.lookup("#usernameField").queryAs(TextField.class);
         String input = usernameField.getText();
-        
-        // Verify input is accepted (basic test)
-        assert input.contains("test");
-        assert input.contains("user");
+        org.junit.jupiter.api.Assertions.assertTrue(input.contains("test"));
+        org.junit.jupiter.api.Assertions.assertTrue(input.contains("user"));
     }
 } 
