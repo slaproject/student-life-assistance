@@ -1,10 +1,6 @@
 package com.studentapp.frontend.client;
 
 import com.studentapp.common.model.CalendarEvent;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -22,7 +18,7 @@ import java.time.Duration;
  */
 public class CalendarApiClient {
 
-  private final String backendUrl = "http://localhost:8080/api/calendar/events";
+  private static final String backendUrl = "http://localhost:8080/api/calendar/events";
   private final ObjectMapper objectMapper = new ObjectMapper();
   private String jwtToken;
   private final HttpClient httpClient;
@@ -50,11 +46,9 @@ public class CalendarApiClient {
       HttpRequest request = builder.build();
       HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
       if (response.statusCode() != 200) {
-        System.out.println("Failed to get events. Response code: " + response.statusCode());
         return new ArrayList<>();
       }
       List<CalendarEvent> events = objectMapper.readValue(response.body(), new TypeReference<List<CalendarEvent>>(){});
-      System.out.println("Retrieved " + events.size() + " events from API");
       return events;
     } catch (Exception e) {
       e.printStackTrace();
@@ -76,11 +70,9 @@ public class CalendarApiClient {
       HttpRequest request = builder.build();
       HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
       if (response.statusCode() != 200) {
-        System.out.println("Failed to add event. Response code: " + response.statusCode());
         return null;
       }
       CalendarEvent created = objectMapper.readValue(response.body(), CalendarEvent.class);
-      System.out.println("Created event: " + created.getEventName() + " " + created.getEventType());
       return created;
     } catch (Exception e) {
       e.printStackTrace();

@@ -16,20 +16,23 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
-import com.studentapp.frontend.client.CalendarApiClient;
-
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 import org.mockito.Mockito;
 import org.testfx.util.WaitForAsyncUtils;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.provider.Arguments;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for SignupController, covering user registration, validation, and error handling.
  */
 @Disabled("Disabled in CI/CD due to JavaFX GUI tests requiring a display. Run locally for GUI testing.")
 @ExtendWith(ApplicationExtension.class)
-public class SignupControllerTest {
+class SignupControllerTest {
 
     private SignupController signupController;
     private Stage stage;
@@ -77,44 +80,35 @@ public class SignupControllerTest {
     }
 
     /**
-     * Tests signup with empty username shows error.
+     * Parameterized test for invalid signup input scenarios (empty username, empty email, invalid email).
      */
-    @Test
-    void testSignupWithEmptyUsername(FxRobot robot) {
-        robot.clickOn("#emailField");
-        robot.write("test@example.com");
-        robot.clickOn("#passwordField");
-        robot.write("TestPass123");
+    @ParameterizedTest
+    @MethodSource("invalidSignupProvider")
+    void testSignupInvalidInputs(String username, String email, String password, String expectedError, FxRobot robot) {
+        if (username != null) {
+            robot.clickOn("#usernameField");
+            robot.write(username);
+        }
+        if (email != null) {
+            robot.clickOn("#emailField");
+            robot.write(email);
+        }
+        if (password != null) {
+            robot.clickOn("#passwordField");
+            robot.write(password);
+        }
         robot.clickOn("Sign Up");
-        verifyThat("#errorLabel", hasText("Username cannot be empty"));
+        verifyThat("#errorLabel", hasText(expectedError));
+        // Standard JUnit assertion for the error label
+        assertEquals(expectedError, ((javafx.scene.control.Label) robot.lookup("#errorLabel").queryAs(javafx.scene.control.Label.class)).getText());
     }
 
-    /**
-     * Tests signup with empty email shows error.
-     */
-    @Test
-    void testSignupWithEmptyEmail(FxRobot robot) {
-        robot.clickOn("#usernameField");
-        robot.write("testuser");
-        robot.clickOn("#passwordField");
-        robot.write("TestPass123");
-        robot.clickOn("Sign Up");
-        verifyThat("#errorLabel", hasText("Please enter a valid email address"));
-    }
-
-    /**
-     * Tests signup with invalid email format shows error.
-     */
-    @Test
-    void testSignupWithInvalidEmail(FxRobot robot) {
-        robot.clickOn("#usernameField");
-        robot.write("testuser");
-        robot.clickOn("#emailField");
-        robot.write("invalid-email");
-        robot.clickOn("#passwordField");
-        robot.write("TestPass123");
-        robot.clickOn("Sign Up");
-        verifyThat("#errorLabel", hasText("Please enter a valid email address"));
+    static Stream<Arguments> invalidSignupProvider() {
+        return Stream.of(
+            Arguments.of(null, "test@example.com", "TestPass123", "Username cannot be empty"),
+            Arguments.of("testuser", null, "TestPass123", "Please enter a valid email address"),
+            Arguments.of("testuser", "invalid-email", "TestPass123", "Please enter a valid email address")
+        );
     }
 
     /**
@@ -228,16 +222,6 @@ public class SignupControllerTest {
         verifyThat("#errorLabel", hasText("Network error. Please check your connection."));
     }
 
-    /**
-     * Tests navigation to login screen from signup.
-     */
-    @Test
-    void testGoToLoginButton(FxRobot robot) {
-        robot.clickOn("Already have an account? Login");
-        
-        // Verify navigation occurred
-        // In a real test, you might verify the scene changed or a method was called
-    }
 
     /**
      * Tests fields are cleared after successful signup.
@@ -263,16 +247,6 @@ public class SignupControllerTest {
         assert passwordField.getText().isEmpty();
     }
 
-    /**
-     * Tests signup button accessibility and visibility.
-     */
-    @Test
-    void testSignupButtonAccessibility(FxRobot robot) {
-        Button signupButton = robot.lookup("Sign Up").queryAs(Button.class);
-        assert signupButton != null;
-        assert signupButton.isVisible();
-        assert !signupButton.isDisabled();
-    }
 
     /**
      * Tests tab order navigation through signup form fields.

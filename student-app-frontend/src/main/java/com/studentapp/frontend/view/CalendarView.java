@@ -15,11 +15,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -74,8 +72,6 @@ public class CalendarView extends VBox {
     monthYearLabel.setAlignment(Pos.CENTER);
     monthYearLabel.setMaxHeight(40);
     monthYearLabel.setMaxWidth(Double.MAX_VALUE); // Allow label to expand
-    // Remove fixed minWidth and prefWidth for centering
-    // GridPane alignment for centering
     javafx.geometry.HPos hCenter = javafx.geometry.HPos.CENTER;
     javafx.scene.layout.GridPane.setHalignment(monthYearLabel, hCenter);
 
@@ -146,25 +142,15 @@ public class CalendarView extends VBox {
     navigationGrid.add(monthYearLabel, 1, 0);
     navigationGrid.add(nextMonthButton, 2, 0);
     navigationGrid.add(goToButton, 3, 0);
-
-    // Add Event button is no longer needed since clicking on a date directly opens the add event dialog
-    // Keeping the button for now but making it optional - can be removed later if desired
     addEventButton = new Button("Add Event (Legacy)");
     addEventButton.setOnAction(e -> {
-      System.out.println("[DEBUG] Add Event button clicked. selectedDate=" + selectedDate + ", onAddEvent=" + (onAddEvent != null));
       if (onAddEvent != null && selectedDate != null) {
         onAddEvent.accept(selectedDate);
-      } else {
-        System.out.println("[DEBUG] No date selected for Add Event or onAddEvent is null.");
       }
     });
-    // Hide the button by default since the new flow doesn't need it
     addEventButton.setVisible(false);
 
-    // Add some padding/margin to navigation
     VBox.setMargin(navigationGrid, new Insets(16, 0, 24, 0));
-
-    // Only the calendar grid should grow vertically
     VBox.setVgrow(calendarGrid, Priority.ALWAYS);
 
     this.getChildren().addAll(navigationGrid, calendarGrid, addEventButton);

@@ -13,6 +13,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.Node;
 import com.studentapp.frontend.view.CalendarView;
 import com.studentapp.frontend.client.CalendarApiClient;
+import com.studentapp.frontend.client.CanvasOAuth2Client;
+import com.studentapp.frontend.client.CanvasApiClient;
+import com.studentapp.frontend.client.CanvasSsoClient;
+import javafx.scene.web.WebView;
 
 import java.io.File;
 
@@ -24,12 +28,50 @@ public class MainController {
     private CalendarView calendarView;
     private String jwtToken;
     private CalendarController calendarController;
+    private CanvasSsoClient canvasSsoClient;
+    
+    // Canvas integration
+    private String canvasAccessToken;
+    private CanvasOAuth2Client.CanvasUserInfo canvasUserInfo;
+    private CanvasApiClient canvasApiClient;
+    private CanvasApiClient.CanvasUserInfo canvasApiUserInfo;
 
     public void setCenterContent(Node node) {
         rootPane.setCenter(node);
     }
+    
+    /**
+     * Set Canvas WebView as center content with navigation toolbar
+     */
+    public void setCanvasContent(WebView webView) {
+        // Create a VBox to hold the toolbar and WebView
+        javafx.scene.layout.VBox container = new javafx.scene.layout.VBox();
+        
+        // Create toolbar
+        javafx.scene.control.ToolBar toolbar = new javafx.scene.control.ToolBar();
+        
+        // Add return button
+        javafx.scene.control.Button returnButton = new javafx.scene.control.Button("← Return to Main View");
+        returnButton.setOnAction(e -> showCalendar());
+        
+        // Add Canvas title label
+        javafx.scene.control.Label canvasLabel = new javafx.scene.control.Label("Canvas LMS");
+        canvasLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        
+        // Add spacer to push title to center
+        javafx.scene.control.Separator separator = new javafx.scene.control.Separator();
+        separator.setOrientation(javafx.geometry.Orientation.VERTICAL);
+        
+        toolbar.getItems().addAll(returnButton, separator, canvasLabel);
+        
+        // Set up the container
+        container.getChildren().addAll(toolbar, webView);
+        javafx.scene.layout.VBox.setVgrow(webView, javafx.scene.layout.Priority.ALWAYS);
+        
+        // Set the container as center content
+        rootPane.setCenter(container);
+    }
 
-    // File Menu Actions
     @FXML
     private void handleNewAction() {
         showInfoAlert("New", "Create new student profile or document");
@@ -71,7 +113,6 @@ public class MainController {
         showConfirmationAlert("Exit", "Are you sure you want to exit?", () -> Platform.exit());
     }
     
-    // Student Menu Actions
     @FXML
     private void handleAcademicRecordsAction() {
         showInfoAlert("Academic Records", "View and manage your academic records, transcripts, and course history.");
@@ -92,7 +133,6 @@ public class MainController {
         showInfoAlert("Grades", "View your current grades, GPA, and academic performance.");
     }
     
-    // Finance Menu Actions
     @FXML
     private void handleBudgetAction() {
         showInfoAlert("Budget Tracker", "Track your monthly budget, expenses, and financial planning.");
@@ -108,7 +148,6 @@ public class MainController {
         showInfoAlert("Financial Aid", "Information about scholarships, grants, and financial aid opportunities.");
     }
     
-    // Resources Menu Actions
     @FXML
     private void handleLibraryAction() {
         showInfoAlert("Library", "Access library resources, research databases, and study materials.");
@@ -124,7 +163,6 @@ public class MainController {
         showInfoAlert("Student Services", "Access to counseling, health services, career guidance, and more.");
     }
     
-    // Help Menu Actions
     @FXML
     private void handleUserGuideAction() {
         showInfoAlert("User Guide", "Comprehensive guide on how to use the Student Life Assistant application.");
@@ -145,7 +183,6 @@ public class MainController {
         alert.showAndWait();
     }
     
-    // Helper methods
     private void showInfoAlert(String title, String content) {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
@@ -167,24 +204,47 @@ public class MainController {
         });
     }
     
+    /**
+     * Get the current stage
+     */
     private Stage getCurrentStage() {
-        // Get the stage from the scene of any node
-        try {
-            // Try to get stage from the scene
-            return (Stage) javafx.scene.Node.class.cast(this).getScene().getWindow();
-        } catch (Exception e) {
-            // Alternative approach: get from any visible window
-            for (javafx.stage.Window window : javafx.stage.Window.getWindows()) {
-                if (window instanceof Stage && window.isShowing()) {
-                    return (Stage) window;
-                }
-            }
-            return null;
-        }
+        return (Stage) rootPane.getScene().getWindow();
     }
-
+    
     public void setJwtToken(String token) {
         this.jwtToken = token;
+    }
+    
+    public void setCanvasAccessToken(String token) {
+        this.canvasAccessToken = token;
+    }
+    
+    public void setCanvasUserInfo(CanvasOAuth2Client.CanvasUserInfo userInfo) {
+        this.canvasUserInfo = userInfo;
+    }
+    
+    public String getCanvasAccessToken() {
+        return canvasAccessToken;
+    }
+    
+    public CanvasOAuth2Client.CanvasUserInfo getCanvasUserInfo() {
+        return canvasUserInfo;
+    }
+    
+    public void setCanvasApiClient(CanvasApiClient client) {
+        this.canvasApiClient = client;
+    }
+    
+    public void setCanvasUserInfo(CanvasApiClient.CanvasUserInfo userInfo) {
+        this.canvasApiUserInfo = userInfo;
+    }
+    
+    public CanvasApiClient getCanvasApiClient() {
+        return canvasApiClient;
+    }
+    
+    public CanvasApiClient.CanvasUserInfo getCanvasApiUserInfo() {
+        return canvasApiUserInfo;
     }
 
     @FXML
@@ -197,9 +257,14 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/studentapp/frontend/calendar-view.fxml"));
             Node calendarRoot = loader.load();
             calendarController = loader.getController();
-            System.out.println("Main Controller: "+jwtToken);
             calendarController.setJwtToken(jwtToken);
             setCenterContent(calendarRoot);
+            
+            // Restore original title
+            Stage currentStage = getCurrentStage();
+            if (currentStage != null) {
+                currentStage.setTitle("Student Life Assistance");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             showInfoAlert("Error", "Failed to load calendar view: " + e.getMessage());
@@ -214,14 +279,11 @@ public class MainController {
                 calendarController.clearJwtToken();
             }
 
-            // Clear the JWT token in MainController
             this.jwtToken = null;
 
-            // Load the login view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/studentapp/frontend/login-view.fxml"));
             Parent loginRoot = loader.load();
 
-            // Set the login view in the current stage
             Stage stage = getCurrentStage();
             if (stage != null) {
                 stage.setScene(new Scene(loginRoot));
@@ -241,6 +303,79 @@ public class MainController {
             setCenterContent(timerRoot);
         } catch (Exception e) {
             showInfoAlert("Timer", "Failed to load Timer page: " + e.getMessage());
+        }
+    }
+    
+    @FXML
+    private void handleReturnToMainAction() {
+        showCalendar();
+    }
+    
+    @FXML
+    private void handleCanvasAction() {
+        try {
+            System.out.println("=== Canvas Action Debug ===");
+            System.out.println("handleCanvasAction called");
+            
+            // Initialize Canvas SSO client if not already done
+            if (canvasSsoClient == null) {
+                canvasSsoClient = new CanvasSsoClient();
+                System.out.println("Canvas SSO client initialized");
+            }
+            
+            // Show Canvas SSO login dialog
+            System.out.println("Calling showCanvasLoginDialog");
+            showCanvasLoginDialog();
+            System.out.println("showCanvasLoginDialog completed");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showInfoAlert("Canvas Error", "Failed to launch Canvas: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Show Canvas login view in the main window
+     */
+    public void showCanvasLogin() {
+        showCanvasLoginDialog();
+    }
+    
+    private void showCanvasLoginDialog() {
+        try {
+            System.out.println("=== showCanvasLoginDialog Debug ===");
+            System.out.println("Loading canvas-sso-login-view.fxml");
+            
+            // Check if we're in the main window
+            Stage currentStage = getCurrentStage();
+            System.out.println("Current stage: " + currentStage);
+            System.out.println("Current stage title: " + (currentStage != null ? currentStage.getTitle() : "null"));
+            
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/studentapp/frontend/canvas-sso-login-view.fxml"));
+            Parent canvasLoginRoot = loader.load();
+            System.out.println("FXML loaded successfully");
+            
+            CanvasSsoLoginController canvasController = loader.getController();
+            System.out.println("Canvas controller obtained: " + canvasController);
+            
+            // Pass reference to MainController so Canvas can be embedded in main window
+            canvasController.setMainController(this);
+            System.out.println("MainController reference set");
+            
+            // Load Canvas login view directly into the main window's center content
+            System.out.println("Setting center content with Canvas login view");
+            setCenterContent(canvasLoginRoot);
+            System.out.println("Center content set successfully");
+            
+            // Update the stage title to indicate Canvas mode
+            if (currentStage != null) {
+                currentStage.setTitle("Student Life Assistance - Canvas LMS");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error in showCanvasLoginDialog: " + e.getMessage());
+            e.printStackTrace();
+            showInfoAlert("Canvas Error", "Failed to load Canvas login: " + e.getMessage());
         }
     }
 }

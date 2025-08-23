@@ -66,6 +66,8 @@ public class LoginController {
             errorLabel.setText("Failed to load signup view: " + e.getMessage());
         }
     }
+    
+
 
     public String getJwtToken() {
         return jwtToken;

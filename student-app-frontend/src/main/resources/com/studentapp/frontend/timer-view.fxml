@@ -1,19 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.canvas.Canvas?>
-<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.studentapp.frontend.controller.TimerController" spacing="20" alignment="CENTER">
-    <!-- Analog Clock Placeholder -->
-    <Canvas fx:id="analogClockCanvas" width="200" height="200" />
-    <!-- Digital Timer -->
-    <Label fx:id="digitalTimerLabel" style="-fx-font-size: 32px; -fx-font-weight: bold;" text="00:00:00" />
-    <!-- Controls -->
-    <HBox spacing="10" alignment="CENTER">
-        <Button fx:id="startButton" text="Start" />
-        <Button fx:id="pauseButton" text="Pause" />
-        <Button fx:id="restartButton" text="Restart" />
-        <Button fx:id="setToButton" text="Set To..." />
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Arc?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.studentapp.frontend.controller.TimerController" 
+      styleClass="timer-container" 
+      alignment="CENTER" 
+      spacing="30"
+      stylesheets="@../../../timer-styles.css">
+    
+    <!-- Timer Title -->
+    <Label text="Study Timer" styleClass="timer-label" style="-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #2c3e50; -fx-padding: 0 0 20 0;" />
+    
+    <!-- Analog Clock -->
+    <StackPane alignment="CENTER">
+        <!-- Outer Ring -->
+        <Circle fx:id="outerRing" radius="140" styleClass="clock-outer-ring" 
+                style="-fx-fill: #667eea;" />
+        
+        <!-- Main Clock Face -->
+        <Circle fx:id="clockFace" radius="130" styleClass="clock-face" 
+                style="-fx-fill: #ffffff;" />
+        
+        <!-- Inner Ring -->
+        <Circle fx:id="innerRing" radius="120" styleClass="clock-inner-ring" 
+                style="-fx-fill: transparent; -fx-stroke: #e9ecef; -fx-stroke-width: 2;" />
+        
+        <!-- Clock Tick Marks -->
+        <StackPane fx:id="clockNumbers" alignment="CENTER" />
+        
+        <!-- Hour Hand -->
+        <Line fx:id="hourHand" startX="0" startY="0" endX="0" endY="-50" styleClass="clock-hand,hour-hand" 
+              style="-fx-stroke: #2c3e50; -fx-stroke-width: 4;" />
+        
+        <!-- Minute Hand -->
+        <Line fx:id="minuteHand" startX="0" startY="0" endX="0" endY="-70" styleClass="clock-hand,minute-hand" 
+              style="-fx-stroke: #495057; -fx-stroke-width: 3;" />
+        
+        <!-- Second Hand -->
+        <Line fx:id="secondHand" startX="0" startY="0" endX="0" endY="-80" styleClass="clock-hand,second-hand" 
+              style="-fx-stroke: #e74c3c; -fx-stroke-width: 2;" />
+        
+        <!-- Center Dot -->
+        <Circle fx:id="centerDot" radius="6" styleClass="clock-center-dot" 
+                style="-fx-fill: #2c3e50;" />
+    </StackPane>
+    
+    <!-- Digital Timer Display -->
+    <VBox alignment="CENTER" spacing="10">
+        <Label fx:id="digitalTimerLabel" 
+               text="00:00:00" 
+               styleClass="timer-display" />
+        <Label fx:id="statusLabel" 
+               text="Ready" 
+               styleClass="status-label" />
+    </VBox>
+    
+    <!-- Quick Time Presets -->
+    <VBox alignment="CENTER" spacing="10">
+        <Label text="Quick Set" styleClass="timer-label" />
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="quick5Button" text="5 min" styleClass="quick-time-button" />
+            <Button fx:id="quick15Button" text="15 min" styleClass="quick-time-button" />
+            <Button fx:id="quick25Button" text="25 min" styleClass="quick-time-button" />
+            <Button fx:id="quick45Button" text="45 min" styleClass="quick-time-button" />
+            <Button fx:id="quick60Button" text="1 hour" styleClass="quick-time-button" />
+        </HBox>
+    </VBox>
+    
+    <!-- Main Controls -->
+    <VBox alignment="CENTER" spacing="15">
+        <HBox spacing="15" alignment="CENTER">
+            <Button fx:id="startButton" text="▶ Start" styleClass="control-button,start-button" />
+            <Button fx:id="pauseButton" text="⏸ Pause" styleClass="control-button,pause-button" />
+        </HBox>
+        <HBox spacing="15" alignment="CENTER">
+            <Button fx:id="restartButton" text="⏮ Restart" styleClass="control-button,restart-button" />
+            <Button fx:id="setToButton" text="⚙ Set Time" styleClass="control-button,set-button" />
+        </HBox>
+    </VBox>
+    
+    <!-- Progress Info -->
+    <HBox spacing="30" alignment="CENTER">
+        <VBox alignment="CENTER" spacing="5">
+            <Label fx:id="totalTimeLabel" text="Total: 00:00:00" styleClass="timer-label" />
+        </VBox>
+        <VBox alignment="CENTER" spacing="5">
+            <Label fx:id="remainingTimeLabel" text="Remaining: 00:00:00" styleClass="timer-label" />
+        </VBox>
     </HBox>
+    
 </VBox> 
