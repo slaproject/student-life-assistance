@@ -72,7 +72,6 @@ public class CalendarController implements Initializable {
         new Thread(() -> {
             apiClient.setJwtToken(jwtToken); // Ensure JWT token is set
             List<CalendarEvent> events = apiClient.getEvents();
-            System.out.println("Events retrieved: " + events.size());
             allEvents = events;
             
             // Remove the yearMonth filter to show all events

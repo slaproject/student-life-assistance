@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.studentapp.frontend.controller.CanvasLoginController" 
+      style="-fx-padding: 75; -fx-background-color: linear-gradient(to bottom right, #f8f9fa, #e9ecef);">
+    
+    <!-- Canvas Logo and Title -->
+    <VBox alignment="CENTER" spacing="10">
+        <Text text="🎓" style="-fx-font-size: 48px;" />
+        <Text text="Canvas LMS Integration" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-fill: #2c3e50;" />
+        <Text text="Connect your Canvas account to sync courses and assignments" style="-fx-font-size: 14px; -fx-fill: #7f8c8d;" />
+    </VBox>
+    
+    <!-- Status and Progress -->
+    <VBox alignment="CENTER" spacing="10" fx:id="canvasLoginContainer">
+        <Label fx:id="statusLabel" text="" style="-fx-text-fill: #2c3e50; -fx-font-size: 14px;" />
+        <ProgressIndicator fx:id="progressIndicator" style="-fx-pref-width: 30; -fx-pref-height: 30;" />
+    </VBox>
+    
+    <!-- Canvas Login Button -->
+    <VBox alignment="CENTER" spacing="15">
+        <Button fx:id="canvasLoginButton" text="Login with Canvas" 
+                onAction="#handleCanvasLogin"
+                style="-fx-pref-width: 300; -fx-pref-height: 45; -fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 5;" />
+        
+        <Text text="This will open Canvas in your browser for secure authentication" 
+              style="-fx-font-size: 12px; -fx-fill: #7f8c8d; -fx-text-alignment: center;" />
+    </VBox>
+    
+    <!-- Divider -->
+    <HBox alignment="CENTER" spacing="10">
+        <Separator style="-fx-pref-width: 100;" />
+        <Text text="OR" style="-fx-font-size: 12px; -fx-fill: #7f8c8d;" />
+        <Separator style="-fx-pref-width: 100;" />
+    </HBox>
+    
+    <!-- Back to Regular Login -->
+    <VBox alignment="CENTER" spacing="10">
+        <Button text="Use Regular Login" 
+                onAction="#goBackToRegularLogin"
+                style="-fx-pref-width: 300; -fx-pref-height: 40; -fx-background-color: transparent; -fx-text-fill: #3498db; -fx-font-size: 14px; -fx-border-color: #3498db; -fx-border-width: 1; -fx-border-radius: 5; -fx-background-radius: 5;" />
+    </VBox>
+    
+    <!-- Information Section -->
+    <VBox alignment="CENTER" spacing="5" style="-fx-padding: 20; -fx-background-color: rgba(52, 152, 219, 0.1); -fx-background-radius: 10;">
+        <Text text="What you'll get with Canvas integration:" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: #2c3e50;" />
+        <Text text="• Automatic course synchronization" style="-fx-font-size: 12px; -fx-fill: #34495e;" />
+        <Text text="• Assignment deadlines and due dates" style="-fx-font-size: 12px; -fx-fill: #34495e;" />
+        <Text text="• Grade tracking and progress monitoring" style="-fx-font-size: 12px; -fx-fill: #34495e;" />
+        <Text text="• Seamless integration with your academic calendar" style="-fx-font-size: 12px; -fx-fill: #34495e;" />
+    </VBox>
+    
+</VBox>

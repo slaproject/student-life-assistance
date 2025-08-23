@@ -3,9 +3,6 @@ package com.studentapp.frontend.controller;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,21 +13,17 @@ import org.testfx.api.FxRobot;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.util.WaitForAsyncUtils;
-
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.testfx.api.FxAssert.verifyThat;
-import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
 /**
  * Unit tests for MainController, covering menu actions, navigation, and UI functionality.
  */
 @Disabled("Disabled in CI/CD due to JavaFX GUI tests requiring a display. Run locally for GUI testing.")
 @ExtendWith(ApplicationExtension.class)
-public class MainControllerTest {
+class MainControllerTest {
 
     private MainController mainController;
     private Stage stage;
@@ -52,174 +45,6 @@ public class MainControllerTest {
         FxToolkit.registerPrimaryStage();
     }
 
-    /**
-     * Tests File > New menu action is handled.
-     */
-    @Test
-    void testFileMenuNewAction(FxRobot robot) {
-        robot.clickOn("File");
-        robot.clickOn("New");
-    }
-
-    /**
-     * Tests File > Open menu action is handled.
-     */
-    @Test
-    void testFileMenuOpenAction(FxRobot robot) {
-        robot.clickOn("File");
-        robot.clickOn("Open");
-    }
-
-    /**
-     * Tests File > Save menu action is handled.
-     */
-    @Test
-    void testFileMenuSaveAction(FxRobot robot) {
-        robot.clickOn("File");
-        robot.clickOn("Save");
-    }
-
-    /**
-     * Tests File > Exit menu action is handled.
-     */
-    @Test
-    void testFileMenuExitAction(FxRobot robot) {
-        robot.clickOn("File");
-        robot.clickOn("Exit");
-    }
-
-    /**
-     * Tests Student > Academic Records menu action is handled.
-     */
-    @Test
-    void testStudentMenuAcademicRecordsAction(FxRobot robot) {
-        robot.clickOn("Student");
-        robot.clickOn("Academic Records");
-    }
-
-    /**
-     * Tests Student > Schedule menu action is handled.
-     */
-    @Test
-    void testStudentMenuScheduleAction(FxRobot robot) {
-        robot.clickOn("Student");
-        robot.clickOn("Schedule");
-    }
-
-    /**
-     * Tests Student > Assignments menu action is handled.
-     */
-    @Test
-    void testStudentMenuAssignmentsAction(FxRobot robot) {
-        robot.clickOn("Student");
-        robot.clickOn("Assignments");
-    }
-
-    /**
-     * Tests Student > Grades menu action is handled.
-     */
-    @Test
-    void testStudentMenuGradesAction(FxRobot robot) {
-        robot.clickOn("Student");
-        robot.clickOn("Grades");
-    }
-
-    /**
-     * Tests Finance > Budget Tracker menu action is handled.
-     */
-    @Test
-    void testFinanceMenuBudgetAction(FxRobot robot) {
-        robot.clickOn("Finance");
-        robot.clickOn("Budget Tracker");
-    }
-
-    /**
-     * Tests Finance > Expenses menu action is handled.
-     */
-    @Test
-    void testFinanceMenuExpensesAction(FxRobot robot) {
-        robot.clickOn("Finance");
-        robot.clickOn("Expenses");
-    }
-
-    /**
-     * Tests Finance > Financial Aid menu action is handled.
-     */
-    @Test
-    void testFinanceMenuFinancialAidAction(FxRobot robot) {
-        robot.clickOn("Finance");
-        robot.clickOn("Financial Aid");
-    }
-
-    /**
-     * Tests Resources > Library menu action is handled.
-     */
-    @Test
-    void testResourcesMenuLibraryAction(FxRobot robot) {
-        robot.clickOn("Resources");
-        robot.clickOn("Library");
-    }
-
-    /**
-     * Tests Resources > Campus Map menu action is handled.
-     */
-    @Test
-    void testResourcesMenuCampusMapAction(FxRobot robot) {
-        robot.clickOn("Resources");
-        robot.clickOn("Campus Map");
-    }
-
-    /**
-     * Tests Resources > Student Services menu action is handled.
-     */
-    @Test
-    void testResourcesMenuStudentServicesAction(FxRobot robot) {
-        robot.clickOn("Resources");
-        robot.clickOn("Student Services");
-    }
-
-    /**
-     * Tests Help > User Guide menu action is handled.
-     */
-    @Test
-    void testHelpMenuUserGuideAction(FxRobot robot) {
-        robot.clickOn("Help");
-        robot.clickOn("User Guide");
-    }
-
-    /**
-     * Tests Help > About menu action is handled.
-     */
-    @Test
-    void testHelpMenuAboutAction(FxRobot robot) {
-        robot.clickOn("Help");
-        robot.clickOn("About");
-    }
-
-    /**
-     * Tests Account > Logout menu action is handled.
-     */
-    @Test
-    void testLogoutAction(FxRobot robot) {
-        robot.clickOn("Account");
-        robot.clickOn("Logout");
-    }
-
-    /**
-     * Tests navigation through all main menus.
-     */
-    @Test
-    void testMenuNavigation(FxRobot robot) {
-        // Test navigation through menus
-        robot.clickOn("File");
-        robot.clickOn("Student");
-        robot.clickOn("Finance");
-        robot.clickOn("Resources");
-        robot.clickOn("Help");
-        robot.clickOn("Account");
-        
-        // Verify all menus are accessible
-    }
 
     /**
      * Tests that all menus are accessible and visible.
@@ -358,19 +183,6 @@ public class MainControllerTest {
     void testAccountMenuItems(FxRobot robot) {
         robot.clickOn("Account");
         assertTrue(robot.lookup("Logout").tryQuery().isPresent());
-    }
-
-    /**
-     * Tests keyboard navigation through menus.
-     */
-    @Test
-    void testMenuKeyboardNavigation(FxRobot robot) {
-        // Test keyboard navigation through menus
-        robot.clickOn("File");
-        robot.press(javafx.scene.input.KeyCode.DOWN);
-        robot.press(javafx.scene.input.KeyCode.ENTER);
-        
-        // Verify menu navigation works
     }
 
     /**

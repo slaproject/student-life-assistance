@@ -22,6 +22,9 @@
                 <MenuItem text="Assignments" onAction="#handleAssignmentsAction"/>
                 <MenuItem text="Grades" onAction="#handleGradesAction"/>
                 <MenuItem text="Timer" onAction="#handleTimerAction"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="🎓 Canvas LMS" onAction="#handleCanvasAction"/>
+                <MenuItem text="Return to Main View" onAction="#handleReturnToMainAction"/>
             </Menu>
             <Menu text="Finance">
                 <MenuItem text="Budget Tracker" onAction="#handleBudgetAction"/>

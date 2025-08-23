@@ -3,10 +3,8 @@ package com.studentapp.frontend.client;
 import com.studentapp.common.model.CalendarEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.testfx.framework.junit5.ApplicationExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.api.Disabled;
@@ -15,18 +13,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for CalendarApiClient, covering authentication, event CRUD, and error handling.
  */
 @Disabled("Disabled in CI/CD due to JavaFX GUI tests requiring a display. Run locally for GUI testing.")
-public class CalendarApiClientTest {
+class CalendarApiClientTest {
 
     private CalendarApiClient apiClient;
     private HttpClient mockHttpClient;

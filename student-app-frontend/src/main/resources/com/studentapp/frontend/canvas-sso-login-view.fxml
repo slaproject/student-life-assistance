@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.studentapp.frontend.controller.CanvasSsoLoginController" 
+      style="-fx-padding: 75; -fx-background-color: linear-gradient(to bottom right, #f8f9fa, #e9ecef);">
+    
+    <!-- Canvas Logo and Title -->
+    <VBox alignment="CENTER" spacing="10">
+        <Text text="🎓" style="-fx-font-size: 48px;" />
+        <Text text="Canvas Integration" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-fill: #2c3e50;" />
+        <Text text="Access your institution's Canvas directly in this app" style="-fx-font-size: 14px; -fx-fill: #7f8c8d;" />
+    </VBox>
+    
+    <!-- Status and Institution Info -->
+    <VBox alignment="CENTER" spacing="10" fx:id="canvasLoginContainer">
+        <Label fx:id="statusLabel" text="" style="-fx-text-fill: #2c3e50; -fx-font-size: 14px;" />
+        <Label fx:id="institutionLabel" text="" style="-fx-text-fill: #3498db; -fx-font-size: 12px; -fx-font-weight: bold;" />
+    </VBox>
+    
+    <!-- Email Input -->
+    <VBox alignment="CENTER" spacing="15">
+        <Text text="Enter your institution email:" style="-fx-font-size: 14px; -fx-fill: #2c3e50;" />
+        <TextField fx:id="emailField" 
+                   onAction="#handleEmailEntered"
+                   style="-fx-pref-width: 400; -fx-pref-height: 40; -fx-font-size: 14px;" />
+        
+        <Button fx:id="detectInstitutionButton" text="Detect Institution" 
+                onAction="#handleDetectInstitution"
+                style="-fx-pref-width: 200; -fx-pref-height: 35; -fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 5;" />
+    </VBox>
+    
+    <!-- Launch Canvas Button -->
+    <VBox alignment="CENTER" spacing="15">
+        <Button fx:id="launchCanvasButton" text="Launch Canvas" 
+                onAction="#handleLaunchCanvas"
+                style="-fx-pref-width: 300; -fx-pref-height: 45; -fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 5;" />
+    </VBox>
+    
+    <!-- Cancel Button -->
+    <VBox alignment="CENTER" spacing="10">
+        <Button text="Cancel" 
+                onAction="#handleCancel"
+                style="-fx-pref-width: 200; -fx-pref-height: 35; -fx-background-color: transparent; -fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-border-color: #7f8c8d; -fx-border-width: 1; -fx-border-radius: 5; -fx-background-radius: 5;" />
+    </VBox>
+    
+    <!-- Information Section -->
+    <VBox alignment="CENTER" spacing="5" style="-fx-padding: 20; -fx-background-color: rgba(52, 152, 219, 0.1); -fx-background-radius: 10;">
+        <Text text="How it works:" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: #2c3e50;" />
+        <Text text="1. Enter your institution email address" style="-fx-font-size: 12px; -fx-fill: #34495e;" />
+        <Text text="2. We'll automatically detect your Canvas URL" style="-fx-font-size: 12px; -fx-fill: #34495e;" />
+        <Text text="3. Canvas will open in a secure embedded window" style="-fx-font-size: 12px; -fx-fill: #34495e;" />
+        <Text text="4. Log in with your institution credentials" style="-fx-font-size: 12px; -fx-fill: #34495e;" />
+    </VBox>
+    
+    <!-- Supported Institutions -->
+    <VBox alignment="CENTER" spacing="5" style="-fx-padding: 15; -fx-background-color: rgba(46, 204, 113, 0.1); -fx-background-radius: 10;">
+        <Text text="Supported Institutions:" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-fill: #2c3e50;" />
+        <Text text="Harvard, MIT, Stanford, Berkeley, UCLA, USC, NYU, Columbia, Yale, Princeton, Dartmouth, Brown, Cornell, Penn, and many more..." style="-fx-font-size: 10px; -fx-fill: #34495e; -fx-text-alignment: center;" />
+    </VBox>
+    
+
+    
+</VBox>
