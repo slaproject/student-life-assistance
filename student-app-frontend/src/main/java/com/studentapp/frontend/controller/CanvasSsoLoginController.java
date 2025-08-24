@@ -162,7 +162,8 @@ public class CanvasSsoLoginController {
     public void handleCancel() {
         // Return to main view instead of closing dialog
         if (mainController != null) {
-            mainController.showCalendar();
+            // Use Platform.runLater to ensure scene is ready before showing calendar
+            Platform.runLater(() -> mainController.showCalendar());
         }
     }
     

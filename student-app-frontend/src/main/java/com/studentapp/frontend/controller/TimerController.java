@@ -10,6 +10,9 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 public class TimerController {
@@ -25,8 +28,6 @@ public class TimerController {
     
     @FXML private Label digitalTimerLabel;
     @FXML private Label statusLabel;
-    @FXML private Label totalTimeLabel;
-    @FXML private Label remainingTimeLabel;
     
     // Control Buttons
     @FXML private Button startButton;
@@ -49,6 +50,9 @@ public class TimerController {
     private boolean isRunning = false;
     private boolean isCompleted = false;
     
+    // Responsive Design
+    @FXML private VBox timerContainer;
+    
 
 
     @FXML
@@ -58,6 +62,11 @@ public class TimerController {
         setupQuickTimeButtons();
         setupButtonActions();
         updateDisplay();
+        
+        // Setup responsive design after a short delay to ensure scene is ready
+        javafx.application.Platform.runLater(() -> {
+            setupResponsiveDesign();
+        });
     }
 
     private void setupTimer() {
@@ -65,9 +74,9 @@ public class TimerController {
 
     private void setupAnalogClock() {
         createCountdownNumbers();
-        updateHand(hourHand, -90, 50);
-        updateHand(minuteHand, -90, 70);
-        updateHand(secondHand, -90, 80);
+        updateHand(hourHand, -90, 35);
+        updateHand(minuteHand, -90, 50);
+        updateHand(secondHand, -90, 60);
     }
 
     private void createCountdownNumbers() {
@@ -78,8 +87,8 @@ public class TimerController {
             tick.setStyle("-fx-stroke: #2c3e50; -fx-stroke-width: 2;");
             
             double angle = Math.toRadians(i * 30 - 90);
-            double outerRadius = 110;
-            double innerRadius = 100;
+            double outerRadius = 75;
+            double innerRadius = 65;
             
             double outerX = Math.cos(angle) * outerRadius;
             double outerY = Math.sin(angle) * outerRadius;
@@ -108,9 +117,9 @@ public class TimerController {
             
             double secondAngle = -90 + (remainingSeconds * 6);
             
-            updateHand(hourHand, hourAngle, 50);
-            updateHand(minuteHand, minuteAngle, 70);
-            updateHand(secondHand, secondAngle, 80);
+            updateHand(hourHand, hourAngle, 35);
+            updateHand(minuteHand, minuteAngle, 50);
+            updateHand(secondHand, secondAngle, 60);
         }
     }
 
@@ -136,6 +145,76 @@ public class TimerController {
         pauseButton.setOnAction(this::handlePause);
         restartButton.setOnAction(this::handleRestart);
         setToButton.setOnAction(this::handleSetTo);
+    }
+    
+    private void setupResponsiveDesign() {
+        try {
+            // Check if scene and window are available
+            if (timerContainer.getScene() == null) {
+                // If scene is not ready, try again later
+                javafx.application.Platform.runLater(() -> setupResponsiveDesign());
+                return;
+            }
+            
+            Stage stage = (Stage) timerContainer.getScene().getWindow();
+            if (stage == null) {
+                // If stage is not ready, try again later
+                javafx.application.Platform.runLater(() -> setupResponsiveDesign());
+                return;
+            }
+            
+            // Apply initial responsive styles
+            updateResponsiveStyles(stage.getWidth(), stage.getHeight());
+            
+            // Listen for window resize events
+            stage.widthProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null && newValue.doubleValue() > 0) {
+                    updateResponsiveStyles(newValue.doubleValue(), stage.getHeight());
+                }
+            });
+            
+            stage.heightProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null && newValue.doubleValue() > 0) {
+                    updateResponsiveStyles(stage.getWidth(), newValue.doubleValue());
+                }
+            });
+            
+        } catch (Exception e) {
+            // If responsive design fails, just continue without it
+            System.err.println("Responsive design setup failed: " + e.getMessage());
+        }
+    }
+    
+    private void updateResponsiveStyles(double width, double height) {
+        try {
+            System.out.println("Window size: " + width + "x" + height);
+            
+            // Remove all responsive style classes
+            timerContainer.getStyleClass().removeAll("tiny-window", "small-window", "large-window");
+            
+            String styleClass = null;
+            // Apply appropriate style class based on window size
+            if (width < 600 || height < 500) {
+                styleClass = "tiny-window";
+            } else if (width < 800 || height < 600) {
+                styleClass = "small-window";
+            } else if (width > 1200 || height > 800) {
+                styleClass = "large-window";
+            }
+            
+            if (styleClass != null) {
+                timerContainer.getStyleClass().add(styleClass);
+                System.out.println("Applied style: " + styleClass);
+            } else {
+                System.out.println("No responsive style applied");
+            }
+            
+            System.out.println("Current styles: " + timerContainer.getStyleClass());
+            
+        } catch (Exception e) {
+            System.err.println("Error updating responsive styles: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void setQuickTime(int seconds) {
@@ -255,13 +334,6 @@ public class TimerController {
         int m = (timeLeft % 3600) / 60;
         int s = timeLeft % 60;
         digitalTimerLabel.setText(String.format("%02d:%02d:%02d", h, m, s));
-        
-        int totalH = totalSeconds / 3600;
-        int totalM = (totalSeconds % 3600) / 60;
-        int totalS = totalSeconds % 60;
-        totalTimeLabel.setText(String.format("Total: %02d:%02d:%02d", totalH, totalM, totalS));
-        
-        remainingTimeLabel.setText(String.format("Remaining: %02d:%02d:%02d", h, m, s));
         
         updateVisualStates();
     }

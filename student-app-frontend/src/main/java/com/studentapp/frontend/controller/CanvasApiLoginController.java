@@ -120,11 +120,11 @@ public class CanvasApiLoginController {
             mainController.setCanvasApiClient(canvasClient);
             mainController.setCanvasUserInfo(canvasUserInfo);
             
-            // Show calendar view
-            mainController.showCalendar();
-            
             Stage stage = (Stage) canvasLoginContainer.getScene().getWindow();
             stage.setScene(new Scene(mainRoot, 900, 700));
+            
+            // Use Platform.runLater to ensure scene is ready before showing calendar
+            Platform.runLater(() -> mainController.showCalendar());
             
         } catch (Exception e) {
             statusLabel.setText("Error loading main view: " + e.getMessage());
