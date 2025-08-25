@@ -1,6 +1,6 @@
 /* Modern Timer Styles */
 .root {
-    -fx-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -fx-background-color: #667eea;
     -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
@@ -8,23 +8,25 @@
     -fx-background-color: rgba(255, 255, 255, 0.95);
     -fx-background-radius: 20;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 20, 0, 0, 10);
-    -fx-padding: 30;
-    -fx-spacing: 25;
+    -fx-padding: 20;
+    -fx-spacing: 15;
 }
 
 .clock-outer-ring {
-    -fx-fill: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -fx-fill: #667eea;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 15, 0, 0, 5);
+    -fx-max-width: 200;
+    -fx-max-height: 200;
 }
 
 .clock-face {
-    -fx-fill: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    -fx-fill: #ffffff;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 3);
 }
 
 .clock-inner-ring {
     -fx-fill: transparent;
-    -fx-stroke: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    -fx-stroke: #e9ecef;
     -fx-stroke-width: 2;
 }
 
@@ -62,7 +64,7 @@
 }
 
 .timer-progress-arc {
-    -fx-stroke: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -fx-stroke: #667eea;
     -fx-stroke-width: 6;
     -fx-fill: transparent;
     -fx-stroke-line-cap: round;
@@ -70,19 +72,19 @@
 }
 
 .timer-progress-arc.running {
-    -fx-stroke: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    -fx-stroke: #e74c3c;
 }
 
 .timer-progress-arc.paused {
-    -fx-stroke: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    -fx-stroke: #f39c12;
 }
 
 .timer-progress-arc.completed {
-    -fx-stroke: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    -fx-stroke: #27ae60;
 }
 
 .timer-display {
-    -fx-font-size: 48px;
+    -fx-font-size: 36px;
     -fx-font-weight: 300;
     -fx-text-fill: #2c3e50;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 2, 0, 0, 1);
@@ -103,16 +105,25 @@
     -fx-effect: dropshadow(gaussian, rgba(39, 174, 96, 0.3), 4, 0, 0, 2);
 }
 
+.control-buttons-container {
+    -fx-hgap: 6;
+    -fx-alignment: center;
+}
+
 .control-button {
-    -fx-background-radius: 25;
-    -fx-font-size: 14px;
+    -fx-background-radius: 20;
+    -fx-font-size: 12px;
     -fx-font-weight: 600;
     -fx-text-fill: white;
-    -fx-padding: 12 24;
-    -fx-min-width: 100;
+    -fx-padding: 8 12;
+    -fx-min-width: 70;
+    -fx-pref-width: 70;
+    -fx-max-width: 90;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 4, 0, 0, 2);
     -fx-transition: all 0.2s ease;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
 }
 
 .control-button:hover {
@@ -127,35 +138,35 @@
 }
 
 .start-button {
-    -fx-background-color: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    -fx-background-color: #27ae60;
 }
 
 .start-button:hover {
-    -fx-background-color: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    -fx-background-color: #2ecc71;
 }
 
 .pause-button {
-    -fx-background-color: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    -fx-background-color: #f39c12;
 }
 
 .pause-button:hover {
-    -fx-background-color: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+    -fx-background-color: #e67e22;
 }
 
 .restart-button {
-    -fx-background-color: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    -fx-background-color: #3498db;
 }
 
 .restart-button:hover {
-    -fx-background-color: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+    -fx-background-color: #2980b9;
 }
 
 .set-button {
-    -fx-background-color: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    -fx-background-color: #9b59b6;
 }
 
 .set-button:hover {
-    -fx-background-color: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+    -fx-background-color: #8e44ad;
 }
 
 .progress-circle {
@@ -165,22 +176,22 @@
 }
 
 .progress-circle-fill {
-    -fx-stroke: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -fx-stroke: #667eea;
     -fx-stroke-width: 8;
     -fx-fill: transparent;
     -fx-stroke-line-cap: round;
 }
 
 .progress-circle-fill.running {
-    -fx-stroke: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    -fx-stroke: #e74c3c;
 }
 
 .progress-circle-fill.paused {
-    -fx-stroke: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    -fx-stroke: #f39c12;
 }
 
 .progress-circle-fill.completed {
-    -fx-stroke: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    -fx-stroke: #27ae60;
 }
 
 .timer-label {
@@ -211,14 +222,14 @@
 
 .quick-time-button {
     -fx-background-color: rgba(255, 255, 255, 0.8);
-    -fx-background-radius: 15;
+    -fx-background-radius: 12;
     -fx-border-color: #bdc3c7;
-    -fx-border-radius: 15;
+    -fx-border-radius: 12;
     -fx-border-width: 1;
     -fx-text-fill: #2c3e50;
-    -fx-font-size: 12px;
+    -fx-font-size: 11px;
     -fx-font-weight: 500;
-    -fx-padding: 8 16;
+    -fx-padding: 6 12;
     -fx-cursor: hand;
     -fx-transition: all 0.2s ease;
 }
@@ -231,4 +242,117 @@
 
 .quick-time-button:pressed {
     -fx-background-color: rgba(236, 240, 241, 1);
+}
+
+/* Responsive styles for smaller windows */
+.timer-container.small-window .control-button {
+    -fx-font-size: 12px;
+    -fx-padding: 10 16;
+    -fx-min-width: 80;
+    -fx-pref-width: 80;
+    -fx-max-width: 100;
+}
+
+.timer-container.small-window .control-buttons-container {
+    -fx-hgap: 8;
+}
+
+/* Responsive styles for very small windows */
+.timer-container.tiny-window .control-button {
+    -fx-font-size: 10px;
+    -fx-padding: 6 8;
+    -fx-min-width: 60;
+    -fx-pref-width: 60;
+    -fx-max-width: 75;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+}
+
+.timer-container.tiny-window .control-buttons-container {
+    -fx-hgap: 3;
+    -fx-alignment: center;
+}
+
+/* Responsive styles for large windows */
+.timer-container.large-window .control-button {
+    -fx-font-size: 16px;
+    -fx-padding: 14 24;
+    -fx-min-width: 100;
+    -fx-pref-width: 100;
+    -fx-max-width: 140;
+}
+
+.timer-container.large-window .control-buttons-container {
+    -fx-hgap: 15;
+}
+
+/* Responsive styles for quick time buttons */
+.timer-container.small-window .quick-time-button {
+    -fx-font-size: 11px;
+    -fx-padding: 6 12;
+}
+
+.timer-container.tiny-window .quick-time-button {
+    -fx-font-size: 10px;
+    -fx-padding: 5 10;
+}
+
+.timer-container.large-window .quick-time-button {
+    -fx-font-size: 13px;
+    -fx-padding: 10 18;
+}
+
+/* Responsive spacing adjustments */
+.timer-container.small-window {
+    -fx-spacing: 20;
+    -fx-padding: 25;
+}
+
+.timer-container.tiny-window {
+    -fx-spacing: 15;
+    -fx-padding: 20;
+}
+
+.timer-container.large-window {
+    -fx-spacing: 30;
+    -fx-padding: 35;
+}
+
+/* Responsive timer display */
+.timer-container.small-window .timer-display {
+    -fx-font-size: 36px;
+}
+
+.timer-container.tiny-window .timer-display {
+    -fx-font-size: 28px;
+}
+
+.timer-container.large-window .timer-display {
+    -fx-font-size: 56px;
+}
+
+/* Responsive status label */
+.timer-container.small-window .status-label {
+    -fx-font-size: 16px;
+}
+
+.timer-container.tiny-window .status-label {
+    -fx-font-size: 14px;
+}
+
+.timer-container.large-window .status-label {
+    -fx-font-size: 20px;
+}
+
+/* Responsive timer labels */
+.timer-container.small-window .timer-label {
+    -fx-font-size: 14px;
+}
+
+.timer-container.tiny-window .timer-label {
+    -fx-font-size: 12px;
+}
+
+.timer-container.large-window .timer-label {
+    -fx-font-size: 18px;
 } 

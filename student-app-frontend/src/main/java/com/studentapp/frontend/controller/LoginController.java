@@ -1,6 +1,7 @@
 package com.studentapp.frontend.controller;
 
 import com.studentapp.frontend.client.CalendarApiClient;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -45,9 +46,10 @@ public class LoginController {
                 Parent mainRoot = loader.load();
                 MainController mainController = loader.getController();
                 mainController.setJwtToken(jwtToken);
-                mainController.showCalendar();
                 Stage stage = (Stage) usernameField.getScene().getWindow();
                 stage.setScene(new Scene(mainRoot, 900, 700));
+                // Use Platform.runLater to ensure scene is ready before showing calendar
+                Platform.runLater(() -> mainController.showCalendar());
             } catch (Exception e) {
                 errorLabel.setText("Failed to load main view: " + e.getMessage());
             }

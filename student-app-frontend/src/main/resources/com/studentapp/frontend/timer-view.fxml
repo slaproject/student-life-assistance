@@ -12,7 +12,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.geometry.Insets?>
 
-<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
+<VBox fx:id="timerContainer" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="com.studentapp.frontend.controller.TimerController" 
       styleClass="timer-container" 
       alignment="CENTER" 
@@ -25,31 +25,31 @@
     <!-- Analog Clock -->
     <StackPane alignment="CENTER">
         <!-- Outer Ring -->
-        <Circle fx:id="outerRing" radius="140" styleClass="clock-outer-ring" 
+        <Circle fx:id="outerRing" radius="100" styleClass="clock-outer-ring" 
                 style="-fx-fill: #667eea;" />
         
         <!-- Main Clock Face -->
-        <Circle fx:id="clockFace" radius="130" styleClass="clock-face" 
+        <Circle fx:id="clockFace" radius="90" styleClass="clock-face" 
                 style="-fx-fill: #ffffff;" />
         
         <!-- Inner Ring -->
-        <Circle fx:id="innerRing" radius="120" styleClass="clock-inner-ring" 
+        <Circle fx:id="innerRing" radius="80" styleClass="clock-inner-ring" 
                 style="-fx-fill: transparent; -fx-stroke: #e9ecef; -fx-stroke-width: 2;" />
         
         <!-- Clock Tick Marks -->
         <StackPane fx:id="clockNumbers" alignment="CENTER" />
         
         <!-- Hour Hand -->
-        <Line fx:id="hourHand" startX="0" startY="0" endX="0" endY="-50" styleClass="clock-hand,hour-hand" 
-              style="-fx-stroke: #2c3e50; -fx-stroke-width: 4;" />
+        <Line fx:id="hourHand" startX="0" startY="0" endX="0" endY="-35" styleClass="clock-hand,hour-hand" 
+              style="-fx-stroke: #2c3e50; -fx-stroke-width: 3;" />
         
         <!-- Minute Hand -->
-        <Line fx:id="minuteHand" startX="0" startY="0" endX="0" endY="-70" styleClass="clock-hand,minute-hand" 
-              style="-fx-stroke: #495057; -fx-stroke-width: 3;" />
+        <Line fx:id="minuteHand" startX="0" startY="0" endX="0" endY="-50" styleClass="clock-hand,minute-hand" 
+              style="-fx-stroke: #495057; -fx-stroke-width: 2;" />
         
         <!-- Second Hand -->
-        <Line fx:id="secondHand" startX="0" startY="0" endX="0" endY="-80" styleClass="clock-hand,second-hand" 
-              style="-fx-stroke: #e74c3c; -fx-stroke-width: 2;" />
+        <Line fx:id="secondHand" startX="0" startY="0" endX="0" endY="-60" styleClass="clock-hand,second-hand" 
+              style="-fx-stroke: #e74c3c; -fx-stroke-width: 1;" />
         
         <!-- Center Dot -->
         <Circle fx:id="centerDot" radius="6" styleClass="clock-center-dot" 
@@ -80,24 +80,14 @@
     
     <!-- Main Controls -->
     <VBox alignment="CENTER" spacing="15">
-        <HBox spacing="15" alignment="CENTER">
-            <Button fx:id="startButton" text="▶ Start" styleClass="control-button,start-button" />
-            <Button fx:id="pauseButton" text="⏸ Pause" styleClass="control-button,pause-button" />
-        </HBox>
-        <HBox spacing="15" alignment="CENTER">
-            <Button fx:id="restartButton" text="⏮ Restart" styleClass="control-button,restart-button" />
-            <Button fx:id="setToButton" text="⚙ Set Time" styleClass="control-button,set-button" />
+        <HBox spacing="10" alignment="CENTER" styleClass="control-buttons-container">
+            <Button fx:id="startButton" text="▶" styleClass="control-button,start-button" />
+            <Button fx:id="pauseButton" text="⏸" styleClass="control-button,pause-button" />
+            <Button fx:id="restartButton" text="⏮" styleClass="control-button,restart-button" />
+            <Button fx:id="setToButton" text="⚙ Set" styleClass="control-button,set-button" />
         </HBox>
     </VBox>
     
-    <!-- Progress Info -->
-    <HBox spacing="30" alignment="CENTER">
-        <VBox alignment="CENTER" spacing="5">
-            <Label fx:id="totalTimeLabel" text="Total: 00:00:00" styleClass="timer-label" />
-        </VBox>
-        <VBox alignment="CENTER" spacing="5">
-            <Label fx:id="remainingTimeLabel" text="Remaining: 00:00:00" styleClass="timer-label" />
-        </VBox>
-    </HBox>
+
     
 </VBox> 

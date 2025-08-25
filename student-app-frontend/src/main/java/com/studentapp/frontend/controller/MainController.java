@@ -208,7 +208,11 @@ public class MainController {
      * Get the current stage
      */
     private Stage getCurrentStage() {
-        return (Stage) rootPane.getScene().getWindow();
+        // Add null checks to prevent NullPointerException
+        if (rootPane != null && rootPane.getScene() != null) {
+            return (Stage) rootPane.getScene().getWindow();
+        }
+        return null;
     }
     
     public void setJwtToken(String token) {
@@ -249,7 +253,8 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        showCalendar();
+        // Don't call showCalendar immediately - let it be called after scene is ready
+        // showCalendar();
     }
 
     public void showCalendar() {
