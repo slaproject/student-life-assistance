@@ -17,6 +17,9 @@ import com.studentapp.frontend.client.CanvasOAuth2Client;
 import com.studentapp.frontend.client.CanvasApiClient;
 import com.studentapp.frontend.client.CanvasSsoClient;
 import javafx.scene.web.WebView;
+import com.studentapp.frontend.view.FinanceView;
+import com.studentapp.frontend.controller.BudgetDashboardController;
+import com.studentapp.frontend.controller.ExpenseTrackerController;
 
 import java.io.File;
 
@@ -35,6 +38,11 @@ public class MainController {
     private CanvasOAuth2Client.CanvasUserInfo canvasUserInfo;
     private CanvasApiClient canvasApiClient;
     private CanvasApiClient.CanvasUserInfo canvasApiUserInfo;
+
+    // Add finance controller
+    private FinanceController financeController;
+    private BudgetDashboardController budgetController;
+    private ExpenseTrackerController expenseController;
 
     public void setCenterContent(Node node) {
         rootPane.setCenter(node);
@@ -135,12 +143,12 @@ public class MainController {
     
     @FXML
     private void handleBudgetAction() {
-        showInfoAlert("Budget Tracker", "Track your monthly budget, expenses, and financial planning.");
+        showBudgetDashboard();
     }
     
     @FXML
     private void handleExpensesAction() {
-        showInfoAlert("Expenses", "Log and categorize your daily expenses and spending patterns.");
+        showExpenseTracker();
     }
     
     @FXML
@@ -383,4 +391,63 @@ public class MainController {
             showInfoAlert("Canvas Error", "Failed to load Canvas login: " + e.getMessage());
         }
     }
+
+    public void showFinance() {
+        try {
+            if (financeController == null) {
+                financeController = new FinanceController();
+            }
+
+            FinanceView financeView = financeController.getView();
+            setCenterContent(financeView);
+
+            // Update title
+            Stage currentStage = getCurrentStage();
+            if (currentStage != null) {
+                currentStage.setTitle("Student Life Assistance - Finance Tracker");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showInfoAlert("Error", "Failed to load finance view: " + e.getMessage());
+        }
+    }
+
+    public void showBudgetDashboard() {
+        try {
+            if (budgetController == null) {
+                budgetController = new BudgetDashboardController();
+            }
+
+            setCenterContent(budgetController.getView());
+
+            // Update title
+            Stage currentStage = getCurrentStage();
+            if (currentStage != null) {
+                currentStage.setTitle("Student Life Assistance - Budget Dashboard");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showInfoAlert("Error", "Failed to load budget dashboard: " + e.getMessage());
+        }
+    }
+
+    public void showExpenseTracker() {
+        try {
+            if (expenseController == null) {
+                expenseController = new ExpenseTrackerController();
+            }
+
+            setCenterContent(expenseController.getView());
+
+            // Update title
+            Stage currentStage = getCurrentStage();
+            if (currentStage != null) {
+                currentStage.setTitle("Student Life Assistance - Expense Tracker");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showInfoAlert("Error", "Failed to load expense tracker: " + e.getMessage());
+        }
+    }
 }
+

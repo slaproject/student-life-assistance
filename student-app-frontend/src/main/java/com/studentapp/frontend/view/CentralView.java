@@ -15,7 +15,13 @@ public class CentralView extends BorderPane {
         Menu calendarMenu = new Menu("Calendar");
         MenuItem showCalendar = new MenuItem("Show Calendar");
         calendarMenu.getItems().add(showCalendar);
-        menuBar.getMenus().addAll(calendarMenu);
+
+        // Add Finance menu
+        Menu financeMenu = new Menu("Finance");
+        MenuItem showFinance = new MenuItem("Budget Tracker");
+        financeMenu.getItems().add(showFinance);
+
+        menuBar.getMenus().addAll(calendarMenu, financeMenu);
         setTop(menuBar);
     }
 
@@ -26,4 +32,4 @@ public class CentralView extends BorderPane {
     public MenuBar getMenuBar() {
         return menuBar;
     }
-} 
+}
