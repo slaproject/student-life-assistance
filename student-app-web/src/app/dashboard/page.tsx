@@ -6,12 +6,12 @@ import ProtectedRoute from "./ProtectedRoute";
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
-      <Box minHeight="100vh" display="flex" alignItems="center" justifyContent="center" bgcolor="#f5f6fa">
-        <Paper elevation={4} sx={{ p: 6, minWidth: 400, borderRadius: 3, textAlign: "center" }}>
-          <Typography variant="h3" fontWeight={700} mb={2} color="primary">
+      <Box className="dashboard-container">
+        <Paper elevation={0} className="dashboard-card">
+          <Typography variant="h3" className="dashboard-title">
             Dashboard
           </Typography>
-          <Typography variant="h6" color="text.secondary" mb={2}>
+          <Typography variant="h6" className="dashboard-subtitle">
             Welcome to your student life dashboard!
           </Typography>
           <Typography variant="body1" color="text.secondary">
@@ -21,4 +21,4 @@ export default function DashboardPage() {
       </Box>
     </ProtectedRoute>
   );
-} 
+}

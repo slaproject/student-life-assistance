@@ -16,6 +16,7 @@ public interface FinanceService {
 
     // Expense Category operations
     ExpenseCategory saveCategory(ExpenseCategory category, UUID userId);
+    ExpenseCategory saveCategory(ExpenseCategory category); // For internal use when userId already set
     Optional<ExpenseCategory> getCategoryById(UUID id, UUID userId);
     List<ExpenseCategory> getAllCategories(UUID userId);
     List<ExpenseCategory> getActiveCategories(UUID userId);
