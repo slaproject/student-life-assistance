@@ -4,7 +4,7 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
+  // Grid,
   Button,
   TextField,
   Table,
@@ -27,7 +27,7 @@ import {
   CardContent,
   CircularProgress,
   Alert,
-  Divider,
+  // Divider,
   useTheme,
   useMediaQuery
 } from "@mui/material";
@@ -81,7 +81,7 @@ const SAMPLE_TRANSACTIONS: Transaction[] = [
 export default function ExpensesTab() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  // const [expenses, setExpenses] = useState<Expense[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [formData, setFormData] = useState({
@@ -113,8 +113,7 @@ export default function ExpensesTab() {
         const categoriesData = categoriesResponse.data;
         const expensesData = expensesResponse.data;
 
-        setCategories(categoriesData);
-        setExpenses(expensesData);
+  setCategories(categoriesData);
 
         // Convert expenses to transactions format for UI display
         const transactionsFromExpenses = expensesData.map((expense: Expense) => {
@@ -268,8 +267,8 @@ export default function ExpensesTab() {
       )}
 
       {/* Summary Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={4}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
+        <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
           <Card elevation={2} sx={{ borderRadius: 3, height: '100%' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -290,9 +289,9 @@ export default function ExpensesTab() {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
+  </Box>
 
-        <Grid item xs={12} sm={4}>
+        <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
           <Card elevation={2} sx={{ borderRadius: 3, height: '100%' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -313,9 +312,9 @@ export default function ExpensesTab() {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
+  </Box>
 
-        <Grid item xs={12} sm={4}>
+        <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
           <Card elevation={2} sx={{ borderRadius: 3, height: '100%' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -336,8 +335,8 @@ export default function ExpensesTab() {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+  </Box>
+  </Box>
 
       {/* Transactions Table */}
       <Paper elevation={2} sx={{ borderRadius: 3, overflow: 'hidden' }}>
@@ -472,8 +471,8 @@ export default function ExpensesTab() {
           {editingTransaction ? "Edit Transaction" : "Add New Transaction"}
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box>
               <TextField
                 name="date"
                 label="Date"
@@ -483,9 +482,9 @@ export default function ExpensesTab() {
                 onChange={handleInputChange}
                 InputLabelProps={{ shrink: true }}
               />
-            </Grid>
+            </Box>
 
-            <Grid item xs={12}>
+            <Box>
               <TextField
                 name="description"
                 label="Description"
@@ -494,9 +493,9 @@ export default function ExpensesTab() {
                 onChange={handleInputChange}
                 placeholder="e.g., Lunch at cafeteria"
               />
-            </Grid>
+            </Box>
 
-            <Grid item xs={12} sm={6}>
+            <Box sx={{ width: { xs: '100%', sm: '48%' }, display: 'inline-block' }}>
               <TextField
                 name="amount"
                 label="Amount"
@@ -507,9 +506,9 @@ export default function ExpensesTab() {
                 inputProps={{ step: "0.01", min: "0" }}
                 placeholder="0.00"
               />
-            </Grid>
+            </Box>
 
-            <Grid item xs={12} sm={6}>
+            <Box sx={{ width: { xs: '100%', sm: '48%' }, display: 'inline-block', ml: { sm: '4%' } }}>
               <FormControl fullWidth>
                 <InputLabel>Category</InputLabel>
                 <Select
@@ -525,8 +524,8 @@ export default function ExpensesTab() {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={handleCloseDialog} color="inherit">
