@@ -36,6 +36,12 @@ public class FinanceServiceImpl implements FinanceService {
     }
 
     @Override
+    public ExpenseCategory saveCategory(ExpenseCategory category) {
+        // For internal use when userId is already set
+        return categoryRepository.save(category);
+    }
+
+    @Override
     public Optional<ExpenseCategory> getCategoryById(UUID id, UUID userId) {
         return categoryRepository.findById(id)
             .filter(category -> category.getUserId().equals(userId));
