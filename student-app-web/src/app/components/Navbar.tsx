@@ -28,6 +28,7 @@ export default function Navbar() {
         <Box className="navbar-links">
           <Button component={Link} href="/dashboard" className="navbar-link">Dashboard</Button>
           <Button component={Link} href="/calendar" className="navbar-link">Calendar</Button>
+          <Button component={Link} href="/tasks" className="navbar-link">To-Do List</Button>
           <Button component={Link} href="/pomodoro" className="navbar-link">Pomodoro</Button>
           <Button component={Link} href="/finance" className="navbar-link">Finance</Button>
           {isAuthenticated && (
