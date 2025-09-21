@@ -94,6 +94,55 @@ CREATE TABLE financial_goals (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Task management tables
+
+-- Task columns (customizable per user)
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='task_columns' AND xtype='U')
+CREATE TABLE task_columns (
+    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    user_id UNIQUEIDENTIFIER NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    color VARCHAR(7), -- hex color
+    position INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION
+);
+
+-- Tasks table
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='tasks' AND xtype='U')
+CREATE TABLE tasks (
+    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    user_id UNIQUEIDENTIFIER NOT NULL,
+    column_id UNIQUEIDENTIFIER NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    priority VARCHAR(20) CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH')) DEFAULT 'MEDIUM',
+    assigned_to UNIQUEIDENTIFIER, -- for future collaboration
+    due_date DATETIME,
+    position INT DEFAULT 0, -- for ordering within columns
+    tags VARCHAR(1000), -- comma-separated tags
+    project_id UNIQUEIDENTIFIER, -- for future project grouping
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION,
+    FOREIGN KEY (column_id) REFERENCES task_columns(id) ON DELETE NO ACTION,
+    FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE NO ACTION
+);
+
+-- Task attachments (future enhancement)
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='task_attachments' AND xtype='U')
+CREATE TABLE task_attachments (
+    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    task_id UNIQUEIDENTIFIER NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_url VARCHAR(500) NOT NULL,
+    file_size BIGINT,
+    content_type VARCHAR(100),
+    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+);
+
 -- Create indexes for better performance
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'idx_expenses_user_date' AND object_id = OBJECT_ID('expenses'))
 CREATE INDEX idx_expenses_user_date ON expenses(user_id, expense_date);
@@ -106,3 +155,16 @@ CREATE INDEX idx_budget_limits_user_period ON budget_limits(user_id, budget_year
 
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'idx_expense_categories_user' AND object_id = OBJECT_ID('expense_categories'))
 CREATE INDEX idx_expense_categories_user ON expense_categories(user_id);
+
+-- Task management indexes
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'idx_task_columns_user' AND object_id = OBJECT_ID('task_columns'))
+CREATE INDEX idx_task_columns_user ON task_columns(user_id);
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'idx_tasks_user_column' AND object_id = OBJECT_ID('tasks'))
+CREATE INDEX idx_tasks_user_column ON tasks(user_id, column_id);
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'idx_tasks_due_date' AND object_id = OBJECT_ID('tasks'))
+CREATE INDEX idx_tasks_due_date ON tasks(due_date);
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'idx_task_attachments_task' AND object_id = OBJECT_ID('task_attachments'))
+CREATE INDEX idx_task_attachments_task ON task_attachments(task_id);

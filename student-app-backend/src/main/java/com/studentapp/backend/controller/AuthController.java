@@ -4,6 +4,7 @@ import com.studentapp.common.model.User;
 import com.studentapp.backend.repository.UserRepository;
 import com.studentapp.backend.security.JwtUtil;
 import com.studentapp.backend.service.CategoryInitializationService;
+import com.studentapp.backend.service.TaskInitializationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,9 @@ public class AuthController {
 
     @Autowired
     private CategoryInitializationService categoryInitializationService;
+
+    @Autowired
+    private TaskInitializationService taskInitializationService;
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -45,7 +49,10 @@ public class AuthController {
             // Create default categories for the new user
             categoryInitializationService.createDefaultCategoriesForUser(savedUser.getId());
             
-            return "User registered successfully with default categories";
+            // Create default task columns for the new user
+            taskInitializationService.createDefaultTaskColumnsForUser(savedUser.getId());
+            
+            return "User registered successfully with default categories and task columns";
             
         } catch (Exception e) {
             // Log the error (you should use proper logging in production)
