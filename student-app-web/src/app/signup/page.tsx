@@ -57,10 +57,60 @@ export default function SignupPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+        background:
+          'linear-gradient(135deg, rgba(37,99,235,1) 0%, rgba(147,51,234,1) 50%, rgba(20,184,166,1) 100%)',
         padding: {xs: 2, md: 4}
       }}
     >
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.18,
+          backgroundImage:
+            "url('https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1280&fit=crop')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      />
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '20%',
+          left: '20%',
+          width: 56,
+          height: 56,
+          bgcolor: '#f59e0b',
+          borderRadius: '50%',
+          opacity: 0.6
+        }}
+      />
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: '22%',
+          right: '18%',
+          width: 44,
+          height: 44,
+          bgcolor: '#14b8a6',
+          borderRadius: '50%',
+          opacity: 0.6
+        }}
+      />
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: '30%',
+          left: '35%',
+          width: 32,
+          height: 32,
+          bgcolor: '#a855f7',
+          borderRadius: '50%',
+          opacity: 0.6
+        }}
+      />
       <Paper
         elevation={6}
         sx={{
@@ -71,6 +121,8 @@ export default function SignupPage() {
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
+          zIndex: 1,
+          bgcolor: '#fff'
         }}
       >
         <Box
