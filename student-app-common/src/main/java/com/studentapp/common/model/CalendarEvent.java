@@ -10,15 +10,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.PrePersist;
 
 @Entity
 @Table(name = "calendar_events")
 public class CalendarEvent {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
   private String id;
 
   @Column(name = "event_name", nullable = false)
@@ -49,6 +47,13 @@ public class CalendarEvent {
 
   public CalendarEvent() {
     // JPA requires a no-arg constructor
+  }
+
+  @PrePersist
+  private void generateId() {
+    if (this.id == null) {
+      this.id = UUID.randomUUID().toString();
+    }
   }
 
   public CalendarEvent(String title,String description, LocalDateTime startTime,
