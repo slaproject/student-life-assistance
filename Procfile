@@ -1,0 +1,1 @@
+web: java -jar student-app-backend/target/student-app-backend-1.0.0-SNAPSHOT.jar
