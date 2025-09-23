@@ -16,7 +16,6 @@ import {
 import { Person, Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 
@@ -39,8 +38,11 @@ export default function SignupPage() {
       await axios.post(`${API_BASE_URL}/api/auth/signup`, { username, email, password });
       setSuccess("Signup successful! Please login.");
       setTimeout(() => router.push("/login"), 1500);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Signup failed");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Signup failed";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

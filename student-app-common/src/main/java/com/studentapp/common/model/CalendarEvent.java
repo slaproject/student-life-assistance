@@ -18,13 +18,13 @@ import jakarta.persistence.GenerationType;
 public class CalendarEvent {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private String id;
 
   @Column(name = "event_name", nullable = false)
   private String eventName;
 
-  @Column(columnDefinition = "NVARCHAR(MAX)")
+  @Column(columnDefinition = "TEXT")
   private String description;
 
   @Column(name = "start_time", nullable = false)

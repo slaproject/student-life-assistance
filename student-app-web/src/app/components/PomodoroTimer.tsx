@@ -38,13 +38,13 @@ const PomodoroTimer = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   
   // Timer interval ref
-  const timerIntervalRef = useRef(null);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Audio for timer completion
-  const audioRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   
   // Format time as HH:MM:SS or MM:SS depending on duration
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -102,7 +102,9 @@ const PomodoroTimer = () => {
     timerIntervalRef.current = setInterval(() => {
       setTimeLeft(prevTime => {
         if (prevTime <= 1) {
-          clearInterval(timerIntervalRef.current);
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+          }
           handleTimerComplete();
           return 0;
         }
@@ -127,7 +129,7 @@ const PomodoroTimer = () => {
   };
   
   // Set timer mode
-  const setTimerDuration = (mode, duration) => {
+  const setTimerDuration = (mode: string, duration: number) => {
     pauseTimer();
     setTimerMode(mode);
     setTotalTime(duration);
@@ -303,7 +305,7 @@ const PomodoroTimer = () => {
               color="primary"
               onClick={() => {
                 const mins = prompt("Enter custom time in minutes:", "25");
-                if (mins && !isNaN(mins) && mins > 0) {
+                if (mins && !isNaN(Number(mins)) && Number(mins) > 0) {
                   setTimerDuration('custom', parseInt(mins) * 60);
                 }
               }}

@@ -39,13 +39,9 @@ export default function Column({
   onTaskClick,
   onTaskEdit,
   onTaskDelete,
-  onColumnEdit,
-  isDragging = false
+  onColumnEdit
 }: ColumnProps) {
   const taskCount = tasks.length;
-  const completedTasks = tasks.filter(task => 
-    task.column && task.column.title && task.column.title.toLowerCase() === 'done'
-  ).length;
 
   const getColumnHeaderColor = (title: string) => {
     if (!title) return column.color || '#667eea';

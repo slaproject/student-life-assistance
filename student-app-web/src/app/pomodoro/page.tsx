@@ -99,7 +99,7 @@ export default function PomodoroPage() {
               </Box>
 
               <Typography variant="subtitle2" sx={{ mt: 3, fontStyle: 'italic', color: '#3f51b5' }}>
-                "The Pomodoro Technique isn't about how many pomodoros you complete – it's about how you feel at the end of the day."
+                &ldquo;The Pomodoro Technique isn&apos;t about how many pomodoros you complete &ndash; it&apos;s about how you feel at the end of the day.&rdquo;
               </Typography>
             </Paper>
           </Box>
