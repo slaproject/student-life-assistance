@@ -29,7 +29,9 @@ export function getApiClient() {
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
-    }
+      'Accept': 'application/json',
+    },
+    withCredentials: true, // Include cookies and credentials
   });
   
   instance.interceptors.request.use((config) => {
@@ -40,14 +42,34 @@ export function getApiClient() {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
       }
+      
+      // Ensure proper headers for CORS
+      if (config.headers) {
+        config.headers['Accept'] = 'application/json';
+        config.headers['Content-Type'] = 'application/json';
+      }
     }
     return config;
+  }, (error) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
   });
 
   // Response interceptor for error handling
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
+      console.error('API Error:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        config: {
+          method: error.config?.method,
+          url: error.config?.url,
+          headers: error.config?.headers
+        }
+      });
+      
       if (error.response?.status === 401) {
         // Clear token and redirect to login on unauthorized
         if (typeof window !== "undefined") {
