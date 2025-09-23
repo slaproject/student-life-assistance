@@ -1,6 +1,7 @@
 package com.studentapp.backend.controller;
 
 import com.studentapp.backend.service.FinanceService;
+import com.studentapp.backend.repository.UserRepository;
 import com.studentapp.common.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,17 +24,27 @@ public class FinanceController {
     @Autowired
     private FinanceService financeService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    private UUID resolveUserId(Authentication authentication) {
+        String username = authentication.getName();
+        return userRepository.findByUsername(username)
+                .map(com.studentapp.common.model.User::getId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+    }
+
     // Expense Category endpoints
     @GetMapping("/categories")
     public ResponseEntity<List<ExpenseCategory>> getAllCategories(Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         List<ExpenseCategory> categories = financeService.getActiveCategories(userId);
         return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/categories/{id}")
     public ResponseEntity<ExpenseCategory> getCategoryById(@PathVariable UUID id, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Optional<ExpenseCategory> category = financeService.getCategoryById(id, userId);
         return category.map(ResponseEntity::ok)
                       .orElse(ResponseEntity.notFound().build());
@@ -41,14 +52,14 @@ public class FinanceController {
 
     @PostMapping("/categories")
     public ResponseEntity<ExpenseCategory> createCategory(@RequestBody ExpenseCategory category, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         ExpenseCategory savedCategory = financeService.saveCategory(category, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
 
     @PutMapping("/categories/{id}")
     public ResponseEntity<ExpenseCategory> updateCategory(@PathVariable UUID id, @RequestBody ExpenseCategory category, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Optional<ExpenseCategory> existingCategory = financeService.getCategoryById(id, userId);
 
         if (existingCategory.isPresent()) {
@@ -61,7 +72,7 @@ public class FinanceController {
 
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable UUID id, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         financeService.deleteCategory(id, userId);
         return ResponseEntity.noContent().build();
     }
@@ -69,14 +80,14 @@ public class FinanceController {
     // Expense endpoints
     @GetMapping("/expenses")
     public ResponseEntity<List<Expense>> getAllExpenses(Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         List<Expense> expenses = financeService.getAllExpenses(userId);
         return ResponseEntity.ok(expenses);
     }
 
     @GetMapping("/expenses/{id}")
     public ResponseEntity<Expense> getExpenseById(@PathVariable UUID id, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Optional<Expense> expense = financeService.getExpenseById(id, userId);
         return expense.map(ResponseEntity::ok)
                      .orElse(ResponseEntity.notFound().build());
@@ -84,14 +95,14 @@ public class FinanceController {
 
     @GetMapping("/expenses/month/{year}/{month}")
     public ResponseEntity<List<Expense>> getExpensesByMonth(@PathVariable int year, @PathVariable int month, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         List<Expense> expenses = financeService.getExpensesByMonth(userId, month, year);
         return ResponseEntity.ok(expenses);
     }
 
     @GetMapping("/expenses/category/{categoryId}")
     public ResponseEntity<List<Expense>> getExpensesByCategory(@PathVariable UUID categoryId, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         List<Expense> expenses = financeService.getExpensesByCategory(categoryId, userId);
         return ResponseEntity.ok(expenses);
     }
@@ -101,7 +112,7 @@ public class FinanceController {
             @RequestParam String startDate,
             @RequestParam String endDate,
             Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         LocalDate start = LocalDate.parse(startDate);
         LocalDate end = LocalDate.parse(endDate);
         List<Expense> expenses = financeService.getExpensesByDateRange(userId, start, end);
@@ -110,14 +121,14 @@ public class FinanceController {
 
     @PostMapping("/expenses")
     public ResponseEntity<Expense> createExpense(@RequestBody Expense expense, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Expense savedExpense = financeService.saveExpense(expense, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedExpense);
     }
 
     @PutMapping("/expenses/{id}")
     public ResponseEntity<Expense> updateExpense(@PathVariable UUID id, @RequestBody Expense expense, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Optional<Expense> existingExpense = financeService.getExpenseById(id, userId);
 
         if (existingExpense.isPresent()) {
@@ -130,7 +141,7 @@ public class FinanceController {
 
     @DeleteMapping("/expenses/{id}")
     public ResponseEntity<Void> deleteExpense(@PathVariable UUID id, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         financeService.deleteExpense(id, userId);
         return ResponseEntity.noContent().build();
     }
@@ -141,14 +152,14 @@ public class FinanceController {
             @RequestParam int month,
             @RequestParam int year,
             Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         List<BudgetLimit> budgetLimits = financeService.getBudgetLimitsByMonth(userId, month, year);
         return ResponseEntity.ok(budgetLimits);
     }
 
     @GetMapping("/budget-limits/{id}")
     public ResponseEntity<BudgetLimit> getBudgetLimitById(@PathVariable UUID id, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Optional<BudgetLimit> budgetLimit = financeService.getBudgetLimitById(id, userId);
         return budgetLimit.map(ResponseEntity::ok)
                          .orElse(ResponseEntity.notFound().build());
@@ -156,14 +167,14 @@ public class FinanceController {
 
     @PostMapping("/budget-limits")
     public ResponseEntity<BudgetLimit> createBudgetLimit(@RequestBody BudgetLimit budgetLimit, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         BudgetLimit savedBudgetLimit = financeService.saveBudgetLimit(budgetLimit, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBudgetLimit);
     }
 
     @PutMapping("/budget-limits/{id}")
     public ResponseEntity<BudgetLimit> updateBudgetLimit(@PathVariable UUID id, @RequestBody BudgetLimit budgetLimit, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Optional<BudgetLimit> existingBudgetLimit = financeService.getBudgetLimitById(id, userId);
 
         if (existingBudgetLimit.isPresent()) {
@@ -176,7 +187,7 @@ public class FinanceController {
 
     @DeleteMapping("/budget-limits/{id}")
     public ResponseEntity<Void> deleteBudgetLimit(@PathVariable UUID id, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         financeService.deleteBudgetLimit(id, userId);
         return ResponseEntity.noContent().build();
     }
@@ -184,14 +195,14 @@ public class FinanceController {
     // Financial Goal endpoints
     @GetMapping("/goals")
     public ResponseEntity<List<FinancialGoal>> getAllFinancialGoals(Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         List<FinancialGoal> goals = financeService.getActiveFinancialGoals(userId);
         return ResponseEntity.ok(goals);
     }
 
     @GetMapping("/goals/{id}")
     public ResponseEntity<FinancialGoal> getFinancialGoalById(@PathVariable UUID id, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Optional<FinancialGoal> goal = financeService.getFinancialGoalById(id, userId);
         return goal.map(ResponseEntity::ok)
                   .orElse(ResponseEntity.notFound().build());
@@ -199,14 +210,14 @@ public class FinanceController {
 
     @PostMapping("/goals")
     public ResponseEntity<FinancialGoal> createFinancialGoal(@RequestBody FinancialGoal goal, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         FinancialGoal savedGoal = financeService.saveFinancialGoal(goal, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedGoal);
     }
 
     @PutMapping("/goals/{id}")
     public ResponseEntity<FinancialGoal> updateFinancialGoal(@PathVariable UUID id, @RequestBody FinancialGoal goal, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Optional<FinancialGoal> existingGoal = financeService.getFinancialGoalById(id, userId);
 
         if (existingGoal.isPresent()) {
@@ -219,7 +230,7 @@ public class FinanceController {
 
     @DeleteMapping("/goals/{id}")
     public ResponseEntity<Void> deleteFinancialGoal(@PathVariable UUID id, Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         financeService.deleteFinancialGoal(id, userId);
         return ResponseEntity.noContent().build();
     }
@@ -230,7 +241,7 @@ public class FinanceController {
             @RequestParam int month,
             @RequestParam int year,
             Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         BigDecimal total = financeService.getTotalExpensesByMonth(userId, month, year);
         return ResponseEntity.ok(total);
     }
@@ -240,7 +251,7 @@ public class FinanceController {
             @RequestParam int month,
             @RequestParam int year,
             Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Map<String, BigDecimal> categoryExpenses = financeService.getCategoryWiseExpenses(userId, month, year);
         return ResponseEntity.ok(categoryExpenses);
     }
@@ -250,7 +261,7 @@ public class FinanceController {
             @RequestParam int month,
             @RequestParam int year,
             Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Map<String, Object> analysis = financeService.getBudgetAnalysis(userId, month, year);
         return ResponseEntity.ok(analysis);
     }
@@ -259,14 +270,14 @@ public class FinanceController {
     public ResponseEntity<Map<String, Object>> getSpendingTrends(
             @RequestParam(defaultValue = "6") int months,
             Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         Map<String, Object> trends = financeService.getSpendingTrends(userId, months);
         return ResponseEntity.ok(trends);
     }
 
     @GetMapping("/analytics/budget-alerts")
     public ResponseEntity<List<Map<String, Object>>> getBudgetAlerts(Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = resolveUserId(authentication);
         List<Map<String, Object>> alerts = financeService.getBudgetAlerts(userId);
         return ResponseEntity.ok(alerts);
     }
