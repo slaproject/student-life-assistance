@@ -16,13 +16,13 @@ public class DatabaseConfig {
     @Value("${spring.datasource.url}")
     private String jdbcUrl;
 
-    @Value("${spring.datasource.username}")
+    @Value("${spring.datasource.username:#{null}}")
     private String username;
 
-    @Value("${spring.datasource.password}")
+    @Value("${spring.datasource.password:#{null}}")
     private String password;
 
-    @Value("${spring.datasource.driver-class-name}")
+    @Value("${spring.datasource.driver-class-name:org.postgresql.Driver}")
     private String driverClassName;
 
     @Bean
@@ -30,8 +30,16 @@ public class DatabaseConfig {
     public DataSource dataSource() {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(jdbcUrl);
-        config.setUsername(username);
-        config.setPassword(password);
+        
+        // Only set username and password if they are provided separately
+        // (not embedded in the URL)
+        if (username != null) {
+            config.setUsername(username);
+        }
+        if (password != null) {
+            config.setPassword(password);
+        }
+        
         config.setDriverClassName(driverClassName);
 
         // Connection pool settings
