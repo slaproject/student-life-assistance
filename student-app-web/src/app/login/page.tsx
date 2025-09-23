@@ -40,8 +40,11 @@ export default function LoginPage() {
       // Store JWT via AuthContext (also persists to localStorage there)
       login(token);
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || "Login failed");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Login failed";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -18,7 +18,7 @@ This project follows a modular architecture with three main components:
 
 - **Backend**: Spring Boot 3.3.1, Spring Security, JWT Authentication
 - **Frontend**: JavaFX 24.0.1, FXML for UI layouts
-- **Database**: Microsoft SQL Server
+- **Database**: PostgreSQL
 - **Build Tool**: Maven
 - **Java Version**: 23
 
@@ -73,16 +73,16 @@ Before running the application, ensure you have:
 
 - **Java 23** or higher
 - **Maven 3.6+**
-- **Microsoft SQL Server** (running on localhost:1433)
+- **PostgreSQL** (running on localhost:5432)
 - **Database**: `StudentLifeDB` (will be created automatically)
 
 ## ⚙️ Setup Instructions
 
 ### 1. Database Setup
 
-1. Install and start Microsoft SQL Server
-2. The application will automatically create the database and tables on first run
-3. Mock data will be inserted automatically
+1. Install and start PostgreSQL
+2. Create the database: `CREATE DATABASE StudentLifeDB;`
+3. The application will automatically create the tables and insert mock data on first run
 
 ### 2. Configuration
 

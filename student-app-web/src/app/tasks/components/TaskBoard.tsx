@@ -8,7 +8,6 @@ import {
   CircularProgress,
   Alert,
   Fab,
-  Chip,
   Stack,
   TextField,
   InputAdornment,
@@ -29,7 +28,6 @@ import ColumnModal from './ColumnModal';
 
 export default function TaskBoard() {
   const [columns, setColumns] = useState<TaskColumn[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,7 +70,6 @@ export default function TaskBoard() {
       }));
 
       setColumns(columnsWithTasks);
-      setTasks(tasksData);
     } catch (err) {
       console.error('Failed to load data:', err);
       setError('Failed to load tasks. Please try again.');
@@ -233,14 +230,6 @@ export default function TaskBoard() {
       loadData();
     }
   };
-
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(task => 
-    task.column && task.column.title && (
-      task.column.title.toLowerCase().includes('done') || 
-      task.column.title.toLowerCase().includes('completed')
-    )
-  ).length;
 
   if (loading) {
     return (

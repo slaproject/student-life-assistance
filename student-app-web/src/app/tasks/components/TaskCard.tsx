@@ -31,7 +31,7 @@ interface TaskCardProps {
   onDelete?: (taskId: string) => void;
 }
 
-export default function TaskCard({ task, index, onClick, onEdit, onDelete }: TaskCardProps) {
+export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps) {
   const isOverdue = task.dueDate ? isPast(new Date(task.dueDate)) : false;
   const isDueSoon = task.dueDate ? 
     isAfter(new Date(task.dueDate), new Date()) && 
@@ -46,11 +46,6 @@ export default function TaskCard({ task, index, onClick, onEdit, onDelete }: Tas
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onEdit?.(task);
-  };
-
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete?.(task.id);
   };
 
   const parseTags = (tags?: string): string[] => {

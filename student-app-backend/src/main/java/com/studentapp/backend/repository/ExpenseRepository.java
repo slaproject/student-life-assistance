@@ -19,16 +19,16 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
 
     List<Expense> findByCategoryIdOrderByExpenseDateDesc(UUID categoryId);
 
-    @Query("SELECT e FROM Expense e WHERE e.userId = :userId AND MONTH(e.expenseDate) = :month AND YEAR(e.expenseDate) = :year ORDER BY e.expenseDate DESC")
+    @Query("SELECT e FROM Expense e WHERE e.userId = :userId AND EXTRACT(MONTH FROM e.expenseDate) = :month AND EXTRACT(YEAR FROM e.expenseDate) = :year ORDER BY e.expenseDate DESC")
     List<Expense> findByUserIdAndMonth(@Param("userId") UUID userId, @Param("month") int month, @Param("year") int year);
 
-    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.userId = :userId AND MONTH(e.expenseDate) = :month AND YEAR(e.expenseDate) = :year")
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.userId = :userId AND EXTRACT(MONTH FROM e.expenseDate) = :month AND EXTRACT(YEAR FROM e.expenseDate) = :year")
     BigDecimal getTotalExpensesByUserAndMonth(@Param("userId") UUID userId, @Param("month") int month, @Param("year") int year);
 
-    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.category.id = :categoryId AND MONTH(e.expenseDate) = :month AND YEAR(e.expenseDate) = :year")
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.category.id = :categoryId AND EXTRACT(MONTH FROM e.expenseDate) = :month AND EXTRACT(YEAR FROM e.expenseDate) = :year")
     BigDecimal getTotalExpensesByCategoryAndMonth(@Param("categoryId") UUID categoryId, @Param("month") int month, @Param("year") int year);
 
-    @Query("SELECT e.category.id, e.category.name, SUM(e.amount) FROM Expense e WHERE e.userId = :userId AND MONTH(e.expenseDate) = :month AND YEAR(e.expenseDate) = :year GROUP BY e.category.id, e.category.name")
+    @Query("SELECT e.category.id, e.category.name, SUM(e.amount) FROM Expense e WHERE e.userId = :userId AND EXTRACT(MONTH FROM e.expenseDate) = :month AND EXTRACT(YEAR FROM e.expenseDate) = :year GROUP BY e.category.id, e.category.name")
     List<Object[]> getCategoryWiseExpensesByMonth(@Param("userId") UUID userId, @Param("month") int month, @Param("year") int year);
 
     @Query("SELECT COUNT(e) FROM Expense e WHERE e.userId = :userId")

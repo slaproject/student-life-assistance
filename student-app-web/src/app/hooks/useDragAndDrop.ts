@@ -29,7 +29,7 @@ export const useDragAndDrop = (
   const handleDragEnd = useCallback(async (result: DropResult) => {
     setIsDragging(false);
     
-    const { destination, source, draggableId, type } = result;
+    const { destination, source, type } = result;
 
     // No destination means dropped outside
     if (!destination) return;
@@ -56,7 +56,7 @@ export const useDragAndDrop = (
       try {
         // Update column position in backend
         await taskService.updateColumnPosition(movedColumn.id, destination.index);
-      } catch (error) {
+      } catch {
         // Revert on error
         setColumns(columns);
         onError?.('Failed to update column position');

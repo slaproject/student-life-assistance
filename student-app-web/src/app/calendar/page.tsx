@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
   Box,
   Button,
@@ -7,9 +7,6 @@ import {
   Paper,
   IconButton,
   Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
   MenuItem,
   Stack,
@@ -40,7 +37,6 @@ interface CalendarEvent {
 
 function pad(n: number) { return n.toString().padStart(2, "0"); }
 function formatDateKey(d: Date) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
-function formatMonthInput(d: Date) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; }
 
 export default function CalendarPage() {
   const api = useMemo(() => getApiClient(), []);
@@ -78,20 +74,23 @@ export default function CalendarPage() {
     };
   });
 
-  const loadEvents = async () => {
+  const loadEvents = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
       const res = await api.get<CalendarEvent[]>("/api/calendar/events");
       setEvents(res.data || []);
-    } catch (e: any) {
-      setError(e.response?.data?.message || e.message || "Failed to load events");
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error 
+        ? e.message 
+        : (e as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to load events";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [api]);
 
-  useEffect(() => { loadEvents(); }, []);
+  useEffect(() => { loadEvents(); }, [loadEvents]);
 
   const monthLabel = useMemo(
     () => currentMonth.toLocaleString(undefined, { month: "long", year: "numeric" }),
@@ -99,7 +98,7 @@ export default function CalendarPage() {
   );
 
   const eventsByDay = useMemo(() => {
-    const map = new Map<string, CalendarEvent>();
+    const map = new Map<string, CalendarEvent[]>();
     for (const ev of events) {
       const d = new Date(ev.startTime);
       const key = formatDateKey(d);
@@ -168,14 +167,24 @@ export default function CalendarPage() {
       const res = await api.post<CalendarEvent>("/api/calendar/events", payload);
       setEvents((prev) => [...prev, res.data]);
       setOpenDialog(false);
-    } catch (e: any) { setError(e.response?.data?.message || e.message || "Failed to save event"); }
+    } catch (e: unknown) { 
+      const errorMessage = e instanceof Error 
+        ? e.message 
+        : (e as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to save event";
+      setError(errorMessage); 
+    }
     finally { setLoading(false); }
   };
 
   const deleteEvent = async (id?: string) => {
     if (!id) return;
     try { setLoading(true); await api.delete(`/api/calendar/events/${id}`); setEvents((p) => p.filter((e) => e.id !== id)); }
-    catch (e: any) { setError(e.response?.data?.message || e.message || "Failed to delete event"); }
+    catch (e: unknown) { 
+      const errorMessage = e instanceof Error 
+        ? e.message 
+        : (e as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to delete event";
+      setError(errorMessage); 
+    }
     finally { setLoading(false); }
   };
 
@@ -222,8 +231,11 @@ export default function CalendarPage() {
       const res = await api.put<CalendarEvent>(`/api/calendar/events/${editingEvent.id}`, payload);
       setEvents((prev) => prev.map(e => e.id === editingEvent.id ? res.data : e));
       setOpenEditDialog(false);
-    } catch (e: any) {
-      setError(e.response?.data?.message || e.message || "Failed to update event");
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error 
+        ? e.message 
+        : (e as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to update event";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -638,7 +650,7 @@ export default function CalendarPage() {
               >
                 <Box
                   sx={{
-                    bgcolor: (theme) =>
+                    bgcolor:
                       viewEvent.eventType === 'MEETING' ? '#3949ab' :
                       viewEvent.eventType === 'PERSONAL' ? '#8e24aa' :
                       viewEvent.eventType === 'FINANCIAL' ? '#00897b' :
@@ -818,7 +830,7 @@ export default function CalendarPage() {
               >
                 <Box
                   sx={{
-                    bgcolor: (theme) =>
+                    bgcolor:
                       editingEvent.eventType === 'MEETING' ? '#3949ab' :
                       editingEvent.eventType === 'PERSONAL' ? '#8e24aa' :
                       editingEvent.eventType === 'FINANCIAL' ? '#00897b' :

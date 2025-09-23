@@ -10,7 +10,6 @@ import {
   useMediaQuery
 } from "@mui/material";
 import {
-  Assignment as AssignmentIcon,
   ViewColumn as ViewColumnIcon,
   BarChart as BarChartIcon,
   Timeline as TimelineIcon
