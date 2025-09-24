@@ -42,6 +42,8 @@ public class DatabaseConfig {
         
         config.setDriverClassName(driverClassName);
 
+        config.setAutoCommit(false);
+
         // Connection pool settings
         config.setMaximumPoolSize(10);
         config.setMinimumIdle(2);
