@@ -1,0 +1,22 @@
+name: keep-warm
+
+on:
+  schedule:
+    # Every 15 minutes, 24/7 (UTC)
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    env:
+      BACKEND_URL: "https://bored-matty-ishan-org-fd412925.koyeb.app"
+      HEALTH_PATH: "/health"   # must NOT touch the DB
+    steps:
+      - name: Warm the backend (no DB)
+        run: |
+          set -e
+          URL="${BACKEND_URL%/}${HEALTH_PATH}"
+          echo "Hitting: $URL"
+          curl -fsS --max-time 10 --retry 3 --retry-delay 2 --retry-all-errors "$URL" >/dev/null
+          echo "OK"
