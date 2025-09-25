@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BACKEND_URL: "https://bored-matty-ishan-org-fd412925.koyeb.app"
-      HEALTH_PATH: "/health"   # must NOT touch the DB
+      HEALTH_PATH: "/actuator/health"   # must NOT touch the DB
     steps:
       - name: Warm the backend (no DB)
         run: |
