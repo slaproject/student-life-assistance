@@ -53,103 +53,105 @@ export default function FinanceTabs() {
   };
 
   return (
-    <Box sx={{
-      maxWidth: 1400,
-      mx: 'auto',
-      p: { xs: 2, sm: 3 },
-      background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(102, 126, 234, 0.05))',
-      minHeight: 'calc(100vh - 64px)',
-      borderRadius: 2
-    }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <AttachMoneyIcon 
-          sx={{ 
-            mr: 2, 
-            fontSize: { xs: 28, sm: 32 }, 
-            color: '#667eea' 
-          }} 
-        />
-        <Typography 
-          variant={isMobile ? "h5" : "h4"} 
-          sx={{ 
-            color: '#2C3E50', 
-            fontWeight: 600,
-            flexGrow: 1 
-          }}
-        >
-          Student Finance Tracker
-        </Typography>
-      </Box>
-
-      {/* Tab Navigation */}
-      <Paper 
-        elevation={3} 
-        sx={{ 
-          borderRadius: 3,
-          overflow: 'hidden',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-        }}
-      >
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          aria-label="finance tabs"
-          variant={isMobile ? "fullWidth" : "standard"}
-          sx={{
-            borderBottom: 1,
-            borderColor: 'divider',
-            bgcolor: '#ffffff',
-            '& .MuiTab-root': {
-              minHeight: { xs: 60, sm: 72 },
-              fontSize: { xs: '0.875rem', sm: '1rem' },
+    <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: '#000000' }}>
+      <Box sx={{
+        maxWidth: 1400,
+        mx: 'auto',
+        p: { xs: 2, sm: 3 },
+        minHeight: 'calc(100vh - 64px)',
+      }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <AttachMoneyIcon
+            sx={{
+              mr: 2,
+              fontSize: { xs: 28, sm: 32 },
+              color: '#3b82f6'
+            }}
+          />
+          <Typography
+            variant={isMobile ? "h5" : "h4"}
+            sx={{
+              color: '#ffffff',
               fontWeight: 600,
-              textTransform: 'none',
-              color: '#666',
-              '&.Mui-selected': {
-                color: '#667eea',
-              }
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: '#667eea',
-              height: 3,
-            }
+              flexGrow: 1
+            }}
+          >
+            Student Finance Tracker
+          </Typography>
+        </Box>
+
+        {/* Tab Navigation */}
+        <Paper
+          elevation={3}
+          sx={{
+            borderRadius: 3,
+            overflow: 'hidden',
+            bgcolor: '#0a0a0a',
+            border: '1px solid #1e293b',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
           }}
         >
-          <Tab
-            icon={<AnalyticsIcon />}
-            label="Spending Analysis"
-            iconPosition="start"
+          <Tabs
+            value={activeTab}
+            onChange={handleTabChange}
+            aria-label="finance tabs"
+            variant={isMobile ? "fullWidth" : "standard"}
             sx={{
-              flexDirection: 'row',
-              gap: 1,
-              minWidth: { xs: 120, sm: 180 }
+              borderBottom: 1,
+              borderColor: '#1e293b',
+              bgcolor: '#0a0a0a',
+              '& .MuiTab-root': {
+                minHeight: { xs: 60, sm: 72 },
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                fontWeight: 600,
+                textTransform: 'none',
+                color: '#94a3b8',
+                '&.Mui-selected': {
+                  color: '#3b82f6',
+                }
+              },
+              '& .MuiTabs-indicator': {
+                backgroundColor: '#3b82f6',
+                height: 3,
+              }
             }}
-            {...a11yProps(0)}
-          />
-          <Tab
-            icon={<ReceiptIcon />}
-            label="Expenses"
-            iconPosition="start"
-            sx={{
-              flexDirection: 'row',
-              gap: 1,
-              minWidth: { xs: 120, sm: 140 }
-            }}
-            {...a11yProps(1)}
-          />
-        </Tabs>
+          >
+            <Tab
+              icon={<AnalyticsIcon />}
+              label="Spending Analysis"
+              iconPosition="start"
+              sx={{
+                flexDirection: 'row',
+                gap: 1,
+                minWidth: { xs: 120, sm: 180 }
+              }}
+              {...a11yProps(0)}
+            />
+            <Tab
+              icon={<ReceiptIcon />}
+              label="Expenses"
+              iconPosition="start"
+              sx={{
+                flexDirection: 'row',
+                gap: 1,
+                minWidth: { xs: 120, sm: 140 }
+              }}
+              {...a11yProps(1)}
+            />
+          </Tabs>
 
-        {/* Tab Content */}
-        <Box sx={{ bgcolor: '#f8f9ff' }}>
-          <TabPanel value={activeTab} index={0}>
-            <SpendingAnalysisTab />
-          </TabPanel>
-          <TabPanel value={activeTab} index={1}>
-            <ExpensesTab />
-          </TabPanel>
-        </Box>
-      </Paper>
+          {/* Tab Content */}
+          <Box sx={{ bgcolor: '#0a0a0a', p: 0 }}>
+            <TabPanel value={activeTab} index={0}>
+              <SpendingAnalysisTab />
+            </TabPanel>
+            <TabPanel value={activeTab} index={1}>
+              <ExpensesTab />
+            </TabPanel>
+          </Box>
+        </Paper>
+      </Box>
     </Box>
   );
 }

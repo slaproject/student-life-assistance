@@ -42,26 +42,26 @@ export default function TaskBoard() {
     try {
       setLoading(true);
       setError('');
-      
+
       // Fetch data from API with added error handling
       let [columnsData, tasksData] = await Promise.all([
         taskService.getColumns(),
         taskService.getTasks()
       ]);
-      
+
       // Add defensive checks to ensure data is in expected format
       if (!Array.isArray(columnsData)) {
         console.error('Invalid columnsData format:', columnsData);
         columnsData = [];
         setError('Invalid task column data received. Please try again.');
       }
-      
+
       if (!Array.isArray(tasksData)) {
         console.error('Invalid tasksData format:', tasksData);
         tasksData = [];
         setError(prev => prev ? `${prev} Invalid task data received.` : 'Invalid task data received. Please try again.');
       }
-      
+
       // Organize tasks by column with added safety checks
       const columnsWithTasks = columnsData.map(column => ({
         ...column,
@@ -120,9 +120,9 @@ export default function TaskBoard() {
   // Filter tasks based on search query
   const filterTasks = useCallback((tasks: Task[]): Task[] => {
     if (!searchQuery.trim()) return tasks;
-    
+
     const query = searchQuery.toLowerCase();
-    return tasks.filter(task => 
+    return tasks.filter(task =>
       (task.title && task.title.toLowerCase().includes(query)) ||
       (task.description && task.description.toLowerCase().includes(query)) ||
       (task.tags && task.tags.toLowerCase().includes(query))
@@ -233,9 +233,9 @@ export default function TaskBoard() {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
         alignItems: 'center',
         minHeight: 400,
         flexDirection: 'column',
@@ -250,96 +250,16 @@ export default function TaskBoard() {
   }
 
   return (
-    <Box sx={{ 
-      height: 'calc(100vh - 120px)', 
-      bgcolor: '#f8fafc',
+    <Box sx={{
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      height: 'calc(100vh - 120px)', // Adjust height to account for tabs
+      background: 'radial-gradient(circle at 50% 50%, #0a1929 0%, #000000 100%)'
     }}>
-      {/* Header */}
-      <Box sx={{ 
-        p: 3, 
-        bgcolor: 'background.paper',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-      }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>
-              My Tasks
-            </Typography>
-          </Box>
-          
-          <Stack direction="row" spacing={2} alignItems="center">
-            {/* Search */}
-            <TextField
-              placeholder="Search tasks..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                handleSearch(e.target.value);
-              }}
-              size="small"
-              sx={{ minWidth: 250 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ color: 'text.secondary' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            {/* Action Buttons */}
-            <Tooltip title="Refresh">
-              <Button
-                variant="outlined"
-                onClick={loadData}
-                startIcon={<RefreshIcon />}
-                sx={{ minWidth: 'auto', px: 2 }}
-              >
-                Refresh
-              </Button>
-            </Tooltip>
-
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => handleAddTask()}
-              sx={{
-                bgcolor: 'primary.main',
-                '&:hover': { bgcolor: 'primary.dark' },
-                borderRadius: 2,
-                textTransform: 'none',
-                fontWeight: 600
-              }}
-            >
-              Add Task
-            </Button>
-
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => handleAddColumn()}
-              sx={{
-                bgcolor: 'primary.main',
-                '&:hover': { bgcolor: 'primary.dark' },
-                borderRadius: 2,
-                textTransform: 'none',
-                fontWeight: 600
-              }}
-            >
-              Add Column
-            </Button>
-          </Stack>
-        </Stack>
-      </Box>
-
       {/* Error Alert */}
       {error && (
-        <Alert 
-          severity="error" 
+        <Alert
+          severity="error"
           sx={{ m: 2, mb: 0 }}
           onClose={() => setError('')}
         >
@@ -349,8 +269,8 @@ export default function TaskBoard() {
 
       {/* Board */}
       <Box sx={{ flex: 1, overflow: 'hidden', p: 3 }}>
-        <DragDropContext 
-          onDragStart={handleDragStart} 
+        <DragDropContext
+          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
           <Droppable droppableId="board" type="COLUMN" direction="horizontal">
@@ -369,11 +289,11 @@ export default function TaskBoard() {
                     height: 8
                   },
                   '&::-webkit-scrollbar-thumb': {
-                    backgroundColor: 'rgba(0,0,0,0.2)',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
                     borderRadius: 4
                   },
                   '&::-webkit-scrollbar-track': {
-                    backgroundColor: 'rgba(0,0,0,0.05)',
+                    backgroundColor: 'rgba(255,255,255,0.02)',
                     borderRadius: 4
                   }
                 }}
@@ -392,7 +312,7 @@ export default function TaskBoard() {
                     isDragging={isDragging}
                   />
                 ))}
-                
+
                 {/* Add Column Button */}
                 <Paper
                   sx={{
@@ -405,22 +325,22 @@ export default function TaskBoard() {
                     justifyContent: 'center',
                     borderRadius: 4,
                     border: '2px dashed',
-                    borderColor: 'primary.light',
-                    bgcolor: 'rgba(63, 81, 181, 0.05)',
+                    borderColor: '#334155',
+                    bgcolor: 'rgba(255, 255, 255, 0.02)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     '&:hover': {
-                      borderColor: 'primary.main',
-                      bgcolor: 'rgba(63, 81, 181, 0.1)',
+                      borderColor: '#3b82f6',
+                      bgcolor: 'rgba(59, 130, 246, 0.05)',
                       transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 20px rgba(63, 81, 181, 0.15)'
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
                     }
                   }}
                   onClick={handleAddColumn}
                 >
-                  <Box sx={{ textAlign: 'center', color: 'primary.main' }}>
-                    <AddIcon sx={{ fontSize: 48, mb: 1, opacity: 0.7 }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  <Box sx={{ textAlign: 'center', color: '#94a3b8' }}>
+                    <AddIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: '#ffffff' }}>
                       Add Column
                     </Typography>
                     <Typography variant="body2" sx={{ opacity: 0.7, mt: 0.5 }}>
@@ -428,7 +348,7 @@ export default function TaskBoard() {
                     </Typography>
                   </Box>
                 </Paper>
-                
+
                 {provided.placeholder}
               </Box>
             )}

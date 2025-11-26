@@ -8,23 +8,28 @@ export const API_ENDPOINTS = {
   // Auth
   LOGIN: `${API_BASE_URL}/api/auth/login`,
   REGISTER: `${API_BASE_URL}/api/auth/signup`,
-  
+
   // Tasks
   TASKS: `${API_BASE_URL}/api/tasks`,
   TASK_COLUMNS: `${API_BASE_URL}/api/tasks/columns`,
-  
+
   // Calendar
   CALENDAR: `${API_BASE_URL}/api/calendar`,
-  
+
   // Finance
   EXPENSES: `${API_BASE_URL}/api/finance/expenses`,
   EXPENSE_CATEGORIES: `${API_BASE_URL}/api/finance/categories`,
   BUDGET_LIMITS: `${API_BASE_URL}/api/finance/budgets`,
   FINANCIAL_GOALS: `${API_BASE_URL}/api/finance/goals`,
+
+  // Summary
+  SUMMARY_GENERATE: `${API_BASE_URL}/api/summary/generate`,
+  SUMMARY_USAGE: `${API_BASE_URL}/api/summary/usage`,
+  SUMMARY_HISTORY: `${API_BASE_URL}/api/summary/history`,
 };
 
 export function getApiClient() {
-  const instance = axios.create({ 
+  const instance = axios.create({
     baseURL: API_BASE_URL,
     timeout: 10000,
     headers: {
@@ -33,7 +38,7 @@ export function getApiClient() {
     },
     withCredentials: true, // Include cookies and credentials
   });
-  
+
   instance.interceptors.request.use((config) => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("token");
@@ -42,7 +47,7 @@ export function getApiClient() {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
       }
-      
+
       // Ensure proper headers for CORS
       if (config.headers) {
         config.headers['Accept'] = 'application/json';
@@ -69,9 +74,9 @@ export function getApiClient() {
           headers: error.config?.headers
         }
       });
-      
-      if (error.response?.status === 401) {
-        // Clear token and redirect to login on unauthorized
+
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        // Clear token and redirect to login on unauthorized or forbidden
         if (typeof window !== "undefined") {
           localStorage.removeItem("token");
           window.location.href = "/login";
@@ -80,6 +85,24 @@ export function getApiClient() {
       return Promise.reject(error);
     }
   );
-  
+
   return instance;
 }
+
+export const summaryService = {
+  generateSummary: async (text: string, sourceType: 'TEXT' | 'YOUTUBE' = 'TEXT', videoUrl?: string) => {
+    const client = getApiClient();
+    const response = await client.post(API_ENDPOINTS.SUMMARY_GENERATE, { text, sourceType, videoUrl });
+    return response.data;
+  },
+  getUsage: async () => {
+    const client = getApiClient();
+    const response = await client.get(API_ENDPOINTS.SUMMARY_USAGE);
+    return response.data;
+  },
+  getHistory: async () => {
+    const client = getApiClient();
+    const response = await client.get(API_ENDPOINTS.SUMMARY_HISTORY);
+    return response.data;
+  }
+};

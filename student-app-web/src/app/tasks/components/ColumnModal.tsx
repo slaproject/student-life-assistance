@@ -99,17 +99,24 @@ export default function ColumnModal({
       maxWidth="sm"
       fullWidth
       PaperProps={{
-        sx: { borderRadius: 3, overflow: 'hidden' }
+        sx: {
+          borderRadius: 3,
+          overflow: 'hidden',
+          bgcolor: '#1e293b',
+          color: '#ffffff',
+          border: '1px solid #334155'
+        }
       }}
     >
       <DialogTitle
         sx={{
-          bgcolor: 'primary.main',
+          bgcolor: '#0f172a',
           color: 'white',
           py: 2,
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          borderBottom: '1px solid #334155'
         }}
       >
         <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '1.25rem' }}>
@@ -118,7 +125,7 @@ export default function ColumnModal({
         <IconButton
           onClick={onClose}
           size="small"
-          sx={{ color: 'rgba(255,255,255,0.8)' }}
+          sx={{ color: 'rgba(255,255,255,0.5)', '&:hover': { color: '#ffffff' } }}
         >
           <CloseIcon />
         </IconButton>
@@ -140,14 +147,46 @@ export default function ColumnModal({
             required
             placeholder="e.g., To Do, In Progress, Done"
             variant="outlined"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                color: '#ffffff',
+                bgcolor: 'rgba(255,255,255,0.05)',
+                '& fieldset': { borderColor: '#334155' },
+                '&:hover fieldset': { borderColor: '#475569' },
+                '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+              },
+              '& .MuiInputLabel-root': { color: '#94a3b8' },
+              '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' }
+            }}
           />
 
           <FormControl fullWidth>
-            <InputLabel>Color</InputLabel>
+            <InputLabel sx={{ color: '#94a3b8', '&.Mui-focused': { color: '#3b82f6' } }}>Color</InputLabel>
             <Select
               value={color}
               onChange={(e) => setColor(e.target.value)}
               label="Color"
+              sx={{
+                color: '#ffffff',
+                bgcolor: 'rgba(255,255,255,0.05)',
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
+                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
+                '& .MuiSvgIcon-root': { color: '#94a3b8' }
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    bgcolor: '#1e293b',
+                    border: '1px solid #334155',
+                    '& .MuiMenuItem-root': {
+                      color: '#ffffff',
+                      '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+                      '&.Mui-selected': { bgcolor: 'rgba(59, 130, 246, 0.2)' }
+                    }
+                  }
+                }
+              }}
             >
               {colorOptions.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -158,7 +197,7 @@ export default function ColumnModal({
                         height: 20,
                         borderRadius: '50%',
                         bgcolor: option.value,
-                        border: '1px solid rgba(0,0,0,0.1)'
+                        border: '1px solid rgba(255,255,255,0.2)'
                       }}
                     />
                     {option.label}
@@ -176,11 +215,23 @@ export default function ColumnModal({
             fullWidth
             helperText="Position where this column will be inserted. Existing columns will shift right automatically."
             variant="outlined"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                color: '#ffffff',
+                bgcolor: 'rgba(255,255,255,0.05)',
+                '& fieldset': { borderColor: '#334155' },
+                '&:hover fieldset': { borderColor: '#475569' },
+                '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+              },
+              '& .MuiInputLabel-root': { color: '#94a3b8' },
+              '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' },
+              '& .MuiFormHelperText-root': { color: '#64748b' }
+            }}
           />
 
           {/* Preview */}
-          <Box sx={{ p: 2, border: '1px dashed rgba(0,0,0,0.2)', borderRadius: 2 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          <Box sx={{ p: 2, border: '1px dashed #334155', borderRadius: 2, bgcolor: 'rgba(0,0,0,0.2)' }}>
+            <Typography variant="body2" sx={{ mb: 1, color: '#94a3b8' }}>
               Preview:
             </Typography>
             <Box
@@ -205,27 +256,27 @@ export default function ColumnModal({
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ p: 3, gap: 1 }}>
+      <DialogActions sx={{ p: 3, gap: 1, borderTop: '1px solid #334155' }}>
         {isEdit && onDelete && (
           <Button
             onClick={handleDelete}
             color="error"
             variant="outlined"
             startIcon={<DeleteIcon />}
-            sx={{ mr: 'auto' }}
+            sx={{ mr: 'auto', borderColor: 'error.main', color: 'error.main' }}
           >
             Delete Column
           </Button>
         )}
-        
+
         <Button
           onClick={onClose}
-          color="inherit"
           variant="outlined"
+          sx={{ color: '#94a3b8', borderColor: '#334155', '&:hover': { borderColor: '#94a3b8', color: '#ffffff' } }}
         >
           Cancel
         </Button>
-        
+
         <Button
           onClick={handleSave}
           color="primary"
