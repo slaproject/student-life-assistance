@@ -79,9 +79,9 @@ class FinanceService {
       const response = await this.api.get('/api/finance/categories');
       console.log('Categories API response:', response);
       console.log('Categories response data:', response.data);
-      
+
       const data = response.data;
-      
+
       // Ensure we have an array and convert types
       if (Array.isArray(data)) {
         console.log('Categories data is array, length:', data.length);
@@ -100,13 +100,14 @@ class FinanceService {
         console.log('Converted categories:', convertedCategories);
         return convertedCategories;
       }
-      
+
       console.log('Categories data is not an array:', typeof data, data);
       return [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching categories:', error);
-      console.error('Error details:', error.response?.data);
-      console.error('Error status:', error.response?.status);
+      const err = error as { response?: { status?: number; data?: unknown } };
+      console.error('Error details:', err.response?.data);
+      console.error('Error status:', err.response?.status);
       // Return empty array instead of throwing to prevent component crashes
       return [];
     }
@@ -191,7 +192,7 @@ class FinanceService {
     ];
 
     const createdCategories: ExpenseCategory[] = [];
-    
+
     for (const categoryData of defaultCategories) {
       try {
         const createdCategory = await this.createCategory(categoryData);
@@ -200,7 +201,7 @@ class FinanceService {
         console.error('Error creating default category:', categoryData.name, error);
       }
     }
-    
+
     return createdCategories;
   }
 
@@ -240,7 +241,7 @@ class FinanceService {
       console.log('Expenses API response:', response);
       console.log('Expenses response data:', response.data);
       const data = response.data;
-      
+
       // Ensure we have an array and convert types
       if (Array.isArray(data)) {
         console.log('Expenses data is array, length:', data.length);
@@ -249,7 +250,7 @@ class FinanceService {
           console.log('Expense date:', expense.expenseDate);
           console.log('Expense amount:', expense.amount);
           console.log('Expense category:', expense.category);
-          
+
           // Better amount conversion
           let amount = 0;
           if (expense.amount !== undefined && expense.amount !== null) {
@@ -258,13 +259,13 @@ class FinanceService {
               amount = numAmount;
             }
           }
-          
+
           console.log('Service amount conversion:', {
             original: expense.amount,
             converted: amount,
             type: typeof expense.amount
           });
-          
+
           return {
             id: expense.id?.toString() || '',
             title: expense.title || '',
@@ -285,7 +286,7 @@ class FinanceService {
           };
         });
       }
-      
+
       return [];
     } catch (error) {
       console.error('Error fetching expenses:', error);
@@ -298,7 +299,7 @@ class FinanceService {
     try {
       const response = await this.api.get(`/api/finance/expenses/month/${year}/${month}`);
       const data = response.data;
-      
+
       if (Array.isArray(data)) {
         return data.map(expense => ({
           id: expense.id?.toString() || '',
@@ -319,7 +320,7 @@ class FinanceService {
           userId: expense.userId?.toString() || ''
         }));
       }
-      
+
       return [];
     } catch (error) {
       console.error('Error fetching expenses by month:', error);
@@ -497,7 +498,7 @@ class FinanceService {
         params: { month, year }
       });
       const data = response.data;
-      
+
       // Convert BigDecimal values to numbers
       const convertedData: CategoryWiseExpenses = {};
       if (data && typeof data === 'object') {
@@ -505,7 +506,7 @@ class FinanceService {
           convertedData[key] = Number(value) || 0;
         });
       }
-      
+
       return convertedData;
     } catch (error) {
       console.error('Error fetching category-wise expenses:', error);
@@ -542,16 +543,16 @@ class FinanceService {
         params: { months }
       });
       const data = response.data;
-      
+
       if (data && data.monthlyTotals && Array.isArray(data.monthlyTotals)) {
         return {
-          monthlyTotals: data.monthlyTotals.map((trend: any) => ({
+          monthlyTotals: data.monthlyTotals.map((trend: { month?: string; total?: number }) => ({
             month: trend.month || '',
             total: Number(trend.total) || 0
           }))
         };
       }
-      
+
       return { monthlyTotals: [] };
     } catch (error) {
       console.error('Error fetching spending trends:', error);
@@ -563,9 +564,9 @@ class FinanceService {
     try {
       const response = await this.api.get('/api/finance/analytics/budget-alerts');
       const data = response.data;
-      
+
       if (Array.isArray(data)) {
-        return data.map((alert: any) => ({
+        return data.map((alert: { categoryName?: string; budgetLimit?: number; spent?: number; percentageUsed?: number; alertThreshold?: number }) => ({
           categoryName: alert.categoryName || '',
           budgetLimit: Number(alert.budgetLimit) || 0,
           spent: Number(alert.spent) || 0,
@@ -573,7 +574,7 @@ class FinanceService {
           alertThreshold: Number(alert.alertThreshold) || 0
         }));
       }
-      
+
       return [];
     } catch (error) {
       console.error('Error fetching budget alerts:', error);

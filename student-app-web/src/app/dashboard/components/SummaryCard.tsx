@@ -51,12 +51,13 @@ export default function SummaryCard() {
             const response = await summaryService.generateSummary(text, 'TEXT');
             setSummary(response.summary);
             setRemaining(response.remainingRequests);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Summary error:', err);
-            if (err.response?.status === 429) {
+            const error = err as { response?: { status?: number; data?: string } };
+            if (error.response?.status === 429) {
                 setError("You have reached your monthly limit of 5 requests.");
             } else {
-                setError(err.response?.data || "Failed to generate explanation. Please try again.");
+                setError(error.response?.data || "Failed to generate explanation. Please try again.");
             }
         } finally {
             setLoading(false);
