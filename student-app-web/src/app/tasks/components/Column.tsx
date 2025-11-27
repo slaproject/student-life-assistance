@@ -45,7 +45,7 @@ export default function Column({
 
   const getColumnHeaderColor = (title: string) => {
     if (!title) return column.color || '#667eea';
-    
+
     switch (title.toLowerCase()) {
       case 'to do':
       case 'todo':
@@ -84,18 +84,18 @@ export default function Column({
             flexDirection: 'column',
             borderRadius: 4,
             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: snapshot.isDragging 
+            transform: snapshot.isDragging
               ? `${provided.draggableProps.style?.transform || ''} rotate(2deg)`.trim()
               : 'rotate(0deg)',
-            bgcolor: 'background.paper',
+            bgcolor: '#0a0a0a',
             border: '1px solid',
-            borderColor: snapshot.isDragging ? 'primary.main' : 'rgba(0,0,0,0.08)',
-            boxShadow: snapshot.isDragging 
-              ? '0 12px 40px rgba(0,0,0,0.15)' 
-              : '0 2px 12px rgba(0,0,0,0.08)',
+            borderColor: snapshot.isDragging ? 'primary.main' : '#1e293b',
+            boxShadow: snapshot.isDragging
+              ? '0 12px 40px rgba(0,0,0,0.5)'
+              : '0 2px 12px rgba(0,0,0,0.2)',
             '&:hover': {
-              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-              borderColor: 'primary.light'
+              boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+              borderColor: '#3b82f6'
             }
           }}
         >
@@ -115,17 +115,17 @@ export default function Column({
           >
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Stack direction="row" alignItems="center" spacing={1}>
-                <DragIndicatorIcon 
-                  sx={{ 
-                    color: headerColor, 
+                <DragIndicatorIcon
+                  sx={{
+                    color: headerColor,
                     opacity: 0.7,
                     fontSize: 20
-                  }} 
+                  }}
                 />
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
-                    fontWeight: 700, 
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
                     color: headerColor,
                     fontSize: '1.1rem',
                     letterSpacing: '-0.5px'
@@ -133,10 +133,10 @@ export default function Column({
                 >
                   {column.title}
                 </Typography>
-                <Chip 
-                  label={taskCount} 
-                  size="small" 
-                  sx={{ 
+                <Chip
+                  label={taskCount}
+                  size="small"
+                  sx={{
                     bgcolor: headerColor,
                     color: 'white',
                     fontWeight: 600,
@@ -146,15 +146,15 @@ export default function Column({
                   }}
                 />
               </Stack>
-              
+
               <Stack direction="row" spacing={0.5}>
                 <Tooltip title="Add new task">
-                  <IconButton 
+                  <IconButton
                     size="small"
                     onClick={() => onAddTask?.(column.id)}
-                    sx={{ 
+                    sx={{
                       color: headerColor,
-                      '&:hover': { 
+                      '&:hover': {
                         bgcolor: `${headerColor}20`
                       }
                     }}
@@ -162,15 +162,15 @@ export default function Column({
                     <AddIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
-                
+
                 <Tooltip title="Column options">
-                  <IconButton 
+                  <IconButton
                     size="small"
                     onClick={() => onColumnEdit?.(column)}
-                    sx={{ 
+                    sx={{
                       color: headerColor,
                       opacity: 0.7,
-                      '&:hover': { 
+                      '&:hover': {
                         bgcolor: `${headerColor}20`,
                         opacity: 1
                       }
@@ -195,23 +195,23 @@ export default function Column({
                   minHeight: 400,
                   maxHeight: 'calc(100vh - 300px)',
                   overflowY: 'auto',
-                  bgcolor: snapshot.isDraggingOver 
-                    ? `${headerColor}08` 
+                  bgcolor: snapshot.isDraggingOver
+                    ? `${headerColor}08`
                     : 'transparent',
                   borderRadius: snapshot.isDraggingOver ? 2 : 0,
                   transition: 'all 0.2s ease',
-                  border: snapshot.isDraggingOver 
-                    ? `2px dashed ${headerColor}60` 
+                  border: snapshot.isDraggingOver
+                    ? `2px dashed ${headerColor}60`
                     : '2px solid transparent',
                   '&::-webkit-scrollbar': {
                     width: 6
                   },
                   '&::-webkit-scrollbar-thumb': {
-                    backgroundColor: `${headerColor}40`,
+                    backgroundColor: 'rgba(255,255,255,0.1)',
                     borderRadius: 3
                   },
                   '&::-webkit-scrollbar-track': {
-                    backgroundColor: 'rgba(0,0,0,0.05)',
+                    backgroundColor: 'rgba(255,255,255,0.02)',
                     borderRadius: 3
                   }
                 }}
@@ -257,7 +257,7 @@ export default function Column({
               <Divider sx={{ borderColor: `${headerColor}20` }} />
               <Box sx={{ p: 1.5, bgcolor: `${headerColor}05` }}>
                 <Stack direction="row" justifyContent="center" spacing={2}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
+                  <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.75rem' }}>
                     {taskCount} task{taskCount !== 1 ? 's' : ''}
                   </Typography>
                   {column.title && column.title.toLowerCase() !== 'done' && (

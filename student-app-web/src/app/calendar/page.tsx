@@ -15,7 +15,7 @@ import {
   Tooltip,
   CircularProgress,
 } from "@mui/material";
-import { ArrowBack, ArrowForward, Delete } from "@mui/icons-material";
+import { ArrowBack, ArrowForward, Delete, Close } from "@mui/icons-material";
 import ProtectedRoute from "../dashboard/ProtectedRoute";
 import { getApiClient } from "../lib/api";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
@@ -67,7 +67,7 @@ export default function CalendarPage() {
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [openMonthSelector, setOpenMonthSelector] = useState(false);
   const [yearView, setYearView] = useState(false);
-  const [tempYearMonth, setTempYearMonth] = useState<{year: number; month: number}>(() => {
+  const [tempYearMonth, setTempYearMonth] = useState<{ year: number; month: number }>(() => {
     return {
       year: currentMonth.getFullYear(),
       month: currentMonth.getMonth()
@@ -81,8 +81,8 @@ export default function CalendarPage() {
       const res = await api.get<CalendarEvent[]>("/api/calendar/events");
       setEvents(res.data || []);
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error 
-        ? e.message 
+      const errorMessage = e instanceof Error
+        ? e.message
         : (e as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to load events";
       setError(errorMessage);
     } finally {
@@ -110,27 +110,42 @@ export default function CalendarPage() {
   }, [events]);
 
   const calendarCells = useMemo(() => {
-    // Get first day of the month
-    const first = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const start = new Date(first);
-    // Get the day of week for first day (0 = Sunday)
-    const weekday = start.getDay();
-    // Move to the start of the first week
-    start.setDate(start.getDate() - weekday);
+    // Get first day of the current month
+    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    // Get last day of the current month
+    const lastDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
 
-    // Get last day of month
-    const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-    // Calculate if we need 5 or 6 rows
-    // First, count days from start of first week to end of month
-    const totalDays = weekday + lastDay.getDate();
-    // Decide if we need 5 or 6 rows (weeks) - we need 6 rows if there are more than 35 days
-    const rowCount = Math.ceil(totalDays / 7);
-    // Generate calendar cells for either 5 or 6 rows
-    return Array.from({ length: rowCount * 7 }, (_, i) => {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
+    // Calculate how many days we need to show
+    const daysInMonth = lastDayOfMonth.getDate();
+
+    // Start from the Sunday of the week containing the first day of the month
+    const startDate = new Date(firstDayOfMonth);
+    const weekday = startDate.getDay(); // 0 = Sunday
+    startDate.setDate(startDate.getDate() - weekday);
+
+    // Calculate how many weeks we need to cover all days of the current month
+    const endDate = new Date(lastDayOfMonth);
+    const endWeekday = endDate.getDay(); // 0 = Sunday
+    endDate.setDate(endDate.getDate() + (6 - endWeekday)); // Move to Saturday of the last week
+
+    // Calculate total days needed (from start Sunday to end Saturday)
+    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    // Generate cells - use the calculated total days, not limited to 35
+    const cells = Array.from({ length: totalDays }, (_, i) => {
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
       return d;
     });
+
+    console.log('Calendar cells generated:', cells.length);
+    console.log('First cell:', cells[0]);
+    console.log('Last cell:', cells[cells.length - 1]);
+    console.log('Current month:', currentMonth.getMonth() + 1, currentMonth.getFullYear());
+    console.log('Days in current month:', daysInMonth);
+    console.log('Total cells needed:', totalDays);
+
+    return cells;
   }, [currentMonth]);
 
   const handlePrev = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
@@ -167,11 +182,11 @@ export default function CalendarPage() {
       const res = await api.post<CalendarEvent>("/api/calendar/events", payload);
       setEvents((prev) => [...prev, res.data]);
       setOpenDialog(false);
-    } catch (e: unknown) { 
-      const errorMessage = e instanceof Error 
-        ? e.message 
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error
+        ? e.message
         : (e as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to save event";
-      setError(errorMessage); 
+      setError(errorMessage);
     }
     finally { setLoading(false); }
   };
@@ -179,11 +194,11 @@ export default function CalendarPage() {
   const deleteEvent = async (id?: string) => {
     if (!id) return;
     try { setLoading(true); await api.delete(`/api/calendar/events/${id}`); setEvents((p) => p.filter((e) => e.id !== id)); }
-    catch (e: unknown) { 
-      const errorMessage = e instanceof Error 
-        ? e.message 
+    catch (e: unknown) {
+      const errorMessage = e instanceof Error
+        ? e.message
         : (e as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to delete event";
-      setError(errorMessage); 
+      setError(errorMessage);
     }
     finally { setLoading(false); }
   };
@@ -232,8 +247,8 @@ export default function CalendarPage() {
       setEvents((prev) => prev.map(e => e.id === editingEvent.id ? res.data : e));
       setOpenEditDialog(false);
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error 
-        ? e.message 
+      const errorMessage = e instanceof Error
+        ? e.message
         : (e as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to update event";
       setError(errorMessage);
     } finally {
@@ -250,53 +265,88 @@ export default function CalendarPage() {
 
   return (
     <ProtectedRoute>
-      <Box className="calendar-container">
-        <Stack direction="row" alignItems="center" spacing={2} className="calendar-header">
-          <Typography variant="h5" className="calendar-month-title"
-            onClick={() => {
-              setTempYearMonth({
-                year: currentMonth.getFullYear(),
-                month: currentMonth.getMonth()
-              });
-              setYearView(false);
-              setOpenMonthSelector(true);
-            }}
-            sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-          >
-            {monthLabel}
-          </Typography>
-          <IconButton onClick={handlePrev}><ArrowBack /></IconButton>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              setTempYearMonth({
-                year: currentMonth.getFullYear(),
-                month: currentMonth.getMonth()
-              });
-              setYearView(false);
-              setOpenMonthSelector(true);
-            }}
-            sx={{
-              borderRadius: 2,
-              minWidth: '120px',
-              textTransform: 'none',
-              fontWeight: 'medium',
-              '&:hover': {
-                background: 'rgba(63, 81, 181, 0.04)'
-              }
-            }}
-            startIcon={<Box component="span" sx={{ fontSize: '1.25rem' }}>📅</Box>}
-          >
-            {new Date(currentMonth).toLocaleString(undefined, { month: 'long' })}
-          </Button>
-          <IconButton onClick={handleNext}><ArrowForward /></IconButton>
-          <Button variant="contained" onClick={() => openAddDialog(selectedDate ?? new Date())}>Add Event</Button>
-        </Stack>
+      <Box className="calendar-container" sx={{ bgcolor: "#000000", minHeight: "100vh", color: "#ffffff", p: 4 }}>
+        <Box className="calendar-header" sx={{
+          bgcolor: '#0a0a0a',
+          p: 2,
+          borderRadius: 2,
+          mb: 3,
+          border: '1px solid #1e293b',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <Box className="calendar-header-left" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="h5" className="calendar-month-title"
+              onClick={() => {
+                setTempYearMonth({
+                  year: currentMonth.getFullYear(),
+                  month: currentMonth.getMonth()
+                });
+                setYearView(false);
+                setOpenMonthSelector(true);
+              }}
+              sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' }, color: '#ffffff', fontWeight: 700 }}
+            >
+              {monthLabel}
+            </Typography>
+            <IconButton onClick={handlePrev} size="small" sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+              <ArrowBack />
+            </IconButton>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                setTempYearMonth({
+                  year: currentMonth.getFullYear(),
+                  month: currentMonth.getMonth()
+                });
+                setYearView(false);
+                setOpenMonthSelector(true);
+              }}
+              sx={{
+                borderRadius: 2,
+                minWidth: { xs: '100px', sm: '120px' },
+                textTransform: 'none',
+                fontWeight: 'medium',
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                color: '#94a3b8',
+                borderColor: '#334155',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderColor: '#94a3b8',
+                  color: '#ffffff'
+                }
+              }}
+              startIcon={<Box component="span" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>📅</Box>}
+            >
+              {new Date(currentMonth).toLocaleString(undefined, { month: 'long' })}
+            </Button>
+            <IconButton onClick={handleNext} size="small" sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+              <ArrowForward />
+            </IconButton>
+          </Box>
+          <Box className="calendar-header-right">
+            <Button
+              variant="contained"
+              onClick={() => openAddDialog(selectedDate ?? new Date())}
+              size="small"
+              sx={{
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                px: { xs: 1.5, sm: 2 },
+                py: { xs: 0.5, sm: 1 },
+                bgcolor: '#3b82f6',
+                '&:hover': { bgcolor: '#2563eb' }
+              }}
+            >
+              Add Event
+            </Button>
+          </Box>
+        </Box>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-        <Paper variant="outlined" className="calendar-paper">
+        <Paper variant="outlined" className="calendar-paper" sx={{ bgcolor: "#0a0a0a", borderColor: "#1e293b", color: "#ffffff" }}>
           <Box className="weekday-row">
             {weekdayHeaders.map((w) => (
               <Box key={w} className="weekday-label">{w}</Box>
@@ -321,7 +371,7 @@ export default function CalendarPage() {
                   </div>
 
                   <div className="event-list">
-                    {dayEvents.slice(0, 3).map((e) => (
+                    {dayEvents.map((e) => (
                       <Tooltip key={e.id || e.startTime} title={e.description || e.eventName} placement="top-start">
                         <div
                           className="event-chip"
@@ -348,9 +398,6 @@ export default function CalendarPage() {
                         </div>
                       </Tooltip>
                     ))}
-                    {dayEvents.length > 3 && (
-                      <Typography variant="caption" color="text.secondary">+{dayEvents.length - 3} more</Typography>
-                    )}
                   </div>
                 </Box>
               );
@@ -365,267 +412,269 @@ export default function CalendarPage() {
           fullWidth
           maxWidth="sm"
           PaperProps={{
-            sx: { borderRadius: '16px', overflow: 'hidden' }
+            sx: {
+              borderRadius: 4,
+              bgcolor: '#1e293b',
+              color: '#ffffff',
+              border: '1px solid #334155'
+            }
           }}
         >
-          <Box sx={{ p: 0, position: 'relative', overflow: 'hidden' }}>
-            <Box
-              sx={{
-                bgcolor: 'primary.main',
-                py: 3,
-                px: 3,
-                color: 'white',
-                position: 'relative'
-              }}
+          <Box sx={{ p: 3, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
+              {selectedDate ? `New Event on ${selectedDate.toLocaleDateString(undefined, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+              })}` : 'New Event'}
+            </Typography>
+            <IconButton onClick={closeDialog} size="small" sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+              <Close />
+            </IconButton>
+          </Box>
+
+          <Box sx={{ px: 3, pb: 3, pt: 1 }}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Stack spacing={3}>
+                <TextField
+                  label="Event Name"
+                  value={form.eventName}
+                  onChange={(e) => setForm((f) => ({ ...f, eventName: e.target.value }))}
+                  required
+                  fullWidth
+                  variant="outlined"
+                  placeholder="Enter event title"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      color: '#ffffff',
+                      bgcolor: 'rgba(255,255,255,0.05)',
+                      '& fieldset': { borderColor: '#334155' },
+                      '&:hover fieldset': { borderColor: '#475569' },
+                      '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                    },
+                    '& .MuiInputLabel-root': { color: '#94a3b8' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' }
+                  }}
+                />
+
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                    gap: 2
+                  }}
+                >
+                  <DateTimePicker
+                    label="Start time"
+                    value={startValue}
+                    onChange={(v) => {
+                      setStartValue(v);
+                      setEndValue(v ? v.add(1, "hour") : null);
+                    }}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        required: true,
+                        sx: {
+                          '& .MuiOutlinedInput-root': {
+                            color: '#ffffff',
+                            bgcolor: 'rgba(255,255,255,0.05)',
+                            '& fieldset': { borderColor: '#334155' },
+                            '&:hover fieldset': { borderColor: '#475569' },
+                            '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                          },
+                          '& .MuiInputLabel-root': { color: '#94a3b8' },
+                          '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' },
+                          '& .MuiSvgIcon-root': { color: '#94a3b8' }
+                        }
+                      },
+                      desktopPaper: {
+                        sx: {
+                          borderRadius: 2,
+                          bgcolor: '#1e293b',
+                          color: '#ffffff',
+                          border: '1px solid #334155',
+                          '& .MuiPickersDay-root': {
+                            color: '#ffffff',
+                            '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
+                            '&.Mui-selected': { bgcolor: '#3b82f6' }
+                          },
+                          '& .MuiDayCalendar-weekDayLabel': { color: '#94a3b8' },
+                          '& .MuiPickersCalendarHeader-label': { color: '#ffffff' },
+                          '& .MuiIconButton-root': { color: '#ffffff' }
+                        }
+                      }
+                    }}
+                  />
+
+                  <DateTimePicker
+                    label="End time"
+                    value={endValue}
+                    onChange={(v) => setEndValue(v)}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        required: true,
+                        sx: {
+                          '& .MuiOutlinedInput-root': {
+                            color: '#ffffff',
+                            bgcolor: 'rgba(255,255,255,0.05)',
+                            '& fieldset': { borderColor: '#334155' },
+                            '&:hover fieldset': { borderColor: '#475569' },
+                            '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                          },
+                          '& .MuiInputLabel-root': { color: '#94a3b8' },
+                          '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' },
+                          '& .MuiSvgIcon-root': { color: '#94a3b8' }
+                        }
+                      },
+                      desktopPaper: {
+                        sx: {
+                          borderRadius: 2,
+                          bgcolor: '#1e293b',
+                          color: '#ffffff',
+                          border: '1px solid #334155',
+                          '& .MuiPickersDay-root': {
+                            color: '#ffffff',
+                            '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
+                            '&.Mui-selected': { bgcolor: '#3b82f6' }
+                          },
+                          '& .MuiDayCalendar-weekDayLabel': { color: '#94a3b8' },
+                          '& .MuiPickersCalendarHeader-label': { color: '#ffffff' },
+                          '& .MuiIconButton-root': { color: '#ffffff' }
+                        }
+                      }
+                    }}
+                  />
+                </Box>
+
+                <TextField
+                  select
+                  label="Event Type"
+                  value={form.eventType}
+                  onChange={(e) => setForm((f) => ({ ...f, eventType: e.target.value as EventType }))}
+                  fullWidth
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      color: '#ffffff',
+                      bgcolor: 'rgba(255,255,255,0.05)',
+                      '& fieldset': { borderColor: '#334155' },
+                      '&:hover fieldset': { borderColor: '#475569' },
+                      '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                    },
+                    '& .MuiInputLabel-root': { color: '#94a3b8' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' },
+                    '& .MuiSvgIcon-root': { color: '#94a3b8' }
+                  }}
+                  SelectProps={{
+                    MenuProps: {
+                      PaperProps: {
+                        sx: {
+                          bgcolor: '#1e293b',
+                          border: '1px solid #334155',
+                          '& .MuiMenuItem-root': {
+                            color: '#ffffff',
+                            '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+                            '&.Mui-selected': { bgcolor: 'rgba(59, 130, 246, 0.2)' }
+                          }
+                        }
+                      }
+                    }
+                  }}
+                >
+                  {[
+                    { value: "MEETING", label: "Meeting", color: "#3949ab" },
+                    { value: "PERSONAL", label: "Personal", color: "#8e24aa" },
+                    { value: "FINANCIAL", label: "Financial", color: "#00897b" },
+                    { value: "APPOINTMENT", label: "Appointment", color: "#d81b60" },
+                    { value: "OTHER", label: "Other", color: "#5c6bc0" }
+                  ].map((option) => (
+                    <MenuItem
+                      key={option.value}
+                      value={option.value}
+                    >
+                      <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1.5
+                      }}>
+                        <Box
+                          sx={{
+                            width: 14,
+                            height: 14,
+                            borderRadius: '50%',
+                            bgcolor: option.color
+                          }}
+                        />
+                        {option.label}
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                <TextField
+                  label="Description"
+                  value={form.description}
+                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                  multiline
+                  minRows={3}
+                  placeholder="Add additional details"
+                  fullWidth
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      color: '#ffffff',
+                      bgcolor: 'rgba(255,255,255,0.05)',
+                      '& fieldset': { borderColor: '#334155' },
+                      '&:hover fieldset': { borderColor: '#475569' },
+                      '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                    },
+                    '& .MuiInputLabel-root': { color: '#94a3b8' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' }
+                  }}
+                />
+
+                <TextField
+                  label="Meeting Link"
+                  value={form.meetingLinks}
+                  onChange={(e) => setForm((f) => ({ ...f, meetingLinks: e.target.value }))}
+                  placeholder="Add optional meeting URL"
+                  fullWidth
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      color: '#ffffff',
+                      bgcolor: 'rgba(255,255,255,0.05)',
+                      '& fieldset': { borderColor: '#334155' },
+                      '&:hover fieldset': { borderColor: '#475569' },
+                      '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                    },
+                    '& .MuiInputLabel-root': { color: '#94a3b8' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' }
+                  }}
+                />
+              </Stack>
+            </LocalizationProvider>
+          </Box>
+
+          <Box sx={{ p: 3, pt: 0, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+            <Button
+              onClick={closeDialog}
+              sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff', bgcolor: 'rgba(255,255,255,0.05)' } }}
             >
-              <IconButton
-                onClick={closeDialog}
-                sx={{
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
-                  color: 'rgba(255,255,255,0.8)'
-                }}
-              >
-                <Box component="span" fontSize="1.5rem">&times;</Box>
-              </IconButton>
-
-              <Typography variant="h5" fontWeight="bold" mb={1}>
-                {selectedDate ? `New Event on ${selectedDate.toLocaleDateString(undefined, { 
-                  weekday: 'long', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}` : 'New Event'}
-              </Typography>
-
-              <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
-                Add details for your new calendar event
-              </Typography>
-            </Box>
-
-            <Box sx={{ p: 3 }}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Stack spacing={2.5}>
-                  <TextField
-                    label="Event Name"
-                    value={form.eventName}
-                    onChange={(e) => setForm((f) => ({ ...f, eventName: e.target.value }))}
-                    required
-                    fullWidth
-                    variant="outlined"
-                    placeholder="Enter event title"
-                    InputProps={{
-                      sx: { borderRadius: 1.5 }
-                    }}
-                  />
-
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
-                      gap: 2
-                    }}
-                  >
-                    <DateTimePicker
-                      label="Start time"
-                      value={startValue}
-                      onChange={(v) => {
-                        setStartValue(v);
-                        setEndValue(v ? v.add(1, "hour") : null);
-                      }}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          required: true,
-                          InputProps: {
-                            sx: {
-                              borderRadius: 1.5,
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'rgba(0, 0, 0, 0.12)',
-                              },
-                              '&:hover .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'rgba(0, 0, 0, 0.38)',
-                              },
-                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'primary.main',
-                                borderWidth: 2
-                              }
-                            }
-                          }
-                        },
-                        desktopPaper: {
-                          sx: {
-                            borderRadius: 2,
-                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                            '& .MuiPickersDay-root': {
-                              borderRadius: '50%',
-                              '&.Mui-selected': {
-                                backgroundColor: 'primary.main',
-                                color: 'white',
-                                fontWeight: 'bold'
-                              }
-                            }
-                          }
-                        }
-                      }}
-                      sx={{
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: 'primary.main',
-                        }
-                      }}
-                    />
-
-                    <DateTimePicker
-                      label="End time"
-                      value={endValue}
-                      onChange={(v) => setEndValue(v)}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          required: true,
-                          InputProps: {
-                            sx: {
-                              borderRadius: 1.5,
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'rgba(0, 0, 0, 0.12)',
-                              },
-                              '&:hover .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'rgba(0, 0, 0, 0.38)',
-                              },
-                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'primary.main',
-                                borderWidth: 2
-                              }
-                            }
-                          }
-                        },
-                        desktopPaper: {
-                          sx: {
-                            borderRadius: 2,
-                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                            '& .MuiPickersDay-root': {
-                              borderRadius: '50%',
-                              '&.Mui-selected': {
-                                backgroundColor: 'primary.main',
-                                color: 'white',
-                                fontWeight: 'bold'
-                              }
-                            }
-                          }
-                        }
-                      }}
-                      sx={{
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: 'primary.main',
-                        }
-                      }}
-                    />
-                  </Box>
-
-                  <TextField
-                    select
-                    label="Event Type"
-                    value={form.eventType}
-                    onChange={(e) => setForm((f) => ({ ...f, eventType: e.target.value as EventType }))}
-                    fullWidth
-                    InputProps={{
-                      sx: { borderRadius: 1.5 }
-                    }}
-                  >
-                    {[
-                      { value: "MEETING", label: "Meeting", color: "#3949ab" },
-                      { value: "PERSONAL", label: "Personal", color: "#8e24aa" },
-                      { value: "FINANCIAL", label: "Financial", color: "#00897b" },
-                      { value: "APPOINTMENT", label: "Appointment", color: "#d81b60" },
-                      { value: "OTHER", label: "Other", color: "#5c6bc0" }
-                    ].map((option) => (
-                      <MenuItem
-                        key={option.value}
-                        value={option.value}
-                        sx={{
-                          "&:hover": { bgcolor: `${option.color}20` },
-                          ...(form.eventType === option.value && {
-                            bgcolor: `${option.color}20`,
-                            fontWeight: 'bold'
-                          })
-                        }}
-                      >
-                        <Box sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1.5
-                        }}>
-                          <Box
-                            sx={{
-                              width: 14,
-                              height: 14,
-                              borderRadius: '50%',
-                              bgcolor: option.color
-                            }}
-                          />
-                          {option.label}
-                        </Box>
-                      </MenuItem>
-                    ))}
-                  </TextField>
-
-                  <TextField
-                    label="Description"
-                    value={form.description}
-                    onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                    multiline
-                    minRows={3}
-                    placeholder="Add additional details"
-                    fullWidth
-                    InputProps={{
-                      sx: { borderRadius: 1.5 }
-                    }}
-                  />
-
-                  <TextField
-                    label="Meeting Link"
-                    value={form.meetingLinks}
-                    onChange={(e) => setForm((f) => ({ ...f, meetingLinks: e.target.value }))}
-                    placeholder="Add optional meeting URL"
-                    fullWidth
-                    InputProps={{
-                      sx: { borderRadius: 1.5 }
-                    }}
-                  />
-                </Stack>
-              </LocalizationProvider>
-            </Box>
-
-            <Box
+              Cancel
+            </Button>
+            <Button
+              onClick={saveEvent}
+              variant="contained"
+              disabled={loading}
               sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                p: 2,
-                bgcolor: 'background.default',
-                gap: 1.5
+                bgcolor: '#3b82f6',
+                '&:hover': { bgcolor: '#2563eb' },
+                minWidth: 100
               }}
+              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
             >
-              <Button
-                onClick={closeDialog}
-                color="inherit"
-                variant="outlined"
-                sx={{ borderRadius: 2 }}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={saveEvent}
-                variant="contained"
-                disabled={loading}
-                sx={{
-                  borderRadius: 2,
-                  px: 3
-                }}
-                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
-              >
-                {loading ? "Saving..." : "Save Event"}
-              </Button>
-            </Box>
+              {loading ? "Saving..." : "Save Event"}
+            </Button>
           </Box>
         </Dialog>
 
@@ -636,7 +685,16 @@ export default function CalendarPage() {
           fullWidth
           maxWidth="sm"
           PaperProps={{
-            sx: { borderRadius: '16px', overflow: 'hidden' }
+            sx: {
+              borderRadius: { xs: '12px', sm: '16px' },
+              overflow: 'hidden',
+              width: { xs: '95vw', sm: '500px' },
+              maxWidth: { xs: '95vw', sm: '500px' },
+              margin: { xs: '8px', sm: '32px' },
+              bgcolor: "#0a0a0a",
+              color: "#ffffff",
+              border: "1px solid #1e293b"
+            }
           }}
         >
           {viewEvent && (
@@ -652,10 +710,10 @@ export default function CalendarPage() {
                   sx={{
                     bgcolor:
                       viewEvent.eventType === 'MEETING' ? '#3949ab' :
-                      viewEvent.eventType === 'PERSONAL' ? '#8e24aa' :
-                      viewEvent.eventType === 'FINANCIAL' ? '#00897b' :
-                      viewEvent.eventType === 'APPOINTMENT' ? '#d81b60' :
-                      '#5c6bc0',
+                        viewEvent.eventType === 'PERSONAL' ? '#8e24aa' :
+                          viewEvent.eventType === 'FINANCIAL' ? '#00897b' :
+                            viewEvent.eventType === 'APPOINTMENT' ? '#d81b60' :
+                              '#5c6bc0',
                     py: 3,
                     px: 3,
                     color: 'white',
@@ -816,7 +874,13 @@ export default function CalendarPage() {
           fullWidth
           maxWidth="sm"
           PaperProps={{
-            sx: { borderRadius: '16px', overflow: 'hidden' }
+            sx: {
+              borderRadius: { xs: '12px', sm: '16px' },
+              overflow: 'hidden',
+              width: { xs: '95vw', sm: '500px' },
+              maxWidth: { xs: '95vw', sm: '500px' },
+              margin: { xs: '8px', sm: '32px' }
+            }
           }}
         >
           {editingEvent && (
@@ -832,10 +896,10 @@ export default function CalendarPage() {
                   sx={{
                     bgcolor:
                       editingEvent.eventType === 'MEETING' ? '#3949ab' :
-                      editingEvent.eventType === 'PERSONAL' ? '#8e24aa' :
-                      editingEvent.eventType === 'FINANCIAL' ? '#00897b' :
-                      editingEvent.eventType === 'APPOINTMENT' ? '#d81b60' :
-                      '#5c6bc0',
+                        editingEvent.eventType === 'PERSONAL' ? '#8e24aa' :
+                          editingEvent.eventType === 'FINANCIAL' ? '#00897b' :
+                            editingEvent.eventType === 'APPOINTMENT' ? '#d81b60' :
+                              '#5c6bc0',
                     py: 3,
                     px: 3,
                     color: 'white',
@@ -1028,7 +1092,7 @@ export default function CalendarPage() {
                                   height: 14,
                                   borderRadius: '50%',
                                   bgcolor: option.color
-                              }}
+                                }}
                               />
                               {option.label}
                             </Box>
@@ -1105,29 +1169,42 @@ export default function CalendarPage() {
           maxWidth="xs"
           fullWidth
           PaperProps={{
-            sx: { borderRadius: '16px', overflow: 'hidden' }
+            sx: {
+              borderRadius: { xs: '12px', sm: '16px' },
+              overflow: 'hidden',
+              width: { xs: '95vw', sm: '400px' },
+              maxWidth: { xs: '95vw', sm: '400px' },
+              margin: { xs: '8px', sm: '32px' }
+            }
           }}
         >
           <Box sx={{ p: 0 }}>
             <Box
               sx={{
                 bgcolor: 'primary.main',
-                py: 2,
-                px: 3,
+                py: { xs: 1.5, sm: 2 },
+                px: { xs: 2, sm: 3 },
                 color: 'white',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}
             >
-              <Typography variant="h6" fontWeight="bold">
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+              >
                 {yearView ? 'Select Year' : 'Select Month & Year'}
               </Typography>
               <IconButton
                 onClick={() => setOpenMonthSelector(false)}
-                sx={{ color: 'rgba(255,255,255,0.8)' }}
+                sx={{
+                  color: 'rgba(255,255,255,0.8)',
+                  p: { xs: 0.5, sm: 1 }
+                }}
               >
-                <Box component="span" fontSize="1.5rem">&times;</Box>
+                <Box component="span" fontSize={{ xs: '1.25rem', sm: '1.5rem' }}>&times;</Box>
               </IconButton>
             </Box>
 
@@ -1168,12 +1245,12 @@ export default function CalendarPage() {
                   </IconButton>
                 </Box>
 
-                <Box sx={{ p: 2 }}>
+                <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
                   <Box
                     sx={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(3, 1fr)',
-                      gap: 1.5
+                      gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)' },
+                      gap: { xs: 1, sm: 1.5 }
                     }}
                   >
                     {Array.from({ length: 12 }).map((_, month) => {
@@ -1224,12 +1301,12 @@ export default function CalendarPage() {
                 </Box>
               </>
             ) : (
-              <Box sx={{ p: 2 }}>
+              <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
                 <Box
                   sx={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: 1.5
+                    gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)' },
+                    gap: { xs: 1, sm: 1.5 }
                   }}
                 >
                   {Array.from({ length: 12 }).map((_, i) => {
@@ -1284,16 +1361,21 @@ export default function CalendarPage() {
               sx={{
                 display: 'flex',
                 justifyContent: 'flex-end',
-                p: 2,
+                p: { xs: 1.5, sm: 2 },
                 pt: 0,
-                gap: 1.5
+                gap: { xs: 1, sm: 1.5 },
+                flexDirection: { xs: 'column', sm: 'row' }
               }}
             >
               <Button
                 color="inherit"
                 variant="outlined"
                 onClick={() => setOpenMonthSelector(false)}
-                sx={{ borderRadius: 2 }}
+                sx={{
+                  borderRadius: 2,
+                  width: { xs: '100%', sm: 'auto' },
+                  order: { xs: 2, sm: 1 }
+                }}
               >
                 Cancel
               </Button>
@@ -1303,7 +1385,11 @@ export default function CalendarPage() {
                   setCurrentMonth(new Date(tempYearMonth.year, tempYearMonth.month, 1));
                   setOpenMonthSelector(false);
                 }}
-                sx={{ borderRadius: 2 }}
+                sx={{
+                  borderRadius: 2,
+                  width: { xs: '100%', sm: 'auto' },
+                  order: { xs: 1, sm: 2 }
+                }}
               >
                 Apply
               </Button>

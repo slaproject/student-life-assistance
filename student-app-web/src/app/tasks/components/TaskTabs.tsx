@@ -54,18 +54,19 @@ export default function TaskTabs() {
   return (
     <Box sx={{
       minHeight: '100vh',
-      bgcolor: '#f8fafc'
+      bgcolor: '#000000',
+      color: '#ffffff'
     }}>
-      
+
 
       {/* Tab Navigation */}
-      <Paper 
+      <Paper
         elevation={0}
-        sx={{ 
+        sx={{
           borderRadius: 0,
-          bgcolor: 'background.paper',
+          bgcolor: '#0a0a0a',
           borderBottom: '1px solid',
-          borderColor: 'divider'
+          borderColor: '#1e293b'
         }}
       >
         <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
@@ -80,19 +81,19 @@ export default function TaskTabs() {
                 fontSize: { xs: '0.875rem', sm: '1rem' },
                 fontWeight: 600,
                 textTransform: 'none',
-                color: 'text.secondary',
+                color: '#94a3b8',
                 transition: 'all 0.2s ease',
                 '&.Mui-selected': {
-                  color: 'primary.main',
+                  color: '#3b82f6',
                   fontWeight: 700,
                 },
                 '&:hover': {
-                  color: 'primary.light',
-                  bgcolor: 'rgba(102, 126, 234, 0.04)'
+                  color: '#60a5fa',
+                  bgcolor: 'rgba(59, 130, 246, 0.1)'
                 }
               },
               '& .MuiTabs-indicator': {
-                backgroundColor: 'primary.main',
+                backgroundColor: '#3b82f6',
                 height: 3,
                 borderRadius: '3px 3px 0 0',
               }
@@ -140,50 +141,52 @@ export default function TaskTabs() {
         <TabPanel value={activeTab} index={0}>
           <TaskBoard />
         </TabPanel>
-        
+
         <TabPanel value={activeTab} index={1}>
-          <Box sx={{ 
-            p: 4, 
+          <Box sx={{
+            p: 4,
             textAlign: 'center',
             minHeight: 400,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            bgcolor: 'background.paper',
+            bgcolor: '#0a0a0a',
             m: 3,
             borderRadius: 3,
-            boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
+            border: '1px solid #1e293b',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
           }}>
-            <TimelineIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 1, color: 'text.primary' }}>
+            <TimelineIcon sx={{ fontSize: 64, color: '#334155', mb: 2 }} />
+            <Typography variant="h5" sx={{ fontWeight: 600, mb: 1, color: '#ffffff' }}>
               Timeline View
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="body1" sx={{ color: '#94a3b8' }}>
               Coming Soon - View your tasks in a timeline format
             </Typography>
           </Box>
         </TabPanel>
-        
+
         <TabPanel value={activeTab} index={2}>
-          <Box sx={{ 
-            p: 4, 
+          <Box sx={{
+            p: 4,
             textAlign: 'center',
             minHeight: 400,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            bgcolor: 'background.paper',
+            bgcolor: '#0a0a0a',
             m: 3,
             borderRadius: 3,
-            boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
+            border: '1px solid #1e293b',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
           }}>
-            <BarChartIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 1, color: 'text.primary' }}>
+            <BarChartIcon sx={{ fontSize: 64, color: '#334155', mb: 2 }} />
+            <Typography variant="h5" sx={{ fontWeight: 600, mb: 1, color: '#ffffff' }}>
               Task Analytics
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="body1" sx={{ color: '#94a3b8' }}>
               Coming Soon - Detailed analytics and insights about your tasks
             </Typography>
           </Box>

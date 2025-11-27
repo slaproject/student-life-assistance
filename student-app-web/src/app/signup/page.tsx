@@ -39,8 +39,8 @@ export default function SignupPage() {
       setSuccess("Signup successful! Please login.");
       setTimeout(() => router.push("/login"), 1500);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error 
-        ? err.message 
+      const errorMessage = err instanceof Error
+        ? err.message
         : (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Signup failed";
       setError(errorMessage);
     } finally {
@@ -61,60 +61,40 @@ export default function SignupPage() {
         justifyContent: 'center',
         position: 'relative',
         overflow: 'hidden',
-        background:
-          'linear-gradient(135deg, rgba(37,99,235,1) 0%, rgba(147,51,234,1) 50%, rgba(20,184,166,1) 100%)',
-        padding: {xs: 2, md: 4}
+        bgcolor: '#000000',
+        background: 'radial-gradient(circle at 50% 50%, #0a1929 0%, #000000 100%)',
+        padding: { xs: 2, md: 4 }
       }}
     >
       <Box
         sx={{
           position: 'absolute',
-          inset: 0,
-          opacity: 0.18,
-          backgroundImage:
-            "url('https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1280&fit=crop')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      />
-      <Box
-        sx={{
-          position: 'absolute',
           top: '20%',
           left: '20%',
-          width: 56,
-          height: 56,
-          bgcolor: '#f59e0b',
-          borderRadius: '50%',
-          opacity: 0.6
+          width: 300,
+          height: 300,
+          background: 'linear-gradient(135deg, #1e3a8a 0%, #000000 100%)',
+          filter: 'blur(100px)',
+          opacity: 0.4,
+          borderRadius: '50%'
         }}
       />
       <Box
         sx={{
           position: 'absolute',
-          bottom: '22%',
-          right: '18%',
-          width: 44,
-          height: 44,
-          bgcolor: '#14b8a6',
-          borderRadius: '50%',
-          opacity: 0.6
+          bottom: '20%',
+          right: '20%',
+          width: 300,
+          height: 300,
+          background: 'linear-gradient(135deg, #2563eb 0%, #000000 100%)',
+          filter: 'blur(100px)',
+          opacity: 0.3,
+          borderRadius: '50%'
         }}
       />
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: '30%',
-          left: '35%',
-          width: 32,
-          height: 32,
-          bgcolor: '#a855f7',
-          borderRadius: '50%',
-          opacity: 0.6
-        }}
-      />
+
       <Paper
-        elevation={6}
+        elevation={0}
         sx={{
           width: '100%',
           maxWidth: 450,
@@ -124,23 +104,24 @@ export default function SignupPage() {
           flexDirection: 'column',
           position: 'relative',
           zIndex: 1,
-          bgcolor: '#fff'
+          bgcolor: '#0a0a0a',
+          border: '1px solid #1e293b',
+          color: '#ffffff'
         }}
       >
         <Box
           sx={{
             p: 4,
             pb: 3,
-            background: 'linear-gradient(90deg, #3f51b5, #3d5afe)',
-            color: 'white',
+            borderBottom: '1px solid #1e293b',
             position: 'relative',
             textAlign: 'center'
           }}
         >
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#3b82f6' }}>
             Create Account
           </Typography>
-          <Typography variant="body2" sx={{ opacity: 0.8 }}>
+          <Typography variant="body2" sx={{ color: '#94a3b8' }}>
             Join Student Life Assistance to organize your academic journey
           </Typography>
         </Box>
@@ -161,10 +142,25 @@ export default function SignupPage() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Person color="action" />
+                      <Person sx={{ color: '#94a3b8' }} />
                     </InputAdornment>
                   ),
-                  sx: { borderRadius: 2 }
+                  sx: {
+                    borderRadius: 2,
+                    color: '#ffffff',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#334155'
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#475569'
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#3b82f6'
+                    }
+                  }
+                }}
+                InputLabelProps={{
+                  sx: { color: '#94a3b8', '&.Mui-focused': { color: '#3b82f6' } }
                 }}
               />
               <TextField
@@ -178,10 +174,25 @@ export default function SignupPage() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Email color="action" />
+                      <Email sx={{ color: '#94a3b8' }} />
                     </InputAdornment>
                   ),
-                  sx: { borderRadius: 2 }
+                  sx: {
+                    borderRadius: 2,
+                    color: '#ffffff',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#334155'
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#475569'
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#3b82f6'
+                    }
+                  }
+                }}
+                InputLabelProps={{
+                  sx: { color: '#94a3b8', '&.Mui-focused': { color: '#3b82f6' } }
                 }}
               />
               <TextField
@@ -195,7 +206,7 @@ export default function SignupPage() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock color="action" />
+                      <Lock sx={{ color: '#94a3b8' }} />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -204,12 +215,28 @@ export default function SignupPage() {
                         aria-label="toggle password visibility"
                         onClick={toggleShowPassword}
                         edge="end"
+                        sx={{ color: '#94a3b8' }}
                       >
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
                   ),
-                  sx: { borderRadius: 2 }
+                  sx: {
+                    borderRadius: 2,
+                    color: '#ffffff',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#334155'
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#475569'
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#3b82f6'
+                    }
+                  }
+                }}
+                InputLabelProps={{
+                  sx: { color: '#94a3b8', '&.Mui-focused': { color: '#3b82f6' } }
                 }}
               />
 
@@ -222,9 +249,9 @@ export default function SignupPage() {
                   mt: 2,
                   py: 1.5,
                   borderRadius: 2,
-                  background: 'linear-gradient(90deg, #3f51b5, #3d5afe)',
+                  bgcolor: '#2563eb',
                   '&:hover': {
-                    background: 'linear-gradient(90deg, #32408f, #3651e2)'
+                    bgcolor: '#1d4ed8'
                   }
                 }}
                 startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
@@ -235,13 +262,13 @@ export default function SignupPage() {
           </form>
 
           <Box sx={{ mt: 3, textAlign: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>
               Already have an account?{' '}
               <Link
                 href="/login"
                 sx={{
                   fontWeight: 600,
-                  color: 'primary.main',
+                  color: '#3b82f6',
                   textDecoration: 'none',
                   '&:hover': {
                     textDecoration: 'underline'

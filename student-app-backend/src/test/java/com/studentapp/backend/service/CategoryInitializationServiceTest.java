@@ -1,7 +1,9 @@
 package com.studentapp.backend.service;
 
 import com.studentapp.backend.repository.ExpenseCategoryRepository;
+import com.studentapp.backend.repository.UserRepository;
 import com.studentapp.common.model.ExpenseCategory;
+import com.studentapp.common.model.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,10 +26,18 @@ class CategoryInitializationServiceTest {
     @Autowired
     private ExpenseCategoryRepository expenseCategoryRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
     void testCreateDefaultCategoriesForUser() {
-        // Given
-        UUID userId = UUID.randomUUID();
+        // Given - create a real user in the database
+        User user = new User();
+        user.setUsername("testuser_" + UUID.randomUUID());
+        user.setEmail("test_" + UUID.randomUUID() + "@example.com");
+        user.setPassword("password");
+        User savedUser = userRepository.save(user);
+        UUID userId = savedUser.getId();
         
         // When
         categoryInitializationService.createDefaultCategoriesForUser(userId);

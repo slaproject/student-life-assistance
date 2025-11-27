@@ -162,7 +162,7 @@ export default function TaskDetailsModal({
           dueDate: formData.dueDate ? formData.dueDate.toDate() : undefined,
           tags: formData.tags.trim() || undefined,
         };
-        
+
         const newTask = await taskService.createTask(createRequest);
         onTaskSave?.(newTask);
       }
@@ -178,7 +178,7 @@ export default function TaskDetailsModal({
 
   const handleDelete = async () => {
     if (!task) return;
-    
+
     if (window.confirm('Are you sure you want to delete this task?')) {
       setLoading(true);
       try {
@@ -210,24 +210,27 @@ export default function TaskDetailsModal({
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Dialog 
-        open={open} 
+      <Dialog
+        open={open}
         onClose={handleClose}
         maxWidth="md"
         fullWidth
         PaperProps={{
           sx: {
             borderRadius: 4,
-            minHeight: 600
+            minHeight: 600,
+            bgcolor: '#1e293b',
+            color: '#ffffff',
+            border: '1px solid #334155'
           }
         }}
       >
         <DialogTitle sx={{ p: 3, pb: 1 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
               {modalTitle}
             </Typography>
-            <IconButton onClick={handleClose} size="small">
+            <IconButton onClick={handleClose} size="small" sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff', bgcolor: 'rgba(255,255,255,0.1)' } }}>
               <CloseIcon />
             </IconButton>
           </Box>
@@ -249,8 +252,19 @@ export default function TaskDetailsModal({
               fullWidth
               required
               variant="outlined"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  color: '#ffffff',
+                  bgcolor: 'rgba(255,255,255,0.05)',
+                  '& fieldset': { borderColor: '#334155' },
+                  '&:hover fieldset': { borderColor: '#475569' },
+                  '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                },
+                '& .MuiInputLabel-root': { color: '#94a3b8' },
+                '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' }
+              }}
               InputProps={{
-                startAdornment: <DescriptionIcon sx={{ mr: 1, color: 'text.secondary' }} />
+                startAdornment: <DescriptionIcon sx={{ mr: 1, color: '#94a3b8' }} />
               }}
             />
 
@@ -264,12 +278,23 @@ export default function TaskDetailsModal({
               rows={3}
               variant="outlined"
               placeholder="Add a detailed description of the task..."
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  color: '#ffffff',
+                  bgcolor: 'rgba(255,255,255,0.05)',
+                  '& fieldset': { borderColor: '#334155' },
+                  '&:hover fieldset': { borderColor: '#475569' },
+                  '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                },
+                '& .MuiInputLabel-root': { color: '#94a3b8' },
+                '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' }
+              }}
             />
 
             {/* Priority and Column Row */}
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <FormControl fullWidth>
-                <InputLabel>Priority</InputLabel>
+                <InputLabel sx={{ color: '#94a3b8', '&.Mui-focused': { color: '#3b82f6' } }}>Priority</InputLabel>
                 <Select
                   value={formData.priority}
                   onChange={handleInputChange('priority')}
@@ -277,6 +302,27 @@ export default function TaskDetailsModal({
                   startAdornment={
                     <FlagIcon sx={{ color: priorityColors[formData.priority], mr: 1 }} />
                   }
+                  sx={{
+                    color: '#ffffff',
+                    bgcolor: 'rgba(255,255,255,0.05)',
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
+                    '& .MuiSvgIcon-root': { color: '#94a3b8' }
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: '#1e293b',
+                        border: '1px solid #334155',
+                        '& .MuiMenuItem-root': {
+                          color: '#ffffff',
+                          '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+                          '&.Mui-selected': { bgcolor: 'rgba(59, 130, 246, 0.2)' }
+                        }
+                      }
+                    }
+                  }}
                 >
                   {(['HIGH', 'MEDIUM', 'LOW'] as Priority[]).map(priority => (
                     <MenuItem key={priority} value={priority}>
@@ -290,11 +336,32 @@ export default function TaskDetailsModal({
               </FormControl>
 
               <FormControl fullWidth>
-                <InputLabel>Column</InputLabel>
+                <InputLabel sx={{ color: '#94a3b8', '&.Mui-focused': { color: '#3b82f6' } }}>Column</InputLabel>
                 <Select
                   value={formData.columnId}
                   onChange={handleInputChange('columnId')}
                   label="Column"
+                  sx={{
+                    color: '#ffffff',
+                    bgcolor: 'rgba(255,255,255,0.05)',
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
+                    '& .MuiSvgIcon-root': { color: '#94a3b8' }
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: '#1e293b',
+                        border: '1px solid #334155',
+                        '& .MuiMenuItem-root': {
+                          color: '#ffffff',
+                          '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+                          '&.Mui-selected': { bgcolor: 'rgba(59, 130, 246, 0.2)' }
+                        }
+                      }
+                    }
+                  }}
                 >
                   {columns.map(column => (
                     <MenuItem key={column.id} value={column.id}>
@@ -324,8 +391,34 @@ export default function TaskDetailsModal({
               slotProps={{
                 textField: {
                   fullWidth: true,
+                  sx: {
+                    '& .MuiOutlinedInput-root': {
+                      color: '#ffffff',
+                      bgcolor: 'rgba(255,255,255,0.05)',
+                      '& fieldset': { borderColor: '#334155' },
+                      '&:hover fieldset': { borderColor: '#475569' },
+                      '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                    },
+                    '& .MuiInputLabel-root': { color: '#94a3b8' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' },
+                    '& .MuiSvgIcon-root': { color: '#94a3b8' }
+                  },
                   InputProps: {
-                    startAdornment: <ScheduleIcon sx={{ mr: 1, color: 'text.secondary' }} />
+                    startAdornment: <ScheduleIcon sx={{ mr: 1, color: '#94a3b8' }} />
+                  }
+                },
+                popper: {
+                  sx: {
+                    '& .MuiPaper-root': {
+                      bgcolor: '#1e293b',
+                      color: '#ffffff',
+                      border: '1px solid #334155',
+                      '& .MuiPickersDay-root': { color: '#ffffff' },
+                      '& .MuiPickersDay-root:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
+                      '& .MuiPickersDay-root.Mui-selected': { bgcolor: '#3b82f6' },
+                      '& .MuiTypography-root': { color: '#94a3b8' },
+                      '& .MuiSvgIcon-root': { color: '#94a3b8' }
+                    }
                   }
                 }
               }}
@@ -339,8 +432,19 @@ export default function TaskDetailsModal({
                 onChange={handleTagsChange}
                 fullWidth
                 placeholder="Enter tags separated by commas (e.g., homework, urgent, math)"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: '#ffffff',
+                    bgcolor: 'rgba(255,255,255,0.05)',
+                    '& fieldset': { borderColor: '#334155' },
+                    '&:hover fieldset': { borderColor: '#475569' },
+                    '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                  },
+                  '& .MuiInputLabel-root': { color: '#94a3b8' },
+                  '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' }
+                }}
                 InputProps={{
-                  startAdornment: <LabelIcon sx={{ mr: 1, color: 'text.secondary' }} />
+                  startAdornment: <LabelIcon sx={{ mr: 1, color: '#94a3b8' }} />
                 }}
               />
               {formData.tags && parseTags(formData.tags).length > 0 && (
@@ -351,9 +455,9 @@ export default function TaskDetailsModal({
                         key={index}
                         label={tag}
                         size="small"
-                        sx={{ 
-                          bgcolor: 'primary.light',
-                          color: 'primary.contrastText'
+                        sx={{
+                          bgcolor: 'rgba(59, 130, 246, 0.1)',
+                          color: '#60a5fa'
                         }}
                       />
                     ))}
@@ -365,12 +469,12 @@ export default function TaskDetailsModal({
             {/* Task Details for Editing */}
             {isEditing && task && (
               <>
-                <Divider />
+                <Divider sx={{ borderColor: '#334155' }} />
                 <Box>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                  <Typography variant="body2" sx={{ color: '#94a3b8' }} gutterBottom>
                     <strong>Created:</strong> {new Date(task.createdAt).toLocaleDateString()} at {new Date(task.createdAt).toLocaleTimeString()}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" sx={{ color: '#94a3b8' }}>
                     <strong>Last Updated:</strong> {new Date(task.updatedAt).toLocaleDateString()} at {new Date(task.updatedAt).toLocaleTimeString()}
                   </Typography>
                 </Box>
@@ -392,9 +496,9 @@ export default function TaskDetailsModal({
               </Button>
             )}
           </Box>
-          
+
           <Stack direction="row" spacing={2}>
-            <Button onClick={handleClose} disabled={loading}>
+            <Button onClick={handleClose} disabled={loading} sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff', bgcolor: 'rgba(255,255,255,0.05)' } }}>
               Cancel
             </Button>
             <Button

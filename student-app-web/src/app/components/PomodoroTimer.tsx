@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Button, 
-  ButtonGroup, 
-  Paper, 
-  Stack, 
+import {
+  Box,
+  Typography,
+  Button,
+  ButtonGroup,
+  Paper,
+  Stack,
   IconButton,
   CircularProgress,
   Tooltip
 } from '@mui/material';
-import { 
+import {
   PlayArrow,
   Pause,
   Refresh,
@@ -36,43 +36,43 @@ const PomodoroTimer = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [timerMode, setTimerMode] = useState('pomodoro');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  
+
   // Timer interval ref
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Audio for timer completion
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   // Format time as HH:MM:SS or MM:SS depending on duration
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
-    
+
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-  
+
   // Calculate progress percentage
   const calculateProgress = () => {
     if (totalTime === 0) return 0;
     return ((totalTime - timeLeft) / totalTime) * 100;
   };
-  
+
   // Handle timer completion
   const handleTimerComplete = () => {
     setIsRunning(false);
     setIsCompleted(true);
-    
+
     if (notificationsEnabled) {
       // Play sound
       if (audioRef.current) {
         audioRef.current.play().catch(error => console.error('Error playing audio:', error));
       }
-      
+
       // Show browser notification if permission granted
       if (Notification.permission === 'granted') {
         new Notification('Pomodoro Timer Completed', {
@@ -82,22 +82,22 @@ const PomodoroTimer = () => {
       }
     }
   };
-  
+
   // Start timer
   const startTimer = () => {
     if (isCompleted) {
       // If completed, reset timer before starting
       resetTimer();
     }
-    
+
     setIsRunning(true);
     setIsCompleted(false);
-    
+
     // Clear any existing interval
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
     }
-    
+
     // Start a new interval
     timerIntervalRef.current = setInterval(() => {
       setTimeLeft(prevTime => {
@@ -112,7 +112,7 @@ const PomodoroTimer = () => {
       });
     }, 1000);
   };
-  
+
   // Pause timer
   const pauseTimer = () => {
     setIsRunning(false);
@@ -120,14 +120,14 @@ const PomodoroTimer = () => {
       clearInterval(timerIntervalRef.current);
     }
   };
-  
+
   // Reset timer
   const resetTimer = () => {
     pauseTimer();
     setTimeLeft(totalTime);
     setIsCompleted(false);
   };
-  
+
   // Set timer mode
   const setTimerDuration = (mode: string, duration: number) => {
     pauseTimer();
@@ -136,7 +136,7 @@ const PomodoroTimer = () => {
     setTimeLeft(duration);
     setIsCompleted(false);
   };
-  
+
   // Toggle notifications
   const toggleNotifications = async () => {
     if (notificationsEnabled) {
@@ -153,7 +153,7 @@ const PomodoroTimer = () => {
       setNotificationsEnabled(true);
     }
   };
-  
+
   // Cleanup timer on unmount
   useEffect(() => {
     return () => {
@@ -162,7 +162,7 @@ const PomodoroTimer = () => {
       }
     };
   }, []);
-  
+
   // Get timer status classes
   const getTimerStatusClass = () => {
     if (isCompleted) return "completed";
@@ -170,7 +170,7 @@ const PomodoroTimer = () => {
     if (timeLeft < totalTime) return "paused";
     return "";
   };
-  
+
   // Get color for timer circle based on status
   const getTimerColor = () => {
     if (isCompleted) return '#27ae60'; // Green
@@ -178,7 +178,7 @@ const PomodoroTimer = () => {
     if (timeLeft < totalTime) return '#f39c12'; // Orange
     return '#667eea';                  // Default blue
   };
-  
+
   return (
     <Paper
       elevation={3}
@@ -189,13 +189,16 @@ const PomodoroTimer = () => {
         maxWidth: { xs: '100%', sm: 500 },
         mx: 'auto',
         p: 0,
+        bgcolor: '#0a0a0a',
+        border: '1px solid #1e293b',
+        color: '#ffffff'
       }}
     >
       {/* Timer Header */}
       <Box
         sx={{
           p: 2,
-          background: 'linear-gradient(90deg, #667eea, #764ba2)',
+          background: 'linear-gradient(90deg, #1e3a8a, #2563eb)',
           color: 'white',
           textAlign: 'center',
           position: 'relative',
@@ -207,16 +210,16 @@ const PomodoroTimer = () => {
         <Typography variant="body2" sx={{ opacity: 0.9, textTransform: 'capitalize' }}>
           {timerMode.replace(/([A-Z])/g, ' $1').trim()} Mode
         </Typography>
-        
-        <IconButton 
-          size="small" 
+
+        <IconButton
+          size="small"
           onClick={toggleNotifications}
           sx={{ position: 'absolute', right: 8, top: 8, color: 'white' }}
         >
           {notificationsEnabled ? <Notifications /> : <NotificationsOff />}
         </IconButton>
       </Box>
-      
+
       {/* Timer Display */}
       <Box
         sx={{
@@ -255,8 +258,8 @@ const PomodoroTimer = () => {
               },
             }}
           />
-          <Typography 
-            variant="h2" 
+          <Typography
+            variant="h2"
             className={`timer-display ${getTimerStatusClass()}`}
             sx={{
               fontWeight: 300,
@@ -268,7 +271,7 @@ const PomodoroTimer = () => {
             {formatTime(timeLeft)}
           </Typography>
         </Box>
-        
+
         {/* Timer Controls */}
         <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
           {isRunning ? (
@@ -296,13 +299,13 @@ const PomodoroTimer = () => {
             variant="outlined"
             startIcon={<Refresh />}
             onClick={resetTimer}
-            sx={{ borderRadius: 2 }}
+            sx={{ borderRadius: 2, borderColor: '#334155', color: '#94a3b8' }}
           >
             Reset
           </Button>
           <Tooltip title="Custom Timer">
             <IconButton
-              color="primary"
+              sx={{ color: '#3b82f6' }}
               onClick={() => {
                 const mins = prompt("Enter custom time in minutes:", "25");
                 if (mins && !isNaN(Number(mins)) && Number(mins) > 0) {
@@ -324,7 +327,13 @@ const PomodoroTimer = () => {
             '& .MuiButton-root': {
               borderRadius: 1,
               m: 0.5,
-              minWidth: { xs: 80, sm: 100 }
+              minWidth: { xs: 80, sm: 100 },
+              borderColor: '#334155',
+              color: '#94a3b8',
+              '&:hover': {
+                borderColor: '#475569',
+                bgcolor: 'rgba(255,255,255,0.05)'
+              }
             }
           }}
         >

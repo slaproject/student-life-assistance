@@ -33,9 +33,9 @@ interface TaskCardProps {
 
 export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps) {
   const isOverdue = task.dueDate ? isPast(new Date(task.dueDate)) : false;
-  const isDueSoon = task.dueDate ? 
-    isAfter(new Date(task.dueDate), new Date()) && 
-    isAfter(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), new Date(task.dueDate)) 
+  const isDueSoon = task.dueDate ?
+    isAfter(new Date(task.dueDate), new Date()) &&
+    isAfter(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), new Date(task.dueDate))
     : false;
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -56,7 +56,7 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
   const formatDueDate = (date: Date): string => {
     const now = new Date();
     const diffInHours = Math.abs(date.getTime() - now.getTime()) / (1000 * 60 * 60);
-    
+
     if (diffInHours < 24) {
       return `Due ${formatDistanceToNow(date, { addSuffix: true })}`;
     }
@@ -76,22 +76,22 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
             mb: 2,
             cursor: 'pointer',
             transition: snapshot.isDragging ? 'none' : 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: snapshot.isDragging 
+            transform: snapshot.isDragging
               ? `${provided.draggableProps.style?.transform || ''} rotate(5deg)`.trim()
               : 'rotate(0deg)',
-            boxShadow: snapshot.isDragging 
-              ? '0 8px 32px rgba(0,0,0,0.15)' 
-              : '0 1px 3px rgba(0,0,0,0.08)',
+            boxShadow: snapshot.isDragging
+              ? '0 8px 32px rgba(0,0,0,0.5)'
+              : '0 1px 3px rgba(0,0,0,0.2)',
             border: '1px solid',
-            borderColor: snapshot.isDragging 
-              ? 'primary.main' 
-              : 'rgba(0,0,0,0.05)',
+            borderColor: snapshot.isDragging
+              ? 'primary.main'
+              : '#1e293b',
             borderRadius: 3,
-            bgcolor: snapshot.isDragging ? 'background.paper' : 'background.default',
+            bgcolor: snapshot.isDragging ? '#1e293b' : '#0f172a',
             '&:hover': !snapshot.isDragging ? {
-              boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
               transform: 'translateY(-2px)',
-              borderColor: 'primary.light',
+              borderColor: '#3b82f6',
             } : {},
             '&:active': !snapshot.isDragging ? {
               transform: 'translateY(0px)',
@@ -103,11 +103,11 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
           <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
             {/* Header with title and menu */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: 'text.primary',
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: 600,
+                  color: '#ffffff',
                   flex: 1,
                   fontSize: '0.95rem',
                   lineHeight: 1.3,
@@ -116,13 +116,14 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
               >
                 {task.title}
               </Typography>
-              <IconButton 
-                size="small" 
+              <IconButton
+                size="small"
                 onClick={handleEditClick}
-                sx={{ 
-                  opacity: 0.6, 
-                  '&:hover': { opacity: 1 },
-                  p: 0.5 
+                sx={{
+                  opacity: 0.6,
+                  color: '#94a3b8',
+                  '&:hover': { opacity: 1, color: '#ffffff' },
+                  p: 0.5
                 }}
               >
                 <MoreVertIcon fontSize="small" />
@@ -131,10 +132,10 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
 
             {/* Description */}
             {task.description && (
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: 'text.secondary', 
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#94a3b8',
                   mb: 2,
                   fontSize: '0.85rem',
                   lineHeight: 1.4,
@@ -157,11 +158,11 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
                       key={index}
                       label={tag}
                       size="small"
-                      sx={{ 
-                        fontSize: '0.7rem', 
+                      sx={{
+                        fontSize: '0.7rem',
                         height: 22,
-                        bgcolor: 'rgba(102, 126, 234, 0.1)',
-                        color: 'primary.main',
+                        bgcolor: 'rgba(59, 130, 246, 0.1)',
+                        color: '#60a5fa',
                         fontWeight: 500,
                         '& .MuiChip-label': {
                           px: 1
@@ -173,11 +174,11 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
                     <Chip
                       label={`+${parseTags(task.tags).length - 3}`}
                       size="small"
-                      sx={{ 
-                        fontSize: '0.7rem', 
+                      sx={{
+                        fontSize: '0.7rem',
                         height: 22,
-                        bgcolor: 'rgba(0,0,0,0.08)',
-                        color: 'text.secondary'
+                        bgcolor: 'rgba(255,255,255,0.05)',
+                        color: '#94a3b8'
                       }}
                     />
                   )}
@@ -207,10 +208,10 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
                     }}
                   />
                 </Tooltip>
-                
+
                 {task.attachments && task.attachments.length > 0 && (
                   <Tooltip title={`${task.attachments.length} attachment${task.attachments.length > 1 ? 's' : ''}`}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', color: '#94a3b8' }}>
                       <AttachmentIcon sx={{ fontSize: 16, mr: 0.5 }} />
                       <Typography variant="caption">{task.attachments.length}</Typography>
                     </Box>
@@ -227,16 +228,16 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
                       label={format(new Date(task.dueDate), 'MMM d')}
                       size="small"
                       sx={{
-                        bgcolor: isOverdue 
-                          ? 'error.main' 
-                          : isDueSoon 
-                          ? 'warning.main' 
-                          : 'rgba(0,0,0,0.08)',
-                        color: isOverdue || isDueSoon ? 'white' : 'text.secondary',
+                        bgcolor: isOverdue
+                          ? 'error.main'
+                          : isDueSoon
+                            ? 'warning.main'
+                            : 'rgba(255,255,255,0.05)',
+                        color: isOverdue || isDueSoon ? 'white' : '#94a3b8',
                         fontSize: '0.7rem',
                         height: 22,
                         '& .MuiChip-icon': {
-                          color: isOverdue || isDueSoon ? 'white' : 'text.secondary',
+                          color: isOverdue || isDueSoon ? 'white' : '#94a3b8',
                           fontSize: '12px'
                         }
                       }}
@@ -255,7 +256,7 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
             </Box>
 
             {/* Created time */}
-            <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center', color: 'text.disabled' }}>
+            <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center', color: '#64748b' }}>
               <AccessTimeIcon sx={{ fontSize: 12, mr: 0.5 }} />
               <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
                 Created {formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })}

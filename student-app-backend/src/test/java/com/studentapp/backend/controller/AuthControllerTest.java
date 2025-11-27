@@ -2,6 +2,8 @@ package com.studentapp.backend.controller;
 
 import com.studentapp.backend.repository.UserRepository;
 import com.studentapp.backend.security.JwtUtil;
+import com.studentapp.backend.service.CategoryInitializationService;
+import com.studentapp.backend.service.TaskInitializationService;
 import com.studentapp.common.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,12 @@ class AuthControllerTest {
 
     @Mock
     private JwtUtil jwtUtil;
+
+    @Mock
+    private CategoryInitializationService categoryInitializationService;
+
+    @Mock
+    private TaskInitializationService taskInitializationService;
 
     @InjectMocks
     private AuthController authController;
@@ -71,11 +79,16 @@ class AuthControllerTest {
         user.setUsername("testuser");
         user.setEmail("test@example.com");
         user.setPassword("password");
+        User savedUser = new User();
+        savedUser.setId(java.util.UUID.randomUUID());
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
         String result = authController.registerUser(user);
-        assertThat(result).isEqualTo("User registered successfully");
+        assertThat(result).isEqualTo("User registered successfully with default categories and task columns");
         verify(userRepository).save(any(User.class));
+        verify(categoryInitializationService).createDefaultCategoriesForUser(savedUser.getId());
+        verify(taskInitializationService).createDefaultTaskColumnsForUser(savedUser.getId());
     }
 
     /**
@@ -125,11 +138,12 @@ class AuthControllerTest {
     }
 
     /**
-     * Verifies registerUser throws NullPointerException for null user.
+     * Verifies registerUser returns error message for null user.
      */
     @Test
     void registerUserWithNullUserThrows() {
-        assertThatThrownBy(() -> authController.registerUser(null)).isInstanceOf(NullPointerException.class);
+        String result = authController.registerUser(null);
+        assertThat(result).isEqualTo("Registration failed. Please try again.");
     }
 
     /**
@@ -159,7 +173,7 @@ class AuthControllerTest {
     }
 
     /**
-     * Verifies registerUser throws IllegalArgumentException for null password.
+     * Verifies registerUser returns error message for null password.
      */
     @Test
     void registerUserWithNullPasswordThrows() {
@@ -169,7 +183,8 @@ class AuthControllerTest {
         user.setPassword(null);
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> authController.registerUser(user)).isInstanceOf(IllegalArgumentException.class);
+        String result = authController.registerUser(user);
+        assertThat(result).isEqualTo("Registration failed. Please try again.");
     }
 
     /**
@@ -239,4 +254,4 @@ class AuthControllerTest {
         String result = authController.loginUser(loginRequest);
         assertThat(result).isEqualTo("Invalid username or password");
     }
-} 
+}

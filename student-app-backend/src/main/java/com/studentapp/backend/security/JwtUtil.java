@@ -30,7 +30,7 @@ public class JwtUtil {
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .signWith(SignatureAlgorithm.HS256, jwtSecret)
                 .compact();
     }
 
@@ -57,4 +57,4 @@ public class JwtUtil {
         String userId = (String) claims.get("userId");
         return UUID.fromString(userId);
     }
-} 
+}

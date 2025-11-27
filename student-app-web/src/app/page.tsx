@@ -7,9 +7,10 @@ import {
   Container,
   Paper,
   Stack,
-  Typography
+  Typography,
+  useTheme,
+  useMediaQuery
 } from "@mui/material";
-import Grid from "@mui/material/Grid";
 import {
   ChevronRight as ChevronRightIcon,
   School as SchoolIcon,
@@ -28,6 +29,8 @@ import {
 
 export default function Home() {
   const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -40,28 +43,24 @@ export default function Home() {
       title: "Smart Calendar",
       description: "AI-powered scheduling that adapts to your academic and personal life.",
       href: "/calendar",
-      gradient: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
     },
     {
       icon: <CheckSquareIcon fontSize="large" />,
       title: "To-Do Management",
       description: "Intelligent task prioritization with deadline tracking and reminders.",
       href: "/tasks",
-      gradient: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
     },
     {
       icon: <ClockIcon fontSize="large" />,
       title: "Pomodoro Timer",
       description: "Boost productivity with customizable focus sessions and breaks.",
       href: "/pomodoro",
-      gradient: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)"
     },
     {
       icon: <DollarSignIcon fontSize="large" />,
       title: "Finance Tracker",
       description: "Manage your budget with expense tracking and financial insights.",
       href: "/finance",
-      gradient: "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)"
     }
   ];
 
@@ -69,38 +68,32 @@ export default function Home() {
     {
       icon: <TrendingUpIcon />,
       title: "Progress Analytics",
-      description:
-        "Detailed insights into your productivity patterns and performance trends."
+      description: "Detailed insights into your productivity patterns and performance trends."
     },
     {
       icon: <UsersIcon />,
       title: "Study Groups",
-      description:
-        "Connect with classmates, share resources, and collaborate on projects."
+      description: "Connect with classmates, share resources, and collaborate on projects."
     },
     {
       icon: <ShieldIcon />,
       title: "Data Security",
-      description:
-        "Your personal and academic data is protected with enterprise-grade security."
+      description: "Your personal and academic data is protected with enterprise-grade security."
     },
     {
       icon: <SmartphoneIcon />,
       title: "Mobile Optimized",
-      description:
-        "Access everything on any device with our responsive, mobile-first design."
+      description: "Access everything on any device with our responsive, mobile-first design."
     },
     {
       icon: <MessageCircleIcon />,
       title: "Smart Notifications",
-      description:
-        "Intelligent reminders that adapt to your schedule and preferences."
+      description: "Intelligent reminders that adapt to your schedule and preferences."
     },
     {
       icon: <TargetIcon />,
       title: "Goal Setting",
-      description:
-        "Set and track goals with milestones and motivating progress markers."
+      description: "Set and track goals with milestones and motivating progress markers."
     }
   ];
 
@@ -112,7 +105,7 @@ export default function Home() {
   ];
 
   return (
-    <Box sx={{ bgcolor: "#fff", minHeight: "100vh" }}>
+    <Box sx={{ bgcolor: "#000000", minHeight: "100vh", color: "#ffffff" }}>
       {/* Hero */}
       <Box
         id="home"
@@ -123,30 +116,47 @@ export default function Home() {
           alignItems: "center",
           justifyContent: "center",
           overflow: "hidden",
-          background:
-            "linear-gradient(135deg, rgba(37,99,235,1) 0%, rgba(147,51,234,1) 50%, rgba(20,184,166,1) 100%)"
+          background: "radial-gradient(circle at 50% 50%, #0a1929 0%, #000000 100%)"
         }}
       >
+        {/* Abstract Background Elements */}
         <Box
           sx={{
             position: "absolute",
-            inset: 0,
-            opacity: 0.18,
-            backgroundImage:
-              "url('https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1280&fit=crop')",
-            backgroundSize: "cover",
-            backgroundPosition: "center"
+            top: "20%",
+            left: "10%",
+            width: "300px",
+            height: "300px",
+            background: "linear-gradient(135deg, #1e3a8a 0%, #000000 100%)",
+            filter: "blur(100px)",
+            opacity: 0.4,
+            borderRadius: "50%"
           }}
         />
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "10%",
+            right: "10%",
+            width: "400px",
+            height: "400px",
+            background: "linear-gradient(135deg, #2563eb 0%, #000000 100%)",
+            filter: "blur(120px)",
+            opacity: 0.3,
+            borderRadius: "50%"
+          }}
+        />
+
         <Container sx={{ position: "relative", zIndex: 1, textAlign: "center" }}>
           <Typography
-            variant="h2"
+            variant="h1"
             sx={{
               fontWeight: 800,
               color: "#fff",
-              mb: 2,
-              lineHeight: 1.2,
-              fontSize: { xs: "2.25rem", md: "3.5rem", lg: "4rem" }
+              mb: 3,
+              lineHeight: 1.1,
+              fontSize: { xs: "2.5rem", md: "4.5rem", lg: "5.5rem" },
+              letterSpacing: "-0.02em"
             }}
           >
             Your Ultimate{" "}
@@ -154,11 +164,11 @@ export default function Home() {
               component="span"
               sx={{
                 display: "block",
-                background:
-                  "linear-gradient(90deg, #f59e0b 0%, #f97316 100%)",
+                background: "linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
-                color: "transparent"
+                color: "transparent",
+                mt: 1
               }}
             >
               Student Life Assistant
@@ -167,19 +177,20 @@ export default function Home() {
           <Typography
             variant="h6"
             sx={{
-              color: "rgba(255,255,255,0.9)",
-              maxWidth: 900,
+              color: "#94a3b8",
+              maxWidth: 800,
               mx: "auto",
-              mb: 4
+              mb: 6,
+              lineHeight: 1.6,
+              fontSize: { xs: "1rem", md: "1.25rem" }
             }}
           >
             S.L.A.P combines intelligent scheduling, task management, productivity
-            tracking, and financial planning into one powerful platform designed
-            for students.
+            tracking, and financial planning into one powerful, professional platform.
           </Typography>
           <Stack
             direction={{ xs: "column", sm: "row" }}
-            spacing={2}
+            spacing={3}
             justifyContent="center"
           >
             <Button
@@ -187,13 +198,17 @@ export default function Home() {
               variant="contained"
               endIcon={<ArrowRightIcon />}
               sx={{
-                px: 4,
-                py: 1.5,
+                px: 5,
+                py: 2,
+                fontSize: "1.1rem",
                 fontWeight: 700,
-                borderRadius: 999,
-                bgcolor: "#fff",
-                color: "#2563eb",
-                "&:hover": { bgcolor: "#eff6ff" }
+                borderRadius: "50px",
+                bgcolor: "#2563eb",
+                boxShadow: "0 0 20px rgba(37, 99, 235, 0.5)",
+                "&:hover": {
+                  bgcolor: "#1d4ed8",
+                  boxShadow: "0 0 30px rgba(37, 99, 235, 0.7)"
+                }
               }}
             >
               Explore Features
@@ -202,208 +217,208 @@ export default function Home() {
               onClick={() => router.push("/signup")}
               variant="outlined"
               sx={{
-                px: 4,
-                py: 1.5,
+                px: 5,
+                py: 2,
+                fontSize: "1.1rem",
                 fontWeight: 700,
-                borderRadius: 999,
-                borderColor: "#fff",
+                borderRadius: "50px",
+                borderColor: "rgba(255,255,255,0.2)",
                 color: "#fff",
-                "&:hover": { bgcolor: "rgba(255,255,255,0.1)", borderColor: "#fff" }
+                backdropFilter: "blur(10px)",
+                "&:hover": {
+                  borderColor: "#fff",
+                  bgcolor: "rgba(255,255,255,0.05)"
+                }
               }}
             >
               Get Started
             </Button>
           </Stack>
         </Container>
-
-        {/* Floating elements */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: "25%",
-            left: "25%",
-            width: 64,
-            height: 64,
-            bgcolor: "#f59e0b",
-            borderRadius: "50%",
-            opacity: 0.6,
-            filter: "blur(0.3px)"
-          }}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            top: "75%",
-            right: "25%",
-            width: 48,
-            height: 48,
-            bgcolor: "#14b8a6",
-            borderRadius: "50%",
-            opacity: 0.6
-          }}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: "25%",
-            left: "33%",
-            width: 32,
-            height: 32,
-            bgcolor: "#a855f7",
-            borderRadius: "50%",
-            opacity: 0.6
-          }}
-        />
       </Box>
 
       {/* Core Features */}
-      <Box id="features" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#f9fafb" }}>
+      <Box id="features" sx={{ py: { xs: 10, md: 16 }, bgcolor: "#000000" }}>
         <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", mb: 6 }}>
-            <Typography variant="h3" sx={{ fontWeight: 800, color: "#111827", mb: 1 }}>
+          <Box sx={{ textAlign: "center", mb: 10 }}>
+            <Typography variant="overline" sx={{ color: "#3b82f6", fontWeight: 700, letterSpacing: 2 }}>
+              CORE CAPABILITIES
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: 800, color: "#fff", mt: 2, mb: 3 }}>
               Everything You Need in One Place
             </Typography>
-            <Typography variant="h6" sx={{ color: "#4b5563", maxWidth: 900, mx: "auto" }}>
-              S.L.A.P integrates essential tools into a seamless experience to keep you organized,
-              productive, and financially responsible.
+            <Typography variant="h6" sx={{ color: "#64748b", maxWidth: 700, mx: "auto" }}>
+              Seamlessly integrated tools to keep you organized, productive, and ahead of the curve.
             </Typography>
           </Box>
 
-          <Grid container spacing={3}>
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: 'repeat(4, 1fr)' },
+            gap: 4
+          }}>
             {coreFeatures.map((f, i) => (
-              <Grid key={i} size={{ xs: 12, md: 6, lg: 3 }}>
+              <Box key={i}>
                 <Paper
                   onClick={() => router.push(f.href)}
                   sx={{
-                    p: 3,
-                    borderRadius: 3,
+                    p: 4,
+                    height: '100%',
+                    bgcolor: "#0a0a0a",
+                    border: "1px solid #1e293b",
+                    borderRadius: 4,
                     cursor: "pointer",
-                    transition: "transform .2s, box-shadow .2s",
-                    "&:hover": { transform: "scale(1.02)", boxShadow: 6 }
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      borderColor: "#3b82f6",
+                      boxShadow: "0 10px 40px -10px rgba(59, 130, 246, 0.2)"
+                    }
                   }}
-                  elevation={3}
+                  elevation={0}
                 >
                   <Box
                     sx={{
-                      width: 64,
-                      height: 64,
+                      width: 60,
+                      height: 60,
                       borderRadius: 3,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#fff",
-                      mb: 2,
-                      background: f.gradient
+                      color: "#60a5fa",
+                      mb: 3,
+                      bgcolor: "rgba(59, 130, 246, 0.1)"
                     }}
                   >
                     {f.icon}
                   </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: "#fff" }}>
                     {f.title}
                   </Typography>
-                  <Typography sx={{ color: "#6b7280", mb: 1.5 }}>
+                  <Typography sx={{ color: "#94a3b8", mb: 3, lineHeight: 1.6 }}>
                     {f.description}
                   </Typography>
-                  <Stack direction="row" alignItems="center" sx={{ color: "#2563eb", fontWeight: 700 }}>
+                  <Stack direction="row" alignItems="center" sx={{ color: "#3b82f6", fontWeight: 600 }}>
                     Try it now <ChevronRightIcon fontSize="small" sx={{ ml: 0.5 }} />
                   </Stack>
                 </Paper>
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </Container>
       </Box>
 
       {/* Additional Features */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff" }}>
+      <Box sx={{ py: { xs: 10, md: 16 }, bgcolor: "#050505", borderTop: "1px solid #111" }}>
         <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", mb: 6 }}>
-            <Typography variant="h3" sx={{ fontWeight: 800, color: "#111827", mb: 1 }}>
+          <Box sx={{ textAlign: "center", mb: 10 }}>
+            <Typography variant="h3" sx={{ fontWeight: 800, color: "#fff", mb: 3 }}>
               Built for Student Success
             </Typography>
-            <Typography variant="h6" sx={{ color: "#4b5563", maxWidth: 900, mx: "auto" }}>
-              Beyond the core features, S.L.A.P offers advanced tools and insights to help you excel.
+            <Typography variant="h6" sx={{ color: "#64748b", maxWidth: 700, mx: "auto" }}>
+              Advanced tools and insights designed to help you excel in your academic journey.
             </Typography>
           </Box>
 
-          <Grid container spacing={3}>
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: 'repeat(3, 1fr)' },
+            gap: 4
+          }}>
             {extraFeatures.map((f, i) => (
-              <Grid key={i} size={{ xs: 12, md: 6, lg: 4 }}>
+              <Box key={i}>
                 <Paper
                   elevation={0}
                   sx={{
-                    p: 3,
-                    textAlign: "center",
-                    borderRadius: 3,
-                    transition: "background-color .2s",
-                    "&:hover": { bgcolor: "#f9fafb" }
+                    p: 4,
+                    bgcolor: "transparent",
+                    border: "1px solid transparent",
+                    borderRadius: 4,
+                    transition: "all 0.3s",
+                    "&:hover": {
+                      bgcolor: "#0a0a0a",
+                      border: "1px solid #1e293b"
+                    }
                   }}
                 >
                   <Box
                     sx={{
-                      width: 64,
-                      height: 64,
-                      borderRadius: "50%",
+                      width: 50,
+                      height: 50,
+                      borderRadius: "12px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#fff",
-                      mx: "auto",
+                      color: "#3b82f6",
                       mb: 2,
-                      background: "linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%)"
+                      bgcolor: "rgba(59, 130, 246, 0.1)"
                     }}
                   >
                     {f.icon}
                   </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: "#fff" }}>
                     {f.title}
                   </Typography>
-                  <Typography sx={{ color: "#6b7280" }}>{f.description}</Typography>
+                  <Typography sx={{ color: "#64748b", lineHeight: 1.6 }}>{f.description}</Typography>
                 </Paper>
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </Container>
       </Box>
 
       {/* Statistics */}
       <Box
         sx={{
-          py: { xs: 8, md: 12 },
-          background:
-            "linear-gradient(90deg, #2563eb 0%, #7c3aed 50%, #0d9488 100%)"
+          py: { xs: 10, md: 16 },
+          bgcolor: "#000",
+          position: "relative",
+          overflow: "hidden"
         }}
       >
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", mb: 4 }}>
-            <Typography variant="h3" sx={{ fontWeight: 800, color: "#fff" }}>
-              Trusted by Students Worldwide
-            </Typography>
-          </Box>
-          <Grid container spacing={3}>
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(180deg, rgba(37, 99, 235, 0.05) 0%, rgba(0,0,0,0) 100%)"
+          }}
+        />
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' },
+            gap: 4,
+            textAlign: "center"
+          }}>
             {stats.map((s, i) => (
-              <Grid key={i} size={{ xs: 12, md: 3 }}>
-                <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="h4" sx={{ fontWeight: 800, color: "#fff", mb: 0.5 }}>
-                    {s.number}
-                  </Typography>
-                  <Typography sx={{ color: "rgba(255,255,255,0.85)", fontSize: 18 }}>
-                    {s.label}
-                  </Typography>
-                </Box>
-              </Grid>
+              <Box key={i} sx={{ p: 2 }}>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 800,
+                    color: "#3b82f6",
+                    mb: 1,
+                    textShadow: "0 0 20px rgba(59, 130, 246, 0.3)"
+                  }}
+                >
+                  {s.number}
+                </Typography>
+                <Typography sx={{ color: "#94a3b8", fontSize: "1.1rem", fontWeight: 500 }}>
+                  {s.label}
+                </Typography>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </Container>
       </Box>
 
       {/* CTA */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: "#111827" }}>
+      <Box sx={{ py: { xs: 10, md: 16 }, bgcolor: "#0a0a0a", borderTop: "1px solid #111" }}>
         <Container maxWidth="md" sx={{ textAlign: "center" }}>
-          <Typography variant="h3" sx={{ fontWeight: 800, color: "#fff", mb: 1 }}>
+          <Typography variant="h3" sx={{ fontWeight: 800, color: "#fff", mb: 2 }}>
             Ready to Transform Your Student Life?
           </Typography>
-          <Typography variant="h6" sx={{ color: "#d1d5db", mb: 3 }}>
+          <Typography variant="h6" sx={{ color: "#64748b", mb: 5 }}>
             Join thousands of successful students using S.L.A.P to achieve their goals.
           </Typography>
           <Stack
@@ -414,12 +429,13 @@ export default function Home() {
             <Button
               onClick={() => router.push("/calendar")}
               variant="contained"
+              size="large"
               endIcon={<ChevronRightIcon />}
               sx={{
-                px: 4,
+                px: 5,
                 py: 1.5,
                 fontWeight: 700,
-                borderRadius: 999,
+                borderRadius: "50px",
                 bgcolor: "#2563eb",
                 "&:hover": { bgcolor: "#1d4ed8" }
               }}
@@ -429,14 +445,15 @@ export default function Home() {
             <Button
               onClick={() => router.push("/signup")}
               variant="outlined"
+              size="large"
               sx={{
-                px: 4,
+                px: 5,
                 py: 1.5,
                 fontWeight: 700,
-                borderRadius: 999,
-                borderColor: "#d1d5db",
-                color: "#d1d5db",
-                "&:hover": { bgcolor: "#d1d5db", color: "#111827", borderColor: "#d1d5db" }
+                borderRadius: "50px",
+                borderColor: "#334155",
+                color: "#fff",
+                "&:hover": { borderColor: "#fff", bgcolor: "rgba(255,255,255,0.05)" }
               }}
             >
               Create Account
@@ -446,26 +463,26 @@ export default function Home() {
       </Box>
 
       {/* Footer */}
-      <Box sx={{ bgcolor: "#000", py: 4 }}>
+      <Box sx={{ bgcolor: "#000", py: 6, borderTop: "1px solid #111" }}>
         <Container
           sx={{
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "flex-start", md: "center" },
+            alignItems: { xs: "center", md: "center" },
             justifyContent: "space-between",
-            gap: 2
+            gap: 3
           }}
         >
           <Stack direction="row" alignItems="center" spacing={1}>
-            <SchoolIcon sx={{ color: "#3b82f6" }} />
-            <Typography sx={{ color: "#fff", fontWeight: 800, fontSize: 20 }}>
+            <SchoolIcon sx={{ color: "#3b82f6", fontSize: 32 }} />
+            <Typography sx={{ color: "#fff", fontWeight: 800, fontSize: 24, letterSpacing: -0.5 }}>
               S.L.A.P
             </Typography>
           </Stack>
-          <Box sx={{ color: "#9ca3af", textAlign: { xs: "left", md: "right" } }}>
-            <Typography>© 2025 Student Life Assistant Project. All rights reserved.</Typography>
-            <Typography sx={{ mt: 0.5 }}>
-              Empowering students, one feature at a time.
+          <Box sx={{ color: "#475569", textAlign: { xs: "center", md: "right" } }}>
+            <Typography variant="body2">© 2025 Student Life Assistant Project. All rights reserved.</Typography>
+            <Typography variant="body2" sx={{ mt: 0.5 }}>
+              Empowering students with professional tools.
             </Typography>
           </Box>
         </Container>
