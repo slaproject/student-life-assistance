@@ -1,18 +1,34 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "./styles/app.css";
 import { AuthProvider } from "./AuthContext";
 import Navbar from "./components/Navbar";
+import { Analytics } from "@vercel/analytics/react";
+import ThemeRegistry from './ThemeRegistry';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Font for headings - bold, modern, geometric
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-heading",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Font for body text - clean, highly readable
+const inter = Inter({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Font for code/monospace - professional
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -27,11 +43,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <AuthProvider>
-          <Navbar />
-          {children}
-        </AuthProvider>
+      <body className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
+        <ThemeRegistry>
+          <AuthProvider>
+            <Navbar />
+            {children}
+          </AuthProvider>
+          <Analytics />
+        </ThemeRegistry>
       </body>
     </html>
   );

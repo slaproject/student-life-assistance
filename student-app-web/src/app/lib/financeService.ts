@@ -245,44 +245,54 @@ class FinanceService {
       // Ensure we have an array and convert types
       if (Array.isArray(data)) {
         console.log('Expenses data is array, length:', data.length);
-        return data.map(expense => {
+        return data.map((expense: Expense) => {
           console.log('Converting expense:', expense);
-          console.log('Expense date:', expense.expenseDate);
-          console.log('Expense amount:', expense.amount);
-          console.log('Expense category:', expense.category);
 
-          // Better amount conversion
+          // Handle date formats (string or array [yyyy, mm, dd])
+          let expenseDate = '';
+          const rawDate = expense.expenseDate;
+
+          if (Array.isArray(rawDate)) {
+            // Handle [yyyy, mm, dd] format from Java LocalDate
+            const year = rawDate[0];
+            const month = rawDate[1].toString().padStart(2, '0');
+            const day = rawDate[2].toString().padStart(2, '0');
+            expenseDate = `${year}-${month}-${day}`;
+          } else if (rawDate) {
+            expenseDate = rawDate.toString();
+          }
+
+          // Handle amount
           let amount = 0;
-          if (expense.amount !== undefined && expense.amount !== null) {
-            const numAmount = Number(expense.amount);
+          const rawAmount = expense.amount;
+          if (rawAmount !== undefined && rawAmount !== null) {
+            const numAmount = Number(rawAmount);
             if (!isNaN(numAmount)) {
               amount = numAmount;
             }
           }
 
-          console.log('Service amount conversion:', {
-            original: expense.amount,
-            converted: amount,
-            type: typeof expense.amount
-          });
+          // Handle title/description
+          const title = expense.title || expense.description || 'Untitled Expense';
+          const description = expense.description || expense.title || '';
 
           return {
-            id: expense.id?.toString() || '',
-            title: expense.title || '',
+            id: (expense.id || '').toString(),
+            title: title,
             amount: amount,
-            expenseDate: expense.expenseDate?.toString() || '',
+            expenseDate: expenseDate,
             category: {
-              id: expense.category?.id?.toString() || '',
-              name: expense.category?.name || '',
+              id: (expense.category?.id || '').toString(),
+              name: expense.category?.name || 'Uncategorized',
               description: expense.category?.description || '',
-              color: expense.category?.color || '',
-              icon: expense.category?.icon || '',
+              color: expense.category?.color || '#808080',
+              icon: expense.category?.icon || 'help',
               isActive: Boolean(expense.category?.isActive),
-              userId: expense.category?.userId?.toString() || ''
+              userId: (expense.category?.userId || '').toString()
             },
             paymentMethod: expense.paymentMethod || '',
-            description: expense.description || '',
-            userId: expense.userId?.toString() || ''
+            description: description,
+            userId: (expense.userId || '').toString()
           };
         });
       }

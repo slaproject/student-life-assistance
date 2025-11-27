@@ -13,7 +13,10 @@ import {
 	Logout,
 	Login as LoginIcon,
 	School,
-	Dashboard
+	Dashboard,
+	MoreVert,
+	Code,
+	Psychology
 } from '@mui/icons-material';
 import {
 	AppBar,
@@ -23,13 +26,16 @@ import {
 	Box,
 	IconButton,
 	useMediaQuery,
-	useTheme
+	useTheme,
+	Menu as MuiMenu,
+	MenuItem
 } from '@mui/material';
 import '../globals.css';
 
 const Navbar = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
+	const [moreAnchorEl, setMoreAnchorEl] = useState<null | HTMLElement>(null);
 	const pathname = usePathname();
 	const { isAuthenticated, logout } = useAuth();
 	const theme = useTheme();
@@ -53,7 +59,7 @@ const Navbar = () => {
 	}
 
 	const navItems = [
-		{ name: 'Dashboard', href: '/dashboard', icon: Dashboard },
+		{ name: 'AI Tutor', href: '/dashboard', icon: Psychology },
 		{ name: 'Calendar', href: '/calendar', icon: CalendarToday },
 		{ name: 'To-Do List', href: '/tasks', icon: CheckBox },
 		{ name: 'Pomodoro', href: '/pomodoro', icon: Timer },
@@ -119,6 +125,60 @@ const Navbar = () => {
 								</Button>
 							);
 						})}
+						{/* More dropdown */}
+						<Button
+							startIcon={<MoreVert />}
+							onClick={(e) => setMoreAnchorEl(e.currentTarget)}
+							onMouseEnter={(e) => setMoreAnchorEl(e.currentTarget)}
+							sx={{
+								color: 'white',
+								backgroundColor: 'transparent',
+								borderRadius: 2,
+								px: 2,
+								py: 1,
+								textTransform: 'none',
+								fontWeight: 600,
+								'&:hover': {
+									backgroundColor: 'rgba(255,255,255,0.12)',
+									color: 'white'
+								},
+								transition: 'all 0.2s ease'
+							}}
+						>
+							More
+						</Button>
+						<MuiMenu
+							anchorEl={moreAnchorEl}
+							open={Boolean(moreAnchorEl)}
+							onClose={() => setMoreAnchorEl(null)}
+							MenuListProps={{
+								onMouseLeave: () => setMoreAnchorEl(null)
+							}}
+							PaperProps={{
+								sx: {
+									backgroundColor: '#1e293b',
+									color: 'white',
+									border: '1px solid rgba(255,255,255,0.1)',
+									mt: 0.5
+								}
+							}}
+						>
+							<MenuItem
+								component={Link}
+								target="_blank"
+								href="https://leetroulette.slaproject.app"
+								onClick={() => setMoreAnchorEl(null)}
+								sx={{
+									color: 'white',
+									'&:hover': {
+										backgroundColor: 'rgba(255,255,255,0.1)'
+									}
+								}}
+							>
+								<Code sx={{ mr: 1, fontSize: 20 }} />
+								Leetcode Roulette
+							</MenuItem>
+						</MuiMenu>
 						{isAuthenticated ? (
 							<Button
 								startIcon={<Logout />}
@@ -220,6 +280,32 @@ const Navbar = () => {
 							</Button>
 						);
 					})}
+					{/* More section for mobile */}
+					<Button
+						startIcon={<Code />}
+						component={Link}
+						href="/leetcode-roulette"
+						fullWidth
+						sx={{
+							color: pathname === '/leetcode-roulette' ? 'white' : '#cbd5e1',
+							backgroundColor: pathname === '/leetcode-roulette' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+							borderRadius: 2,
+							px: 2,
+							py: 1.5,
+							textTransform: 'none',
+							fontWeight: 600,
+							justifyContent: 'flex-start',
+							mb: 0.5,
+							'&:hover': {
+								backgroundColor: pathname === '/leetcode-roulette' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(255,255,255,0.05)',
+								color: 'white'
+							},
+							transition: 'all 0.2s ease'
+						}}
+						onClick={() => setIsMenuOpen(false)}
+					>
+						Leetcode Roulette
+					</Button>
 					{isAuthenticated ? (
 						<Button
 							startIcon={<Logout />}

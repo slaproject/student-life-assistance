@@ -40,8 +40,20 @@ public class CategoryInitializationService {
         logger.info("Creating {} default categories for user {}", templates.size(), userId);
         
         int successCount = 0;
+        int skippedCount = 0;
         for (DefaultCategoryTemplate template : templates) {
             try {
+                // Check if category with this name already exists for this user
+                ExpenseCategory existingCategory = financeService.getCategoryByName(userId, template.getName());
+                
+                if (existingCategory != null) {
+                    logger.info("Category '{}' already exists for user {}, skipping creation", 
+                               template.getName(), userId);
+                    skippedCount++;
+                    continue;
+                }
+                
+                // Create new category
                 ExpenseCategory category = new ExpenseCategory();
                 category.setUserId(userId);
                 category.setName(template.getName());
@@ -52,6 +64,7 @@ public class CategoryInitializationService {
                 
                 financeService.saveCategory(category);
                 successCount++;
+                logger.info("Created default category '{}' for user {}", template.getName(), userId);
                 
             } catch (Exception e) {
                 logger.error("Failed to create default category '{}' for user {}: {}", 
@@ -59,8 +72,8 @@ public class CategoryInitializationService {
             }
         }
         
-        logger.info("Successfully created {} out of {} default categories for user {}", 
-                   successCount, templates.size(), userId);
+        logger.info("Successfully created {} new categories (skipped {} existing) for user {}", 
+                   successCount, skippedCount, userId);
     }
     
     private List<DefaultCategoryTemplate> getDefaultCategoryTemplates() {

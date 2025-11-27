@@ -48,6 +48,11 @@ public class FinanceServiceImpl implements FinanceService {
     }
 
     @Override
+    public ExpenseCategory getCategoryByName(UUID userId, String name) {
+        return categoryRepository.findByUserIdAndName(userId, name);
+    }
+
+    @Override
     public List<ExpenseCategory> getAllCategories(UUID userId) {
         return categoryRepository.findByUserId(userId);
     }

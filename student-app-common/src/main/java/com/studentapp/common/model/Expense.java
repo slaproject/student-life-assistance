@@ -1,6 +1,7 @@
 package com.studentapp.common.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "expenses")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Expense {
 
     @Id
@@ -19,6 +21,7 @@ public class Expense {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonIgnoreProperties({"expenses", "budgetLimits", "hibernateLazyInitializer", "handler"})
     private ExpenseCategory category;
 
     @Column(name = "title", nullable = false, length = 200)
