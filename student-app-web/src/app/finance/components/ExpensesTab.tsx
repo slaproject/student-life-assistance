@@ -78,28 +78,23 @@ export default function ExpensesTab() {
     categoryId: ''
   });
   const [loading, setLoading] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugData, setDebugData] = useState<any>(null); // Debug state
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Fetch data from API
+  // Fetch expenses data from API (categories loaded lazily when needed)
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetch categories and expenses using finance service
-        const [categoriesData, expensesData] = await Promise.all([
-          financeService.getCategories(),
-          financeService.getExpenses()
-        ]);
+        // Only fetch expenses - categories will be loaded when dialog opens
+        const expensesData = await financeService.getExpenses();
 
-        console.log('Fetched categories:', categoriesData);
         console.log('Fetched expenses:', expensesData);
-        console.log('Categories type:', typeof categoriesData);
-        console.log('Categories is array:', Array.isArray(categoriesData));
-        console.log('Categories length:', categoriesData?.length);
         console.log('Expenses type:', typeof expensesData);
         console.log('Expenses is array:', Array.isArray(expensesData));
         console.log('Expenses length:', expensesData?.length);
@@ -114,123 +109,10 @@ export default function ExpensesTab() {
           console.log('First expense title:', expensesData[0]?.title);
         }
 
-        // Ensure categories is always an array
-        let safeCategories = Array.isArray(categoriesData) ? categoriesData : [];
         const safeExpenses = Array.isArray(expensesData) ? expensesData : [];
 
-        // If no categories are returned from API, try to create default ones
-        if (safeCategories.length === 0) {
-          console.log('No categories from API, attempting to create default categories');
-          try {
-            const defaultCategories = await financeService.createDefaultCategories();
-            if (defaultCategories.length > 0) {
-              console.log('Successfully created default categories:', defaultCategories);
-              safeCategories = defaultCategories;
-            } else {
-              console.log('Failed to create default categories, using local fallback');
-              safeCategories = [
-                {
-                  id: '1',
-                  name: 'Food & Dining',
-                  description: 'Restaurants, groceries, takeout',
-                  color: '#FF6B6B',
-                  icon: 'restaurant',
-                  isActive: true,
-                  userId: '1'
-                },
-                {
-                  id: '2',
-                  name: 'Transportation',
-                  description: 'Gas, public transport, parking',
-                  color: '#4ECDC4',
-                  icon: 'car',
-                  isActive: true,
-                  userId: '1'
-                },
-                {
-                  id: '3',
-                  name: 'Education',
-                  description: 'Books, courses, supplies',
-                  color: '#96CEB4',
-                  icon: 'school',
-                  isActive: true,
-                  userId: '1'
-                },
-                {
-                  id: '4',
-                  name: 'Entertainment',
-                  description: 'Movies, games, hobbies',
-                  color: '#45B7D1',
-                  icon: 'entertainment',
-                  isActive: true,
-                  userId: '1'
-                },
-                {
-                  id: '5',
-                  name: 'Income',
-                  description: 'Salary, freelance, gifts',
-                  color: '#4ECDC4',
-                  icon: 'attach_money',
-                  isActive: true,
-                  userId: '1'
-                }
-              ];
-            }
-          } catch (createError) {
-            console.error('Error creating default categories:', createError);
-            // Use local fallback
-            safeCategories = [
-              {
-                id: '1',
-                name: 'Food & Dining',
-                description: 'Restaurants, groceries, takeout',
-                color: '#FF6B6B',
-                icon: 'restaurant',
-                isActive: true,
-                userId: '1'
-              },
-              {
-                id: '2',
-                name: 'Transportation',
-                description: 'Gas, public transport, parking',
-                color: '#4ECDC4',
-                icon: 'car',
-                isActive: true,
-                userId: '1'
-              },
-              {
-                id: '3',
-                name: 'Education',
-                description: 'Books, courses, supplies',
-                color: '#96CEB4',
-                icon: 'school',
-                isActive: true,
-                userId: '1'
-              },
-              {
-                id: '4',
-                name: 'Entertainment',
-                description: 'Movies, games, hobbies',
-                color: '#45B7D1',
-                icon: 'entertainment',
-                isActive: true,
-                userId: '1'
-              },
-              {
-                id: '5',
-                name: 'Income',
-                description: 'Salary, freelance, gifts',
-                color: '#4ECDC4',
-                icon: 'attach_money',
-                isActive: true,
-                userId: '1'
-              }
-            ];
-          }
-        }
-
-        setCategories(safeCategories);
         setExpenses(safeExpenses);
+        setDebugData(expensesData); // Capture raw data for debugging
 
         // If we have no expenses but we can get analytics data, let's try that
         if (safeExpenses.length === 0) {
@@ -245,7 +127,6 @@ export default function ExpensesTab() {
 
             // Convert analytics data to transaction format
             const analyticsTransactions: Transaction[] = Object.entries(categoryWiseExpenses).map(([categoryName, amount], index) => {
-              const category = safeCategories.find(cat => cat.name === categoryName);
               const isIncome = categoryName.toLowerCase().includes('income');
 
               return {
@@ -254,7 +135,7 @@ export default function ExpensesTab() {
                 description: `${categoryName} expenses`,
                 amount: isIncome ? Math.abs(amount) : -Math.abs(amount),
                 category: categoryName,
-                categoryId: category?.id
+                categoryId: undefined // Category ID not available from analytics
               };
             });
 
@@ -311,6 +192,18 @@ export default function ExpensesTab() {
                 date = new Date(expense.expenseDate);
                 if (!isNaN(date.getTime())) {
                   formattedDate = date.toISOString().split('T')[0];
+                } else {
+                  const dateStr = String(expense.expenseDate);
+                  if (dateStr.includes(',')) {
+                    // Handle comma separated date string "yyyy,mm,dd"
+                    const parts = dateStr.split(',');
+                    if (parts.length === 3) {
+                      const year = parts[0].trim();
+                      const month = parts[1].trim().padStart(2, '0');
+                      const day = parts[2].trim().padStart(2, '0');
+                      formattedDate = `${year}-${month}-${day}`;
+                    }
+                  }
                 }
               }
             } catch (error) {
@@ -337,14 +230,6 @@ export default function ExpensesTab() {
         });
 
         setTransactions(transactionsFromExpenses);
-
-        if (safeCategories.length > 0) {
-          setFormData(prev => ({
-            ...prev,
-            category: safeCategories[0].name,
-            categoryId: safeCategories[0].id
-          }));
-        }
       } catch (err) {
         console.error('Error fetching finance data:', err);
         setError('Using sample data - API connection failed');
@@ -375,7 +260,39 @@ export default function ExpensesTab() {
     .filter(t => t.amount < 0)
     .reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0);
 
-  const handleOpenDialog = (transaction: Transaction | null = null) => {
+  const handleOpenDialog = async (transaction: Transaction | null = null) => {
+    // Lazy load categories when dialog opens (if not already loaded)
+    if (categories.length === 0 && !loadingCategories) {
+      setLoadingCategories(true);
+      try {
+        console.log('Lazy loading categories for dialog...');
+        let fetchedCategories = await financeService.getCategories();
+
+        // If no categories exist, try to create default ones
+        if (!fetchedCategories || fetchedCategories.length === 0) {
+          console.log('No categories found, initializing defaults...');
+          const defaultCategories = await financeService.createDefaultCategories();
+          if (defaultCategories && defaultCategories.length > 0) {
+            fetchedCategories = defaultCategories;
+            console.log('Initialized default categories:', fetchedCategories);
+          } else {
+            // Try fetching again in case they were created
+            fetchedCategories = await financeService.getCategories();
+          }
+        }
+
+        if (fetchedCategories && fetchedCategories.length > 0) {
+          setCategories(fetchedCategories);
+        } else {
+          console.warn('No categories available after initialization attempt');
+        }
+      } catch (err) {
+        console.error('Error loading categories:', err);
+      } finally {
+        setLoadingCategories(false);
+      }
+    }
+
     if (transaction) {
       setEditingTransaction(transaction);
       setFormData({
@@ -545,14 +462,7 @@ export default function ExpensesTab() {
         </Alert>
       )}
 
-      {/* Debug Info */}
-      {process.env.NODE_ENV === 'development' && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          Debug: Categories count: {Array.isArray(categories) ? categories.length : 'Not an array'},
-          Loading: {loading ? 'Yes' : 'No'},
-          Error: {error ? 'Yes' : 'No'}
-        </Alert>
-      )}
+
 
       {/* Summary Cards */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
@@ -908,7 +818,7 @@ export default function ExpensesTab() {
                           {category.name}
                         </MenuItem>
                       ))
-                    ) : loading ? (
+                    ) : loadingCategories ? (
                       <MenuItem disabled>Loading categories...</MenuItem>
                     ) : (
                       <MenuItem disabled>No categories available</MenuItem>

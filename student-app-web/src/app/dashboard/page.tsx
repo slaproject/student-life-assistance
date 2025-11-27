@@ -15,7 +15,7 @@ export default function DashboardPage() {
       }}>
         <Box sx={{ maxWidth: '1200px', width: '100%', mx: 'auto' }}>
           <Typography variant="h4" sx={{ mb: 4, fontWeight: 800, color: "#3b82f6" }}>
-            Dashboard
+            AI Tutor
           </Typography>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '7fr 5fr' }, gap: 4 }}>
             <Box>

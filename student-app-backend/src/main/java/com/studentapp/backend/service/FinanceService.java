@@ -18,6 +18,7 @@ public interface FinanceService {
     ExpenseCategory saveCategory(ExpenseCategory category, UUID userId);
     ExpenseCategory saveCategory(ExpenseCategory category); // For internal use when userId already set
     Optional<ExpenseCategory> getCategoryById(UUID id, UUID userId);
+    ExpenseCategory getCategoryByName(UUID userId, String name);
     List<ExpenseCategory> getAllCategories(UUID userId);
     List<ExpenseCategory> getActiveCategories(UUID userId);
     void deleteCategory(UUID id, UUID userId);

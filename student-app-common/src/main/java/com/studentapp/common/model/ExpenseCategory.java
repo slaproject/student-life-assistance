@@ -1,12 +1,14 @@
 package com.studentapp.common.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "expense_categories")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ExpenseCategory {
 
     @Id
@@ -38,9 +40,11 @@ public class ExpenseCategory {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Expense> expenses;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<BudgetLimit> budgetLimits;
 
     public ExpenseCategory() {}
