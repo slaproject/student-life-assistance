@@ -245,13 +245,13 @@ class FinanceService {
       // Ensure we have an array and convert types
       if (Array.isArray(data)) {
         console.log('Expenses data is array, length:', data.length);
-        return data.map((expense: any) => {
+        return data.map((expense: Expense) => {
           console.log('Converting expense:', expense);
-          
+
           // Handle date formats (string or array [yyyy, mm, dd])
           let expenseDate = '';
-          const rawDate = expense.expenseDate || expense.expense_date;
-          
+          const rawDate = expense.expenseDate;
+
           if (Array.isArray(rawDate)) {
             // Handle [yyyy, mm, dd] format from Java LocalDate
             const year = rawDate[0];
@@ -264,7 +264,7 @@ class FinanceService {
 
           // Handle amount
           let amount = 0;
-          const rawAmount = expense.amount !== undefined ? expense.amount : expense.money;
+          const rawAmount = expense.amount;
           if (rawAmount !== undefined && rawAmount !== null) {
             const numAmount = Number(rawAmount);
             if (!isNaN(numAmount)) {
@@ -290,9 +290,9 @@ class FinanceService {
               isActive: Boolean(expense.category?.isActive),
               userId: (expense.category?.userId || '').toString()
             },
-            paymentMethod: expense.paymentMethod || expense.payment_method || '',
+            paymentMethod: expense.paymentMethod || '',
             description: description,
-            userId: (expense.userId || expense.user_id || '').toString()
+            userId: (expense.userId || '').toString()
           };
         });
       }

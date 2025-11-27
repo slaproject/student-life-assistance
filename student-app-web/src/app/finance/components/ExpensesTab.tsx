@@ -67,7 +67,6 @@ const SAMPLE_TRANSACTIONS: Transaction[] = [
 export default function ExpensesTab() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [formData, setFormData] = useState({
@@ -80,7 +79,6 @@ export default function ExpensesTab() {
   const [loading, setLoading] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [debugData, setDebugData] = useState<any>(null); // Debug state
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -110,9 +108,6 @@ export default function ExpensesTab() {
         }
 
         const safeExpenses = Array.isArray(expensesData) ? expensesData : [];
-
-        setExpenses(safeExpenses);
-        setDebugData(expensesData); // Capture raw data for debugging
 
         // If we have no expenses but we can get analytics data, let's try that
         if (safeExpenses.length === 0) {
@@ -382,7 +377,6 @@ export default function ExpensesTab() {
         ]);
 
         setCategories(updatedCategories);
-        setExpenses(updatedExpenses);
 
         const updatedTransactions: Transaction[] = updatedExpenses.map((expense: Expense) => {
           const categoryName = expense.category ? expense.category.name : 'Unknown';
@@ -415,7 +409,6 @@ export default function ExpensesTab() {
 
         // Refresh data
         const updatedExpenses = await financeService.getExpenses();
-        setExpenses(updatedExpenses);
 
         const updatedTransactions: Transaction[] = updatedExpenses.map((expense: Expense) => {
           const categoryName = expense.category ? expense.category.name : 'Unknown';

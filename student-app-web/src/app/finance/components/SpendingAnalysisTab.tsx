@@ -290,7 +290,7 @@ export default function SpendingAnalysisTab() {
                       }}
                     />
                     <Typography variant="body2" sx={{ minWidth: 35, color: '#94a3b8' }}>
-                      {item.percentage}%
+                      {item.percentage.toFixed(2)}%
                     </Typography>
                   </Box>
                 </Box>
