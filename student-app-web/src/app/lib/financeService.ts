@@ -407,6 +407,37 @@ class FinanceService {
     }
   }
 
+  async uploadBill(file: File): Promise<Expense> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await this.api.post('/api/bills/upload', formData);
+
+      const createdExpense = response.data;
+      return {
+        id: createdExpense.id?.toString() || '',
+        title: createdExpense.title || '',
+        amount: Number(createdExpense.amount) || 0,
+        expenseDate: createdExpense.expenseDate?.toString() || '',
+        category: {
+          id: createdExpense.category?.id?.toString() || '',
+          name: createdExpense.category?.name || '',
+          description: createdExpense.category?.description || '',
+          color: createdExpense.category?.color || '',
+          icon: createdExpense.category?.icon || '',
+          isActive: Boolean(createdExpense.category?.isActive),
+          userId: createdExpense.category?.userId?.toString() || ''
+        },
+        paymentMethod: createdExpense.paymentMethod || '',
+        description: createdExpense.description || '',
+        userId: createdExpense.userId?.toString() || ''
+      };
+    } catch (error) {
+      console.error('Error uploading bill:', error);
+      throw error;
+    }
+  }
+
   // Budget Limit methods
   async getBudgetLimits(month: number, year: number): Promise<BudgetLimit[]> {
     try {

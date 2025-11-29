@@ -51,7 +51,11 @@ export function getApiClient() {
       // Ensure proper headers for CORS
       if (config.headers) {
         config.headers['Accept'] = 'application/json';
-        config.headers['Content-Type'] = 'application/json';
+        if (config.data instanceof FormData) {
+          delete config.headers['Content-Type'];
+        } else {
+          config.headers['Content-Type'] = 'application/json';
+        }
       }
     }
     return config;
