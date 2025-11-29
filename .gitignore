@@ -133,4 +133,5 @@ http-client.private.env.json
 
 node_modules
 
-node_modules
+application.properties
+

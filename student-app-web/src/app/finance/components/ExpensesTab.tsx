@@ -40,7 +40,10 @@ import {
   TrendingDown as TrendingDownIcon,
   Receipt as ReceiptIcon,
   Close as CloseIcon,
-  Save as SaveIcon
+  Save as SaveIcon,
+  CloudUpload as CloudUploadIcon,
+  CheckCircle as CheckCircleIcon,
+  Warning as WarningIcon
 } from "@mui/icons-material";
 import { financeService, Expense, ExpenseCategory } from "../../lib/financeService";
 
@@ -79,6 +82,14 @@ export default function ExpensesTab() {
   const [loading, setLoading] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Notification states
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -402,32 +413,83 @@ export default function ExpensesTab() {
     }
   };
 
-  const handleDeleteTransaction = async (id: string) => {
-    if (confirm("Are you sure you want to delete this transaction?")) {
-      try {
-        await financeService.deleteExpense(id);
+  const handleDeleteClick = (id: string) => {
+    setTransactionToDelete(id);
+    setDeleteDialogOpen(true);
+  };
 
-        // Refresh data
-        const updatedExpenses = await financeService.getExpenses();
+  const handleConfirmDelete = async () => {
+    if (!transactionToDelete) return;
 
-        const updatedTransactions: Transaction[] = updatedExpenses.map((expense: Expense) => {
-          const categoryName = expense.category ? expense.category.name : 'Unknown';
-          const isIncome = categoryName.toLowerCase().includes('income');
-          const amount = isIncome ? Math.abs(expense.amount) : -Math.abs(expense.amount);
+    try {
+      await financeService.deleteExpense(transactionToDelete);
 
-          return {
-            id: expense.id,
-            date: expense.expenseDate,
-            description: expense.title,
-            amount: amount,
-            category: categoryName,
-            categoryId: expense.category?.id
-          };
-        });
-        setTransactions(updatedTransactions);
-      } catch (err) {
-        console.error('Error deleting transaction:', err);
-        alert('Failed to delete transaction');
+      // Refresh data
+      const updatedExpenses = await financeService.getExpenses();
+
+      const updatedTransactions: Transaction[] = updatedExpenses.map((expense: Expense) => {
+        const categoryName = expense.category ? expense.category.name : 'Unknown';
+        const isIncome = categoryName.toLowerCase().includes('income');
+        const amount = isIncome ? Math.abs(expense.amount) : -Math.abs(expense.amount);
+
+        return {
+          id: expense.id,
+          date: expense.expenseDate,
+          description: expense.title,
+          amount: amount,
+          category: categoryName,
+          categoryId: expense.category?.id
+        };
+      });
+      setTransactions(updatedTransactions);
+      setDeleteDialogOpen(false);
+      setTransactionToDelete(null);
+    } catch (err) {
+      console.error('Error deleting transaction:', err);
+      alert('Failed to delete transaction');
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const newExpense = await financeService.uploadBill(file);
+
+      // Refresh data
+      const [updatedCategories, updatedExpenses] = await Promise.all([
+        financeService.getCategories(),
+        financeService.getExpenses()
+      ]);
+
+      setCategories(updatedCategories);
+
+      const updatedTransactions: Transaction[] = updatedExpenses.map((expense: Expense) => {
+        const categoryName = expense.category ? expense.category.name : 'Unknown';
+        const isIncome = categoryName.toLowerCase().includes('income');
+        const amount = isIncome ? Math.abs(expense.amount) : -Math.abs(expense.amount);
+
+        return {
+          id: expense.id,
+          date: expense.expenseDate,
+          description: expense.title,
+          amount: amount,
+          category: categoryName,
+          categoryId: expense.category?.id
+        };
+      });
+      setTransactions(updatedTransactions);
+      setSuccessMessage('Bill uploaded and transaction created successfully!');
+      setSuccessDialogOpen(true);
+    } catch (err) {
+      console.error('Error uploading bill:', err);
+      alert('Failed to upload bill. Please try again.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
     }
   };
@@ -544,19 +606,46 @@ export default function ExpensesTab() {
               Recent Transactions
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-            sx={{
-              bgcolor: '#3b82f6',
-              borderRadius: 2,
-              textTransform: 'none',
-              '&:hover': { bgcolor: '#2563eb' }
-            }}
-          >
-            Add Transaction
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              accept="image/*"
+              onChange={handleFileUpload}
+            />
+            <Button
+              variant="outlined"
+              startIcon={uploading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              sx={{
+                borderColor: '#3b82f6',
+                color: '#3b82f6',
+                borderRadius: 2,
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: '#2563eb',
+                  bgcolor: 'rgba(59, 130, 246, 0.1)'
+                }
+              }}
+            >
+              {uploading ? 'Processing...' : 'Upload Bill'}
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => handleOpenDialog()}
+              sx={{
+                bgcolor: '#3b82f6',
+                borderRadius: 2,
+                textTransform: 'none',
+                '&:hover': { bgcolor: '#2563eb' }
+              }}
+            >
+              Add Transaction
+            </Button>
+          </Box>
         </Box>
 
         <TableContainer sx={{ maxHeight: isMobile ? 400 : 600 }}>
@@ -651,7 +740,7 @@ export default function ExpensesTab() {
                       </IconButton>
                       <IconButton
                         size="small"
-                        onClick={() => handleDeleteTransaction(transaction.id)}
+                        onClick={() => handleDeleteClick(transaction.id)}
                         sx={{ color: '#ef4444' }}
                       >
                         <DeleteIcon fontSize="small" />
@@ -843,6 +932,107 @@ export default function ExpensesTab() {
             {loading ? 'Saving...' : editingTransaction ? 'Update' : 'Save'}
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            bgcolor: '#1e293b',
+            color: '#ffffff',
+            border: '1px solid #334155',
+            maxWidth: '400px'
+          }
+        }}
+      >
+        <DialogTitle sx={{ p: 3, pb: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <WarningIcon sx={{ color: '#ef4444', fontSize: 30 }} />
+            <Typography variant="h6" fontWeight={700}>
+              Delete Transaction?
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ p: 3, pt: 1 }}>
+          <Typography variant="body1" sx={{ color: '#94a3b8' }}>
+            Are you sure you want to delete this transaction? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 0 }}>
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff' } }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            variant="contained"
+            sx={{
+              bgcolor: '#ef4444',
+              '&:hover': { bgcolor: '#dc2626' },
+              borderRadius: 2
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Success Dialog */}
+      <Dialog
+        open={successDialogOpen}
+        onClose={() => setSuccessDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            bgcolor: '#1e293b',
+            color: '#ffffff',
+            border: '1px solid #334155',
+            maxWidth: '400px'
+          }
+        }}
+      >
+        <DialogContent sx={{ p: 4, textAlign: 'center' }}>
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            mb: 2
+          }}>
+            <Box sx={{
+              p: 2,
+              borderRadius: '50%',
+              bgcolor: 'rgba(16, 185, 129, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <CheckCircleIcon sx={{ color: '#10b981', fontSize: 40 }} />
+            </Box>
+          </Box>
+          <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+            Success!
+          </Typography>
+          <Typography variant="body1" sx={{ color: '#94a3b8', mb: 3 }}>
+            {successMessage}
+          </Typography>
+          <Button
+            onClick={() => setSuccessDialogOpen(false)}
+            variant="contained"
+            fullWidth
+            sx={{
+              bgcolor: '#3b82f6',
+              '&:hover': { bgcolor: '#2563eb' },
+              borderRadius: 2,
+              py: 1.5
+            }}
+          >
+            Done
+          </Button>
+        </DialogContent>
       </Dialog>
     </Box>
   );
