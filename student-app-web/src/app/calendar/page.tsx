@@ -266,18 +266,11 @@ export default function CalendarPage() {
   return (
     <ProtectedRoute>
       <Box className="calendar-container" sx={{ bgcolor: "#000000", minHeight: "100vh", color: "#ffffff", p: 4 }}>
-        <Box className="calendar-header" sx={{
-          bgcolor: '#0a0a0a',
-          p: 2,
-          borderRadius: 2,
-          mb: 3,
-          border: '1px solid #1e293b',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <Box className="calendar-header-left" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="h5" className="calendar-month-title"
+        <Box className="calendar-header">
+          <Box className="calendar-header-left">
+            <Typography 
+              variant="h5" 
+              className="calendar-month-title"
               onClick={() => {
                 setTempYearMonth({
                   year: currentMonth.getFullYear(),
@@ -286,58 +279,62 @@ export default function CalendarPage() {
                 setYearView(false);
                 setOpenMonthSelector(true);
               }}
-              sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' }, color: '#ffffff', fontWeight: 700 }}
             >
               {monthLabel}
             </Typography>
-            <IconButton onClick={handlePrev} size="small" sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff', bgcolor: 'rgba(255,255,255,0.1)' } }}>
-              <ArrowBack />
-            </IconButton>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => {
-                setTempYearMonth({
-                  year: currentMonth.getFullYear(),
-                  month: currentMonth.getMonth()
-                });
-                setYearView(false);
-                setOpenMonthSelector(true);
-              }}
-              sx={{
-                borderRadius: 2,
-                minWidth: { xs: '100px', sm: '120px' },
-                textTransform: 'none',
-                fontWeight: 'medium',
-                fontSize: { xs: '0.8rem', sm: '0.875rem' },
-                color: '#94a3b8',
-                borderColor: '#334155',
-                '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderColor: '#94a3b8',
-                  color: '#ffffff'
+            <Box className="calendar-nav-group">
+              <IconButton 
+                onClick={handlePrev} 
+                className="calendar-nav-button"
+                size="small"
+                aria-label="Previous month"
+              >
+                <ArrowBack />
+              </IconButton>
+              <Button
+                variant="outlined"
+                size="small"
+                className="calendar-month-button"
+                onClick={() => {
+                  setTempYearMonth({
+                    year: currentMonth.getFullYear(),
+                    month: currentMonth.getMonth()
+                  });
+                  setYearView(false);
+                  setOpenMonthSelector(true);
+                }}
+                startIcon={
+                  <Box 
+                    component="span" 
+                    className="calendar-icon"
+                    sx={{ 
+                      fontSize: { xs: '1rem', sm: '1.1rem' },
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    📅
+                  </Box>
                 }
-              }}
-              startIcon={<Box component="span" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>📅</Box>}
-            >
-              {new Date(currentMonth).toLocaleString(undefined, { month: 'long' })}
-            </Button>
-            <IconButton onClick={handleNext} size="small" sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff', bgcolor: 'rgba(255,255,255,0.1)' } }}>
-              <ArrowForward />
-            </IconButton>
+              >
+                {new Date(currentMonth).toLocaleString(undefined, { month: 'long' })}
+              </Button>
+              <IconButton 
+                onClick={handleNext} 
+                className="calendar-nav-button"
+                size="small"
+                aria-label="Next month"
+              >
+                <ArrowForward />
+              </IconButton>
+            </Box>
           </Box>
           <Box className="calendar-header-right">
             <Button
               variant="contained"
+              className="calendar-add-button"
               onClick={() => openAddDialog(selectedDate ?? new Date())}
-              size="small"
-              sx={{
-                fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                px: { xs: 1.5, sm: 2 },
-                py: { xs: 0.5, sm: 1 },
-                bgcolor: '#3b82f6',
-                '&:hover': { bgcolor: '#2563eb' }
-              }}
+              size="medium"
             >
               Add Event
             </Button>
@@ -363,7 +360,7 @@ export default function CalendarPage() {
                 <Box
                   key={idx}
                   onClick={() => { openAddDialog(date); }}
-                  className={`day-cell${faded ? " faded" : ""}`}
+                  className={`day-cell${faded ? " faded" : ""}${isToday ? " today" : ""}`}
                 >
                   <div className="day-cell__header">
                     <Typography variant="body2" className="day-cell__date">{date.getDate()}</Typography>

@@ -26,6 +26,9 @@ export const API_ENDPOINTS = {
   SUMMARY_GENERATE: `${API_BASE_URL}/api/summary/generate`,
   SUMMARY_USAGE: `${API_BASE_URL}/api/summary/usage`,
   SUMMARY_HISTORY: `${API_BASE_URL}/api/summary/history`,
+
+  // Tax Agent
+  TAX_AGENT_GENERATE: `${API_BASE_URL}/api/tax-agent/generate`,
 };
 
 export function getApiClient() {
@@ -107,6 +110,22 @@ export const summaryService = {
   getHistory: async () => {
     const client = getApiClient();
     const response = await client.get(API_ENDPOINTS.SUMMARY_HISTORY);
+    return response.data;
+  }
+};
+
+export const taxAgentService = {
+  generateTaxGuidance: async (request: {
+    hasOnCampusJob: boolean;
+    hasWorkStudy: boolean;
+    residentState: string;
+    workState: string;
+  }) => {
+    const client = getApiClient();
+    // Tax Agent needs longer timeout for LLM processing (90 seconds)
+    const response = await client.post(API_ENDPOINTS.TAX_AGENT_GENERATE, request, {
+      timeout: 90000
+    });
     return response.data;
   }
 };

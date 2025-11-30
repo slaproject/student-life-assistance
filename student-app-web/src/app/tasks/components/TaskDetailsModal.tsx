@@ -70,6 +70,26 @@ export default function TaskDetailsModal({
   const isEditing = !!task;
   const modalTitle = isEditing ? 'Edit Task' : 'Create New Task';
 
+  // Helper function to get column color
+  const getColumnHeaderColor = (title: string) => {
+    if (!title) return '#667eea';
+    switch (title.toLowerCase()) {
+      case 'to do':
+      case 'todo':
+        return '#667eea';
+      case 'in progress':
+      case 'inprogress':
+        return '#f093fb';
+      case 'review':
+        return '#4facfe';
+      case 'done':
+      case 'completed':
+        return '#43e97b';
+      default:
+        return '#667eea';
+    }
+  };
+
   // Initialize form data when modal opens
   useEffect(() => {
     if (open) {
@@ -299,9 +319,6 @@ export default function TaskDetailsModal({
                   value={formData.priority}
                   onChange={handleInputChange('priority')}
                   label="Priority"
-                  startAdornment={
-                    <FlagIcon sx={{ color: priorityColors[formData.priority], mr: 1 }} />
-                  }
                   sx={{
                     color: '#ffffff',
                     bgcolor: 'rgba(255,255,255,0.05)',
@@ -309,6 +326,26 @@ export default function TaskDetailsModal({
                     '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
                     '& .MuiSvgIcon-root': { color: '#94a3b8' }
+                  }}
+                  renderValue={(value) => {
+                    const priority = value as Priority;
+                    return (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box
+                          sx={{
+                            width: 16,
+                            height: 16,
+                            borderRadius: '50%',
+                            bgcolor: priorityColors[priority],
+                            boxShadow: `0 2px 8px ${priorityColors[priority]}60`,
+                            border: `2px solid ${priorityColors[priority]}`,
+                          }}
+                        />
+                        <Typography sx={{ fontWeight: 600, color: '#ffffff' }}>
+                          {priorityLabels[priority]}
+                        </Typography>
+                      </Box>
+                    );
                   }}
                   MenuProps={{
                     PaperProps: {
@@ -325,10 +362,32 @@ export default function TaskDetailsModal({
                   }}
                 >
                   {(['HIGH', 'MEDIUM', 'LOW'] as Priority[]).map(priority => (
-                    <MenuItem key={priority} value={priority}>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <FlagIcon sx={{ color: priorityColors[priority], mr: 1, fontSize: 20 }} />
-                        {priorityLabels[priority]}
+                    <MenuItem 
+                      key={priority} 
+                      value={priority}
+                      sx={{
+                        '&.Mui-selected': {
+                          bgcolor: `${priorityColors[priority]}20`,
+                          '&:hover': {
+                            bgcolor: `${priorityColors[priority]}30`,
+                          }
+                        }
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box
+                          sx={{
+                            width: 16,
+                            height: 16,
+                            borderRadius: '50%',
+                            bgcolor: priorityColors[priority],
+                            boxShadow: `0 2px 8px ${priorityColors[priority]}60`,
+                            border: `2px solid ${priorityColors[priority]}`,
+                          }}
+                        />
+                        <Typography sx={{ fontWeight: 600, color: '#ffffff' }}>
+                          {priorityLabels[priority]}
+                        </Typography>
                       </Box>
                     </MenuItem>
                   ))}
@@ -349,6 +408,28 @@ export default function TaskDetailsModal({
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
                     '& .MuiSvgIcon-root': { color: '#94a3b8' }
                   }}
+                  renderValue={(value) => {
+                    const selectedColumn = columns.find(col => col.id === value);
+                    if (!selectedColumn) return '';
+                    const columnColor = selectedColumn.color || getColumnHeaderColor(selectedColumn.title);
+                    return (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box
+                          sx={{
+                            width: 18,
+                            height: 18,
+                            borderRadius: '50%',
+                            bgcolor: columnColor,
+                            boxShadow: `0 2px 12px ${columnColor}80, 0 0 0 2px ${columnColor}40`,
+                            border: `2px solid ${columnColor}`,
+                          }}
+                        />
+                        <Typography sx={{ fontWeight: 600, color: '#ffffff' }}>
+                          {selectedColumn.title}
+                        </Typography>
+                      </Box>
+                    );
+                  }}
                   MenuProps={{
                     PaperProps: {
                       sx: {
@@ -363,22 +444,40 @@ export default function TaskDetailsModal({
                     }
                   }}
                 >
-                  {columns.map(column => (
-                    <MenuItem key={column.id} value={column.id}>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Box
-                          sx={{
-                            width: 12,
-                            height: 12,
-                            borderRadius: '50%',
-                            bgcolor: column.color || '#667eea',
-                            mr: 1
-                          }}
-                        />
-                        {column.title}
-                      </Box>
-                    </MenuItem>
-                  ))}
+                  {columns.map(column => {
+                    const columnColor = column.color || getColumnHeaderColor(column.title);
+                    return (
+                      <MenuItem 
+                        key={column.id} 
+                        value={column.id}
+                        selected={formData.columnId === column.id}
+                        sx={{
+                          '&.Mui-selected': {
+                            bgcolor: `${columnColor}20`,
+                            '&:hover': {
+                              bgcolor: `${columnColor}30`,
+                            }
+                          }
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <Box
+                            sx={{
+                              width: 18,
+                              height: 18,
+                              borderRadius: '50%',
+                              bgcolor: columnColor,
+                              boxShadow: `0 2px 12px ${columnColor}80, 0 0 0 2px ${columnColor}40`,
+                              border: `2px solid ${columnColor}`,
+                            }}
+                          />
+                          <Typography sx={{ fontWeight: 600, color: '#ffffff' }}>
+                            {column.title}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    );
+                  })}
                 </Select>
               </FormControl>
             </Stack>
@@ -397,27 +496,114 @@ export default function TaskDetailsModal({
                       bgcolor: 'rgba(255,255,255,0.05)',
                       '& fieldset': { borderColor: '#334155' },
                       '&:hover fieldset': { borderColor: '#475569' },
-                      '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                      '&.Mui-focused fieldset': { borderColor: '#3b82f6', borderWidth: '2px' }
                     },
                     '& .MuiInputLabel-root': { color: '#94a3b8' },
                     '& .MuiInputLabel-root.Mui-focused': { color: '#3b82f6' },
                     '& .MuiSvgIcon-root': { color: '#94a3b8' }
                   },
                   InputProps: {
-                    startAdornment: <ScheduleIcon sx={{ mr: 1, color: '#94a3b8' }} />
+                    startAdornment: <ScheduleIcon sx={{ mr: 1, color: '#3b82f6' }} />
                   }
                 },
                 popper: {
                   sx: {
                     '& .MuiPaper-root': {
-                      bgcolor: '#1e293b',
+                      bgcolor: '#0f172a',
                       color: '#ffffff',
                       border: '1px solid #334155',
-                      '& .MuiPickersDay-root': { color: '#ffffff' },
-                      '& .MuiPickersDay-root:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
-                      '& .MuiPickersDay-root.Mui-selected': { bgcolor: '#3b82f6' },
-                      '& .MuiTypography-root': { color: '#94a3b8' },
-                      '& .MuiSvgIcon-root': { color: '#94a3b8' }
+                      borderRadius: 3,
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                      backdropFilter: 'blur(12px)',
+                      '& .MuiPickersCalendarHeader-root': {
+                        color: '#ffffff',
+                        '& .MuiPickersCalendarHeader-label': {
+                          color: '#ffffff',
+                          fontWeight: 600,
+                        },
+                        '& .MuiIconButton-root': {
+                          color: '#94a3b8',
+                          '&:hover': {
+                            bgcolor: 'rgba(59, 130, 246, 0.2)',
+                            color: '#3b82f6'
+                          }
+                        }
+                      },
+                      '& .MuiDayCalendar-weekContainer': {
+                        '& .MuiTypography-root': {
+                          color: '#94a3b8',
+                          fontWeight: 500,
+                        }
+                      },
+                      '& .MuiPickersDay-root': {
+                        color: '#ffffff',
+                        fontWeight: 500,
+                        '&:hover': {
+                          bgcolor: 'rgba(59, 130, 246, 0.2)',
+                          color: '#3b82f6'
+                        },
+                        '&.Mui-selected': {
+                          bgcolor: '#3b82f6',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          '&:hover': {
+                            bgcolor: '#2563eb'
+                          }
+                        },
+                        '&.MuiPickersDay-today': {
+                          border: '1px solid #3b82f6',
+                          fontWeight: 700
+                        }
+                      },
+                      '& .MuiPickersTimeClock-root': {
+                        '& .MuiClock-root': {
+                          backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                        },
+                        '& .MuiClockNumber-root': {
+                          color: '#ffffff',
+                          '&.Mui-selected': {
+                            color: '#3b82f6',
+                            fontWeight: 700
+                          }
+                        },
+                        '& .MuiClockPointer-root': {
+                          backgroundColor: '#3b82f6',
+                        },
+                        '& .MuiClock-pin': {
+                          backgroundColor: '#3b82f6',
+                        }
+                      },
+                      '& .MuiTimeClock-root': {
+                        '& .MuiClock-root': {
+                          backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                        }
+                      },
+                      '& .MuiPickersTimeClockTime-root': {
+                        '& .MuiTypography-root': {
+                          color: '#ffffff',
+                          '&.Mui-selected': {
+                            color: '#3b82f6',
+                            fontWeight: 700,
+                            bgcolor: 'rgba(59, 130, 246, 0.2)'
+                          }
+                        }
+                      },
+                      '& .MuiPickersArrowSwitcher-root': {
+                        '& .MuiIconButton-root': {
+                          color: '#94a3b8',
+                          '&:hover': {
+                            bgcolor: 'rgba(59, 130, 246, 0.2)',
+                            color: '#3b82f6'
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                layout: {
+                  sx: {
+                    '& .MuiPickersLayout-root': {
+                      bgcolor: '#0f172a',
                     }
                   }
                 }

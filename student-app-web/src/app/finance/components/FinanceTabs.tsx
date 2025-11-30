@@ -12,10 +12,12 @@ import {
 import {
   AttachMoney as AttachMoneyIcon,
   Receipt as ReceiptIcon,
-  Analytics as AnalyticsIcon
+  Analytics as AnalyticsIcon,
+  AccountBalance as AccountBalanceIcon
 } from "@mui/icons-material";
 import ExpensesTab from "./ExpensesTab";
 import SpendingAnalysisTab from "./SpendingAnalysisTab";
+import TaxAgentTab from "./TaxAgentTab";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -139,6 +141,17 @@ export default function FinanceTabs() {
               }}
               {...a11yProps(1)}
             />
+            <Tab
+              icon={<AccountBalanceIcon />}
+              label="AI Tax Agent"
+              iconPosition="start"
+              sx={{
+                flexDirection: 'row',
+                gap: 1,
+                minWidth: { xs: 120, sm: 160 }
+              }}
+              {...a11yProps(2)}
+            />
           </Tabs>
 
           {/* Tab Content */}
@@ -148,6 +161,9 @@ export default function FinanceTabs() {
             </TabPanel>
             <TabPanel value={activeTab} index={1}>
               <ExpensesTab />
+            </TabPanel>
+            <TabPanel value={activeTab} index={2}>
+              <TaxAgentTab />
             </TabPanel>
           </Box>
         </Paper>

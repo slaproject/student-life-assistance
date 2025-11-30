@@ -253,7 +253,8 @@ export default function TaskBoard() {
     <Box sx={{
       display: 'flex',
       flexDirection: 'column',
-      height: 'calc(100vh - 120px)', // Adjust height to account for tabs
+      height: '100%',
+      flex: 1,
       background: 'radial-gradient(circle at 50% 50%, #0a1929 0%, #000000 100%)'
     }}>
       {/* Error Alert */}
@@ -268,7 +269,7 @@ export default function TaskBoard() {
       )}
 
       {/* Board */}
-      <Box sx={{ flex: 1, overflow: 'hidden', p: 3 }}>
+      <Box sx={{ flex: 1, overflow: 'hidden', p: 3, position: 'relative', zIndex: 1 }}>
         <DragDropContext
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
@@ -285,16 +286,22 @@ export default function TaskBoard() {
                   overflowX: 'auto',
                   overflowY: 'hidden',
                   pb: 2,
+                  px: 0,
                   '&::-webkit-scrollbar': {
-                    height: 8
+                    height: 10,
                   },
                   '&::-webkit-scrollbar-thumb': {
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    borderRadius: 4
+                    backgroundColor: 'rgba(59, 130, 246, 0.3)',
+                    borderRadius: 5,
+                    border: '2px solid transparent',
+                    backgroundClip: 'padding-box',
+                    '&:hover': {
+                      backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                    },
                   },
                   '&::-webkit-scrollbar-track': {
                     backgroundColor: 'rgba(255,255,255,0.02)',
-                    borderRadius: 4
+                    borderRadius: 5,
                   }
                 }}
               >
@@ -315,6 +322,7 @@ export default function TaskBoard() {
 
                 {/* Add Column Button */}
                 <Paper
+                  elevation={0}
                   sx={{
                     width: 320,
                     minWidth: 320,
@@ -325,25 +333,42 @@ export default function TaskBoard() {
                     justifyContent: 'center',
                     borderRadius: 4,
                     border: '2px dashed',
-                    borderColor: '#334155',
-                    bgcolor: 'rgba(255, 255, 255, 0.02)',
+                    borderColor: 'rgba(59, 130, 246, 0.3)',
+                    bgcolor: 'rgba(15, 23, 42, 0.4)',
+                    backdropFilter: 'blur(8px)',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.1), transparent)',
+                      opacity: 0,
+                      transition: 'opacity 0.3s ease',
+                    },
                     '&:hover': {
-                      borderColor: '#3b82f6',
-                      bgcolor: 'rgba(59, 130, 246, 0.05)',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+                      borderColor: 'rgba(59, 130, 246, 0.6)',
+                      bgcolor: 'rgba(59, 130, 246, 0.08)',
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 8px 32px rgba(59, 130, 246, 0.2), 0 2px 8px rgba(0,0,0,0.3)',
+                      '&::before': {
+                        opacity: 1,
+                      },
                     }
                   }}
                   onClick={handleAddColumn}
                 >
-                  <Box sx={{ textAlign: 'center', color: '#94a3b8' }}>
-                    <AddIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600, color: '#ffffff' }}>
+                  <Box sx={{ textAlign: 'center', color: 'rgba(148, 163, 184, 0.8)', position: 'relative', zIndex: 1 }}>
+                    <AddIcon sx={{ fontSize: 48, mb: 1.5, opacity: 0.6, color: 'rgba(59, 130, 246, 0.7)' }} />
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#ffffff', mb: 0.5 }}>
                       Add Column
                     </Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.7, mt: 0.5 }}>
+                    <Typography variant="body2" sx={{ opacity: 0.7, color: 'rgba(148, 163, 184, 0.7)' }}>
                       Create new column
                     </Typography>
                   </Box>
@@ -365,8 +390,16 @@ export default function TaskBoard() {
           position: 'fixed',
           bottom: 32,
           right: 32,
-          bgcolor: 'primary.main',
-          '&:hover': { bgcolor: 'primary.dark' }
+          bgcolor: 'rgba(59, 130, 246, 0.9)',
+          backdropFilter: 'blur(8px)',
+          boxShadow: '0 8px 32px rgba(59, 130, 246, 0.4), 0 2px 8px rgba(0,0,0,0.3)',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          '&:hover': { 
+            bgcolor: 'rgba(59, 130, 246, 1)',
+            boxShadow: '0 12px 40px rgba(59, 130, 246, 0.5), 0 4px 12px rgba(0,0,0,0.4)',
+            transform: 'scale(1.05)',
+          },
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
         <AddIcon />

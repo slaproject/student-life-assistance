@@ -24,13 +24,17 @@ import {
   Smartphone as SmartphoneIcon,
   ArrowForward as ArrowRightIcon,
   Flag as TargetIcon,
-  Notifications as MessageCircleIcon
+  Notifications as MessageCircleIcon,
+  Psychology as PsychologyIcon,
+  AccountBalance as AccountBalanceIcon
 } from "@mui/icons-material";
+import { useAuth } from "./AuthContext";
 
 export default function Home() {
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { isAuthenticated } = useAuth();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -39,27 +43,39 @@ export default function Home() {
 
   const coreFeatures = [
     {
+      icon: <PsychologyIcon fontSize="large" />,
+      title: "AI Tutor",
+      description: "Get instant explanations, summaries, and study help powered by advanced AI technology.",
+      href: "/dashboard",
+    },
+    {
       icon: <CalendarIcon fontSize="large" />,
       title: "Smart Calendar",
-      description: "AI-powered scheduling that adapts to your academic and personal life.",
+      description: "AI-powered scheduling that adapts to your academic schedule and personal commitments.",
       href: "/calendar",
     },
     {
       icon: <CheckSquareIcon fontSize="large" />,
       title: "To-Do Management",
-      description: "Intelligent task prioritization with deadline tracking and reminders.",
+      description: "Intelligent task prioritization with deadline tracking, reminders, and custom workflows.",
       href: "/tasks",
     },
     {
       icon: <ClockIcon fontSize="large" />,
       title: "Pomodoro Timer",
-      description: "Boost productivity with customizable focus sessions and breaks.",
+      description: "Boost productivity with customizable focus sessions, breaks, and progress tracking.",
       href: "/pomodoro",
     },
     {
       icon: <DollarSignIcon fontSize="large" />,
       title: "Finance Tracker",
-      description: "Manage your budget with expense tracking and financial insights.",
+      description: "AI-powered expense tracking with receipt upload and automatic transaction categorization.",
+      href: "/finance",
+    },
+    {
+      icon: <AccountBalanceIcon fontSize="large" />,
+      title: "AI Tax Agent",
+      description: "Get personalized US tax guidance for students with step-by-step instructions and resources.",
       href: "/finance",
     }
   ];
@@ -67,41 +83,41 @@ export default function Home() {
   const extraFeatures = [
     {
       icon: <TrendingUpIcon />,
-      title: "Progress Analytics",
-      description: "Detailed insights into your productivity patterns and performance trends."
-    },
-    {
-      icon: <UsersIcon />,
-      title: "Study Groups",
-      description: "Connect with classmates, share resources, and collaborate on projects."
-    },
-    {
-      icon: <ShieldIcon />,
-      title: "Data Security",
-      description: "Your personal and academic data is protected with enterprise-grade security."
-    },
-    {
-      icon: <SmartphoneIcon />,
-      title: "Mobile Optimized",
-      description: "Access everything on any device with our responsive, mobile-first design."
-    },
-    {
-      icon: <MessageCircleIcon />,
-      title: "Smart Notifications",
-      description: "Intelligent reminders that adapt to your schedule and preferences."
+      title: "Spending Analytics",
+      description: "Track expenses by category, view spending trends, and get budget analysis with visual charts."
     },
     {
       icon: <TargetIcon />,
-      title: "Goal Setting",
-      description: "Set and track goals with milestones and motivating progress markers."
+      title: "Financial Goals",
+      description: "Set savings targets, track progress, and manage debt payoff plans with real-time updates."
+    },
+    {
+      icon: <MessageCircleIcon />,
+      title: "Budget Alerts",
+      description: "Receive intelligent alerts when approaching or exceeding budget limits to stay on track."
+    },
+    {
+      icon: <PsychologyIcon />,
+      title: "AI Receipt Scanning",
+      description: "Upload receipt images and let AI automatically extract transaction details and categories."
+    },
+    {
+      icon: <CheckSquareIcon />,
+      title: "Task Prioritization",
+      description: "Organize tasks with custom columns, set priorities, and track deadlines efficiently."
+    },
+    {
+      icon: <CalendarIcon />,
+      title: "Calendar Integration",
+      description: "Sync your academic schedule, personal events, and deadlines in one unified view."
     }
   ];
 
   const stats = [
-    { number: "50K+", label: "Active Students" },
-    { number: "98%", label: "Satisfaction Rate" },
-    { number: "2M+", label: "Tasks Completed" },
-    { number: "23%", label: "Avg. GPA Improvement" }
+    { number: "50", label: "Beta Testers" },
+    { number: "95%", label: "Satisfaction Rate" },
+    { number: "5K+", label: "Tasks Completed" },
+    { number: "15%", label: "Productivity Boost" }
   ];
 
   return (
@@ -185,8 +201,8 @@ export default function Home() {
               fontSize: { xs: "1rem", md: "1.25rem" }
             }}
           >
-            S.L.A.P combines intelligent scheduling, task management, productivity
-            tracking, and financial planning into one powerful, professional platform.
+            S.L.A.P combines AI-powered tutoring, intelligent scheduling, task management, 
+            productivity tracking, financial planning, and tax guidance into one powerful, professional platform.
           </Typography>
           <Stack
             direction={{ xs: "column", sm: "row" }}
@@ -213,26 +229,50 @@ export default function Home() {
             >
               Explore Features
             </Button>
-            <Button
-              onClick={() => router.push("/signup")}
-              variant="outlined"
-              sx={{
-                px: 5,
-                py: 2,
-                fontSize: "1.1rem",
-                fontWeight: 700,
-                borderRadius: "50px",
-                borderColor: "rgba(255,255,255,0.2)",
-                color: "#fff",
-                backdropFilter: "blur(10px)",
-                "&:hover": {
-                  borderColor: "#fff",
-                  bgcolor: "rgba(255,255,255,0.05)"
-                }
-              }}
-            >
-              Get Started
-            </Button>
+            {!isAuthenticated && (
+              <Button
+                onClick={() => router.push("/signup")}
+                variant="outlined"
+                sx={{
+                  px: 5,
+                  py: 2,
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  borderRadius: "50px",
+                  borderColor: "rgba(255,255,255,0.2)",
+                  color: "#fff",
+                  backdropFilter: "blur(10px)",
+                  "&:hover": {
+                    borderColor: "#fff",
+                    bgcolor: "rgba(255,255,255,0.05)"
+                  }
+                }}
+              >
+                Get Started
+              </Button>
+            )}
+            {isAuthenticated && (
+              <Button
+                onClick={() => router.push("/dashboard")}
+                variant="outlined"
+                sx={{
+                  px: 5,
+                  py: 2,
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  borderRadius: "50px",
+                  borderColor: "rgba(255,255,255,0.2)",
+                  color: "#fff",
+                  backdropFilter: "blur(10px)",
+                  "&:hover": {
+                    borderColor: "#fff",
+                    bgcolor: "rgba(255,255,255,0.05)"
+                  }
+                }}
+              >
+                Go to Dashboard
+              </Button>
+            )}
           </Stack>
         </Container>
       </Box>
@@ -254,7 +294,7 @@ export default function Home() {
 
           <Box sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: 'repeat(4, 1fr)' },
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: 'repeat(3, 1fr)' },
             gap: 4
           }}>
             {coreFeatures.map((f, i) => (
@@ -323,10 +363,11 @@ export default function Home() {
           <Box sx={{
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: 'repeat(3, 1fr)' },
-            gap: 4
+            gap: 4,
+            alignItems: 'stretch'
           }}>
             {extraFeatures.map((f, i) => (
-              <Box key={i}>
+              <Box key={i} sx={{ display: 'flex', height: '100%' }}>
                 <Paper
                   elevation={0}
                   sx={{
@@ -335,6 +376,10 @@ export default function Home() {
                     border: "1px solid transparent",
                     borderRadius: 4,
                     transition: "all 0.3s",
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
                     "&:hover": {
                       bgcolor: "#0a0a0a",
                       border: "1px solid #1e293b"
@@ -351,15 +396,16 @@ export default function Home() {
                       justifyContent: "center",
                       color: "#3b82f6",
                       mb: 2,
-                      bgcolor: "rgba(59, 130, 246, 0.1)"
+                      bgcolor: "rgba(59, 130, 246, 0.1)",
+                      flexShrink: 0
                     }}
                   >
                     {f.icon}
                   </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: "#fff" }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: "#fff", flexShrink: 0 }}>
                     {f.title}
                   </Typography>
-                  <Typography sx={{ color: "#64748b", lineHeight: 1.6 }}>{f.description}</Typography>
+                  <Typography sx={{ color: "#64748b", lineHeight: 1.6, flex: 1 }}>{f.description}</Typography>
                 </Paper>
               </Box>
             ))}
@@ -442,22 +488,42 @@ export default function Home() {
             >
               Get Started Now
             </Button>
-            <Button
-              onClick={() => router.push("/signup")}
-              variant="outlined"
-              size="large"
-              sx={{
-                px: 5,
-                py: 1.5,
-                fontWeight: 700,
-                borderRadius: "50px",
-                borderColor: "#334155",
-                color: "#fff",
-                "&:hover": { borderColor: "#fff", bgcolor: "rgba(255,255,255,0.05)" }
-              }}
-            >
-              Create Account
-            </Button>
+            {!isAuthenticated && (
+              <Button
+                onClick={() => router.push("/signup")}
+                variant="outlined"
+                size="large"
+                sx={{
+                  px: 5,
+                  py: 1.5,
+                  fontWeight: 700,
+                  borderRadius: "50px",
+                  borderColor: "#334155",
+                  color: "#fff",
+                  "&:hover": { borderColor: "#fff", bgcolor: "rgba(255,255,255,0.05)" }
+                }}
+              >
+                Create Account
+              </Button>
+            )}
+            {isAuthenticated && (
+              <Button
+                onClick={() => router.push("/dashboard")}
+                variant="outlined"
+                size="large"
+                sx={{
+                  px: 5,
+                  py: 1.5,
+                  fontWeight: 700,
+                  borderRadius: "50px",
+                  borderColor: "#334155",
+                  color: "#fff",
+                  "&:hover": { borderColor: "#fff", bgcolor: "rgba(255,255,255,0.05)" }
+                }}
+              >
+                Go to Dashboard
+              </Button>
+            )}
           </Stack>
         </Container>
       </Box>
