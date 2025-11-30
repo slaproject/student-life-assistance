@@ -15,9 +15,6 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
-  List,
-  ListItem,
-  ListItemText,
   Link,
   Divider,
   useTheme,
@@ -92,12 +89,11 @@ export default function TaxAgentTab() {
         workState: workState || "Same as residence"
       });
       setResponse(result);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to generate tax guidance. Please try again."
-      );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error
+        ? err.message
+        : (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to generate tax guidance. Please try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
