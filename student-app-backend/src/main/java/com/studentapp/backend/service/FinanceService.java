@@ -52,4 +52,9 @@ public interface FinanceService {
     Map<String, Object> getBudgetAnalysis(UUID userId, int month, int year);
     Map<String, Object> getSpendingTrends(UUID userId, int months);
     List<Map<String, Object>> getBudgetAlerts(UUID userId);
+
+    // Income-specific operations
+    List<Expense> getIncomeByMonth(UUID userId, int month, int year);
+    BigDecimal getTotalIncomeByMonth(UUID userId, int month, int year);
+    Map<String, Object> getIncomeVsExpenseAnalysis(UUID userId, int month, int year);
 }

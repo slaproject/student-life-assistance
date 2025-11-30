@@ -72,6 +72,7 @@ export default function ExpensesTab() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [transactionType, setTransactionType] = useState<'EXPENSE' | 'INCOME'>('EXPENSE');
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     description: '',
@@ -90,6 +91,7 @@ export default function ExpensesTab() {
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [transactionFilter, setTransactionFilter] = useState<'all' | 'income' | 'expense'>('all');
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -266,7 +268,10 @@ export default function ExpensesTab() {
     .filter(t => t.amount < 0)
     .reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0);
 
-  const handleOpenDialog = async (transaction: Transaction | null = null) => {
+  const handleOpenDialog = async (transaction: Transaction | null = null, type: 'EXPENSE' | 'INCOME' = 'EXPENSE') => {
+    // Set the transaction type
+    setTransactionType(type);
+
     // Lazy load categories when dialog opens (if not already loaded)
     if (categories.length === 0 && !loadingCategories) {
       setLoadingCategories(true);
@@ -288,7 +293,12 @@ export default function ExpensesTab() {
         }
 
         if (fetchedCategories && fetchedCategories.length > 0) {
-          setCategories(fetchedCategories);
+          // Deduplicate categories by ID to prevent duplicates in dropdown
+          const uniqueCategories = Array.from(
+            new Map(fetchedCategories.map(cat => [cat.id, cat])).values()
+          );
+          setCategories(uniqueCategories);
+          console.log('Set unique categories:', uniqueCategories.length, 'from', fetchedCategories.length);
         } else {
           console.warn('No categories available after initialization attempt');
         }
@@ -299,8 +309,20 @@ export default function ExpensesTab() {
       }
     }
 
+    // Determine which categories to use (fetched or existing)
+    // We need to access the latest categories which might have just been fetched
+    // Since we can't easily access the local variable 'fetchedCategories' from the if block above without refactoring,
+    // we'll rely on the fact that if we fetched them, we called setCategories.
+    // However, state updates are async.
+    // A safer approach for this specific function:
+
+    // Let's re-fetch the categories from state or use the ones we just loaded if any
+    // To keep it simple and robust:
+    const availableCategories = (categories.length === 0 && !loadingCategories) ? await financeService.getCategories() : categories;
+
     if (transaction) {
       setEditingTransaction(transaction);
+      setTransactionType(transaction.amount >= 0 ? 'INCOME' : 'EXPENSE');
       setFormData({
         date: transaction.date,
         description: transaction.description,
@@ -310,12 +332,41 @@ export default function ExpensesTab() {
       });
     } else {
       setEditingTransaction(null);
+
+      let defaultCategoryId = '';
+      let defaultCategoryName = '';
+
+      if (availableCategories && availableCategories.length > 0) {
+        if (type === 'INCOME') {
+          // Find income category
+          const incomeCat = availableCategories.find(c => c.name.toLowerCase().includes('income'));
+          if (incomeCat) {
+            defaultCategoryId = incomeCat.id;
+            defaultCategoryName = incomeCat.name;
+          } else {
+            // Fallback if no income category found (shouldn't happen with default data)
+            defaultCategoryId = availableCategories[0].id;
+            defaultCategoryName = availableCategories[0].name;
+          }
+        } else {
+          // For expenses, default to first non-income category if possible, or just first one
+          const expenseCat = availableCategories.find(c => !c.name.toLowerCase().includes('income'));
+          if (expenseCat) {
+            defaultCategoryId = expenseCat.id;
+            defaultCategoryName = expenseCat.name;
+          } else {
+            defaultCategoryId = availableCategories[0].id;
+            defaultCategoryName = availableCategories[0].name;
+          }
+        }
+      }
+
       setFormData({
         date: new Date().toISOString().split('T')[0],
         description: '',
         amount: '',
-        category: Array.isArray(categories) && categories.length > 0 ? categories[0].name : '',
-        categoryId: Array.isArray(categories) && categories.length > 0 ? categories[0].id : ''
+        category: defaultCategoryName,
+        categoryId: defaultCategoryId
       });
     }
     setDialogOpen(true);
@@ -352,6 +403,7 @@ export default function ExpensesTab() {
         amount: parseFloat(formData.amount),
         expenseDate: formData.date,
         category: selectedCategory,
+        transactionType: transactionType,
         paymentMethod: "card", // Default payment method
         description: formData.description
       };
@@ -387,7 +439,11 @@ export default function ExpensesTab() {
           financeService.getExpenses()
         ]);
 
-        setCategories(updatedCategories);
+        // Deduplicate categories
+        const uniqueCategories = Array.from(
+          new Map(updatedCategories.map(cat => [cat.id, cat])).values()
+        );
+        setCategories(uniqueCategories);
 
         const updatedTransactions: Transaction[] = updatedExpenses.map((expense: Expense) => {
           const categoryName = expense.category ? expense.category.name : 'Unknown';
@@ -464,7 +520,11 @@ export default function ExpensesTab() {
         financeService.getExpenses()
       ]);
 
-      setCategories(updatedCategories);
+      // Deduplicate categories
+      const uniqueCategories = Array.from(
+        new Map(updatedCategories.map(cat => [cat.id, cat])).values()
+      );
+      setCategories(uniqueCategories);
 
       const updatedTransactions: Transaction[] = updatedExpenses.map((expense: Expense) => {
         const categoryName = expense.category ? expense.category.name : 'Unknown';
@@ -606,45 +666,79 @@ export default function ExpensesTab() {
               Recent Transactions
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: 'none' }}
-              accept="image/*"
-              onChange={handleFileUpload}
-            />
-            <Button
-              variant="outlined"
-              startIcon={uploading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              sx={{
-                borderColor: '#3b82f6',
-                color: '#3b82f6',
-                borderRadius: 2,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: '#2563eb',
-                  bgcolor: 'rgba(59, 130, 246, 0.1)'
-                }
-              }}
-            >
-              {uploading ? 'Processing...' : 'Upload Bill'}
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => handleOpenDialog()}
-              sx={{
-                bgcolor: '#3b82f6',
-                borderRadius: 2,
-                textTransform: 'none',
-                '&:hover': { bgcolor: '#2563eb' }
-              }}
-            >
-              Add Transaction
-            </Button>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel sx={{ color: '#94a3b8' }}>Filter</InputLabel>
+              <Select
+                value={transactionFilter}
+                onChange={(e) => setTransactionFilter(e.target.value as 'all' | 'income' | 'expense')}
+                label="Filter"
+                sx={{
+                  color: '#ffffff',
+                  '.MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
+                  '.MuiSvgIcon-root': { color: '#94a3b8' }
+                }}
+              >
+                <MenuItem value="all">All Transactions</MenuItem>
+                <MenuItem value="income">Income Only</MenuItem>
+                <MenuItem value="expense">Expenses Only</MenuItem>
+              </Select>
+            </FormControl>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                accept="image/*"
+                onChange={handleFileUpload}
+              />
+              <Button
+                variant="outlined"
+                startIcon={uploading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                sx={{
+                  borderColor: '#3b82f6',
+                  color: '#3b82f6',
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  '&:hover': {
+                    borderColor: '#2563eb',
+                    bgcolor: 'rgba(59, 130, 246, 0.1)'
+                  }
+                }}
+              >
+                {uploading ? 'Processing...' : 'Upload Bill'}
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => handleOpenDialog(null, 'EXPENSE')}
+                sx={{
+                  bgcolor: '#ef4444',
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  '&:hover': { bgcolor: '#dc2626' }
+                }}
+              >
+                Add Expense
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => handleOpenDialog(null, 'INCOME')}
+                sx={{
+                  bgcolor: '#10b981',
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  '&:hover': { bgcolor: '#059669' }
+                }}
+              >
+                Add Income
+              </Button>
+            </Box>
           </Box>
         </Box>
 
@@ -661,6 +755,12 @@ export default function ExpensesTab() {
             </TableHead>
             <TableBody>
               {transactions
+                .filter(transaction => {
+                  if (transactionFilter === 'all') return true;
+                  if (transactionFilter === 'income') return transaction.amount > 0;
+                  if (transactionFilter === 'expense') return transaction.amount < 0;
+                  return true;
+                })
                 .sort((a, b) => {
                   const dateA = new Date(a.date);
                   const dateB = new Date(b.date);
@@ -771,9 +871,9 @@ export default function ExpensesTab() {
         <DialogTitle sx={{ p: 3, pb: 1 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ReceiptIcon sx={{ mr: 1, color: '#3b82f6' }} />
+              <ReceiptIcon sx={{ mr: 1, color: transactionType === 'INCOME' ? '#10b981' : '#ef4444' }} />
               <Typography variant="h6" fontWeight={700} sx={{ color: '#ffffff' }}>
-                {editingTransaction ? "Edit Transaction" : "Add New Transaction"}
+                {editingTransaction ? "Edit Transaction" : `Add New ${transactionType === 'INCOME' ? 'Income' : 'Expense'}`}
               </Typography>
             </Box>
             <IconButton onClick={handleCloseDialog} size="small" sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff', bgcolor: 'rgba(255,255,255,0.1)' } }}>
@@ -857,57 +957,61 @@ export default function ExpensesTab() {
                 />
               </Box>
 
-              <Box sx={{ flex: 1 }}>
-                <FormControl fullWidth>
-                  <InputLabel sx={{ color: '#94a3b8', '&.Mui-focused': { color: '#3b82f6' } }}>Category</InputLabel>
-                  <Select
-                    name="categoryId"
-                    value={formData.categoryId}
-                    onChange={(e) => {
-                      const selectedCategory = categories.find(cat => cat.id === e.target.value);
-                      setFormData(prev => ({
-                        ...prev,
-                        categoryId: e.target.value,
-                        category: selectedCategory?.name || ''
-                      }));
-                    }}
-                    label="Category"
-                    sx={{
-                      color: '#ffffff',
-                      bgcolor: 'rgba(255,255,255,0.05)',
-                      '& .MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
-                      '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
-                      '& .MuiSvgIcon-root': { color: '#94a3b8' }
-                    }}
-                    MenuProps={{
-                      PaperProps: {
-                        sx: {
-                          bgcolor: '#1e293b',
-                          border: '1px solid #334155',
-                          '& .MuiMenuItem-root': {
-                            color: '#ffffff',
-                            '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
-                            '&.Mui-selected': { bgcolor: 'rgba(59, 130, 246, 0.2)' }
+
+
+              {transactionType === 'EXPENSE' && (
+                <Box sx={{ flex: 1 }}>
+                  <FormControl fullWidth>
+                    <InputLabel sx={{ color: '#94a3b8', '&.Mui-focused': { color: '#3b82f6' } }}>Category</InputLabel>
+                    <Select
+                      name="categoryId"
+                      value={formData.categoryId}
+                      onChange={(e) => {
+                        const selectedCategory = categories.find(cat => cat.id === e.target.value);
+                        setFormData(prev => ({
+                          ...prev,
+                          categoryId: e.target.value,
+                          category: selectedCategory?.name || ''
+                        }));
+                      }}
+                      label="Category"
+                      sx={{
+                        color: '#ffffff',
+                        bgcolor: 'rgba(255,255,255,0.05)',
+                        '& .MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
+                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
+                        '& .MuiSvgIcon-root': { color: '#94a3b8' }
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            bgcolor: '#1e293b',
+                            border: '1px solid #334155',
+                            '& .MuiMenuItem-root': {
+                              color: '#ffffff',
+                              '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+                              '&.Mui-selected': { bgcolor: 'rgba(59, 130, 246, 0.2)' }
+                            }
                           }
                         }
-                      }
-                    }}
-                  >
-                    {Array.isArray(categories) && categories.length > 0 ? (
-                      categories.map(category => (
-                        <MenuItem key={category.id} value={category.id}>
-                          {category.name}
-                        </MenuItem>
-                      ))
-                    ) : loadingCategories ? (
-                      <MenuItem disabled>Loading categories...</MenuItem>
-                    ) : (
-                      <MenuItem disabled>No categories available</MenuItem>
-                    )}
-                  </Select>
-                </FormControl>
-              </Box>
+                      }}
+                    >
+                      {Array.isArray(categories) && categories.length > 0 ? (
+                        categories.map(category => (
+                          <MenuItem key={category.id} value={category.id}>
+                            {category.name}
+                          </MenuItem>
+                        ))
+                      ) : loadingCategories ? (
+                        <MenuItem disabled>Loading categories...</MenuItem>
+                      ) : (
+                        <MenuItem disabled>No categories available</MenuItem>
+                      )}
+                    </Select>
+                  </FormControl>
+                </Box>
+              )}
             </Box>
           </Box>
         </DialogContent>
@@ -1034,6 +1138,6 @@ export default function ExpensesTab() {
           </Button>
         </DialogContent>
       </Dialog>
-    </Box>
+    </Box >
   );
 }

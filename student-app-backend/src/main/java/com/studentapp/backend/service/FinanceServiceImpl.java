@@ -228,11 +228,19 @@ public class FinanceServiceImpl implements FinanceService {
         LocalDate currentDate = LocalDate.now();
         for (int i = months - 1; i >= 0; i--) {
             YearMonth yearMonth = YearMonth.from(currentDate.minusMonths(i));
-            BigDecimal monthlyTotal = getTotalExpensesByMonth(userId, yearMonth.getMonthValue(), yearMonth.getYear());
+            int month = yearMonth.getMonthValue();
+            int year = yearMonth.getYear();
+            
+            BigDecimal monthlyExpenses = getTotalExpensesByMonth(userId, month, year);
+            BigDecimal monthlyIncome = getTotalIncomeByMonth(userId, month, year);
+            BigDecimal balance = monthlyIncome.subtract(monthlyExpenses);
 
             Map<String, Object> monthData = new HashMap<>();
             monthData.put("month", yearMonth.toString());
-            monthData.put("total", monthlyTotal);
+            monthData.put("total", monthlyExpenses); // Keep for backward compatibility
+            monthData.put("expenses", monthlyExpenses);
+            monthData.put("income", monthlyIncome);
+            monthData.put("balance", balance);
             monthlyData.add(monthData);
         }
 
@@ -268,5 +276,42 @@ public class FinanceServiceImpl implements FinanceService {
         }
 
         return alerts;
+    }
+
+    // Income-specific operations
+    @Override
+    public List<Expense> getIncomeByMonth(UUID userId, int month, int year) {
+        return expenseRepository.findByUserIdAndTransactionTypeAndMonth(
+            userId, TransactionType.INCOME, month, year);
+    }
+
+    @Override
+    public BigDecimal getTotalIncomeByMonth(UUID userId, int month, int year) {
+        BigDecimal total = expenseRepository.getTotalByUserAndMonthAndType(
+            userId, TransactionType.INCOME, month, year);
+        return total != null ? total : BigDecimal.ZERO;
+    }
+
+    @Override
+    public Map<String, Object> getIncomeVsExpenseAnalysis(UUID userId, int month, int year) {
+        Map<String, Object> analysis = new HashMap<>();
+
+        BigDecimal totalIncome = getTotalIncomeByMonth(userId, month, year);
+        BigDecimal totalExpenses = getTotalExpensesByMonth(userId, month, year);
+        BigDecimal netBalance = totalIncome.subtract(totalExpenses);
+        
+        // Calculate savings rate: (income - expenses) / income * 100
+        BigDecimal savingsRate = BigDecimal.ZERO;
+        if (totalIncome.compareTo(BigDecimal.ZERO) > 0) {
+            savingsRate = netBalance.multiply(BigDecimal.valueOf(100))
+                .divide(totalIncome, 2, BigDecimal.ROUND_HALF_UP);
+        }
+
+        analysis.put("income", totalIncome);
+        analysis.put("expenses", totalExpenses);
+        analysis.put("netBalance", netBalance);
+        analysis.put("savingsRate", savingsRate);
+
+        return analysis;
     }
 }

@@ -281,4 +281,25 @@ public class FinanceController {
         List<Map<String, Object>> alerts = financeService.getBudgetAlerts(userId);
         return ResponseEntity.ok(alerts);
     }
+
+    // Income endpoints
+    @GetMapping("/income/month/{year}/{month}")
+    public ResponseEntity<List<Expense>> getIncomeByMonth(
+            @PathVariable int year,
+            @PathVariable int month,
+            Authentication authentication) {
+        UUID userId = resolveUserId(authentication);
+        List<Expense> income = financeService.getIncomeByMonth(userId, month, year);
+        return ResponseEntity.ok(income);
+    }
+
+    @GetMapping("/analytics/income-vs-expense")
+    public ResponseEntity<Map<String, Object>> getIncomeVsExpenseAnalysis(
+            @RequestParam int month,
+            @RequestParam int year,
+            Authentication authentication) {
+        UUID userId = resolveUserId(authentication);
+        Map<String, Object> analysis = financeService.getIncomeVsExpenseAnalysis(userId, month, year);
+        return ResponseEntity.ok(analysis);
+    }
 }
