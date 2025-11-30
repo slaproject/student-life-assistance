@@ -36,4 +36,17 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
 
     @Query("SELECT COUNT(e) FROM Expense e WHERE e.userId = :userId")
     Long countByUserId(@Param("userId") UUID userId);
+
+    // Transaction Type filtering methods for income/expense separation
+    @Query("SELECT e FROM Expense e JOIN FETCH e.category WHERE e.userId = :userId AND e.transactionType = :type ORDER BY e.expenseDate DESC")
+    List<Expense> findByUserIdAndTransactionType(@Param("userId") UUID userId, @Param("type") com.studentapp.common.model.TransactionType type);
+
+    @Query("SELECT e FROM Expense e WHERE e.userId = :userId AND e.transactionType = :type AND EXTRACT(MONTH FROM e.expenseDate) = :month AND EXTRACT(YEAR FROM e.expenseDate) = :year ORDER BY e.expenseDate DESC")
+    List<Expense> findByUserIdAndTransactionTypeAndMonth(@Param("userId") UUID userId, @Param("type") com.studentapp.common.model.TransactionType type, @Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.userId = :userId AND e.transactionType = :type AND EXTRACT(MONTH FROM e.expenseDate) = :month AND EXTRACT(YEAR FROM e.expenseDate) = :year")
+    BigDecimal getTotalByUserAndMonthAndType(@Param("userId") UUID userId, @Param("type") com.studentapp.common.model.TransactionType type, @Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT e FROM Expense e JOIN FETCH e.category WHERE e.userId = :userId AND e.transactionType = :type AND e.expenseDate BETWEEN :startDate AND :endDate ORDER BY e.expenseDate DESC")
+    List<Expense> findByUserIdAndTransactionTypeAndDateBetween(@Param("userId") UUID userId, @Param("type") com.studentapp.common.model.TransactionType type, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

@@ -82,28 +82,32 @@ export default function SpendingAnalysisTab() {
         ]);
 
         // Convert category-wise expenses to spending data format
-        const colors = ["#FF6B6B", "#4ECDC4", "#96CEB4", "#45B7D1", "#BB8FCE", "#F7DC6F", "#F7DC6F", "#FFA07A"];
+        // Colors for non-income categories (removed green shades to reserve them for Income)
+        const colors = ["#FF6B6B", "#FF9F43", "#54A0FF", "#45B7D1", "#BB8FCE", "#F7DC6F", "#FECA57", "#FFA07A"];
         const icons = ["restaurant", "transport", "education", "entertainment", "shopping", "healthcare", "home", "other"];
 
         const totalSpendingAmount = Object.values(categoryWiseExpenses).reduce((sum, amount) => sum + amount, 0);
 
-        const spendingData: SpendingData[] = Object.entries(categoryWiseExpenses).map(([category, amount], index) => ({
-          category,
-          amount,
-          color: colors[index % colors.length],
-          percentage: totalSpendingAmount > 0 ? (amount / totalSpendingAmount) * 100 : 0,
-          icon: icons[index % icons.length]
-        }));
+        const spendingData: SpendingData[] = Object.entries(categoryWiseExpenses).map(([category, amount], index) => {
+          const isIncome = category.toLowerCase().includes('income');
+          return {
+            category,
+            amount,
+            color: isIncome ? '#10b981' : colors[index % colors.length],
+            percentage: totalSpendingAmount > 0 ? (amount / totalSpendingAmount) * 100 : 0,
+            icon: icons[index % icons.length]
+          };
+        });
 
-        // Convert spending trends to monthly data format
-        const monthlyData: MonthlyData[] = spendingTrendsData.monthlyTotals.map((trend, index) => {
+        // Convert spending trends to monthly data format with real income
+        const monthlyData: MonthlyData[] = spendingTrendsData.monthlyTotals.map((trend: { month: string; income?: number; expenses?: number; balance?: number; total?: number }) => {
           const date = new Date(trend.month);
           return {
             month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-            income: 0, // We don't have income data from the API
-            expenses: trend.total,
-            balance: 0, // We don't have balance data
-            savings: 0 // We don't have savings data
+            income: Number(trend.income) || 0,
+            expenses: Number(trend.expenses) || 0,
+            balance: Number(trend.balance) || 0,
+            savings: Number(trend.balance) || 0 // Same as balance for now
           };
         });
 
@@ -129,8 +133,8 @@ export default function SpendingAnalysisTab() {
         // Fallback to sample data
         const sampleSpendingData: SpendingData[] = [
           { category: "Food & Dining", amount: 287.50, color: "#FF6B6B", percentage: 35.2, icon: "restaurant" },
-          { category: "Transportation", amount: 156.75, color: "#4ECDC4", percentage: 19.2, icon: "transport" },
-          { category: "Education", amount: 189.00, color: "#96CEB4", percentage: 23.1, icon: "education" },
+          { category: "Transportation", amount: 156.75, color: "#FF9F43", percentage: 19.2, icon: "transport" },
+          { category: "Education", amount: 189.00, color: "#54A0FF", percentage: 23.1, icon: "education" },
           { category: "Entertainment", amount: 94.25, color: "#45B7D1", percentage: 11.5, icon: "entertainment" },
           { category: "Shopping", amount: 67.80, color: "#BB8FCE", percentage: 8.3, icon: "shopping" },
           { category: "Healthcare", amount: 22.45, color: "#F7DC6F", percentage: 2.7, icon: "healthcare" }
@@ -172,7 +176,7 @@ export default function SpendingAnalysisTab() {
     switch (severity) {
       case 'high': return '#e53e3e';
       case 'medium': return '#f6ad55';
-      case 'low': return '#38b2ac';
+      case 'low': return '#60a5fa';
       default: return '#666';
     }
   };
@@ -398,7 +402,7 @@ export default function SpendingAnalysisTab() {
                       <Typography variant="body2" color="text.secondary">
                         Income
                       </Typography>
-                      <Typography variant="body2" fontWeight={600} color="#38b2ac">
+                      <Typography variant="body2" fontWeight={600} color="#10b981">
                         {formatCurrency(month.income)}
                       </Typography>
                     </Box>

@@ -132,7 +132,7 @@ export default function FinanceTabs() {
             />
             <Tab
               icon={<ReceiptIcon />}
-              label="Expenses"
+              label="Transactions"
               iconPosition="start"
               sx={{
                 flexDirection: 'row',

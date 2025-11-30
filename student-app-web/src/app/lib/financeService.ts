@@ -18,6 +18,7 @@ export interface Expense {
   amount: number;
   expenseDate: string;
   category: ExpenseCategory;
+  transactionType: 'EXPENSE' | 'INCOME';
   paymentMethod?: string;
   description?: string;
   userId: string;
@@ -67,6 +68,13 @@ export interface BudgetAlert {
 
 export interface CategoryWiseExpenses {
   [categoryName: string]: number;
+}
+
+export interface IncomeVsExpenseAnalysis {
+  income: number;
+  expenses: number;
+  netBalance: number;
+  savingsRate: number;
 }
 
 class FinanceService {
@@ -290,6 +298,7 @@ class FinanceService {
               isActive: Boolean(expense.category?.isActive),
               userId: (expense.category?.userId || '').toString()
             },
+            transactionType: (expense.transactionType as 'EXPENSE' | 'INCOME') || 'EXPENSE',
             paymentMethod: expense.paymentMethod || '',
             description: description,
             userId: (expense.userId || '').toString()
@@ -325,6 +334,7 @@ class FinanceService {
             isActive: Boolean(expense.category?.isActive),
             userId: expense.category?.userId?.toString() || ''
           },
+          transactionType: (expense.transactionType as 'EXPENSE' | 'INCOME') || 'EXPENSE',
           paymentMethod: expense.paymentMethod || '',
           description: expense.description || '',
           userId: expense.userId?.toString() || ''
@@ -378,6 +388,7 @@ class FinanceService {
           isActive: Boolean(createdExpense.category?.isActive),
           userId: createdExpense.category?.userId?.toString() || ''
         },
+        transactionType: (createdExpense.transactionType as 'EXPENSE' | 'INCOME') || 'EXPENSE',
         paymentMethod: createdExpense.paymentMethod || '',
         description: createdExpense.description || '',
         userId: createdExpense.userId?.toString() || ''
@@ -428,6 +439,7 @@ class FinanceService {
           isActive: Boolean(createdExpense.category?.isActive),
           userId: createdExpense.category?.userId?.toString() || ''
         },
+        transactionType: (createdExpense.transactionType as 'EXPENSE' | 'INCOME') || 'EXPENSE',
         paymentMethod: createdExpense.paymentMethod || '',
         description: createdExpense.description || '',
         userId: createdExpense.userId?.toString() || ''
@@ -620,6 +632,79 @@ class FinanceService {
     } catch (error) {
       console.error('Error fetching budget alerts:', error);
       return [];
+    }
+  }
+
+  // Income methods
+  async getIncomeByMonth(year: number, month: number): Promise<Expense[]> {
+    try {
+      const response = await this.api.get(`/api/finance/income/month/${year}/${month}`);
+      const data = response.data;
+
+      if (Array.isArray(data)) {
+        return data.map((income: Expense) => {
+          let expenseDate = '';
+          const rawDate = income.expenseDate;
+
+          if (Array.isArray(rawDate)) {
+            const year = rawDate[0];
+            const month = rawDate[1].toString().padStart(2, '0');
+            const day = rawDate[2].toString().padStart(2, '0');
+            expenseDate = `${year}-${month}-${day}`;
+          } else if (rawDate) {
+            expenseDate = rawDate.toString();
+          }
+
+          return {
+            id: (income.id || '').toString(),
+            title: income.title || 'Untitled Income',
+            amount: Number(income.amount) || 0,
+            expenseDate: expenseDate,
+            category: {
+              id: (income.category?.id || '').toString(),
+              name: income.category?.name || 'Uncategorized',
+              description: income.category?.description || '',
+              color: income.category?.color || '#10b981',
+              icon: income.category?.icon || 'attach_money',
+              isActive: Boolean(income.category?.isActive),
+              userId: (income.category?.userId || '').toString()
+            },
+            transactionType: 'INCOME',
+            paymentMethod: income.paymentMethod || '',
+            description: income.description || '',
+            userId: (income.userId || '').toString()
+          };
+        });
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error fetching income by month:', error);
+      return [];
+    }
+  }
+
+  async getIncomeVsExpenseAnalysis(month: number, year: number): Promise<IncomeVsExpenseAnalysis> {
+    try {
+      const response = await this.api.get('/api/finance/analytics/income-vs-expense', {
+        params: { month, year }
+      });
+      const data = response.data;
+
+      return {
+        income: Number(data.income) || 0,
+        expenses: Number(data.expenses) || 0,
+        netBalance: Number(data.netBalance) || 0,
+        savingsRate: Number(data.savingsRate) || 0
+      };
+    } catch (error) {
+      console.error('Error fetching income vs expense analysis:', error);
+      return {
+        income: 0,
+        expenses: 0,
+        netBalance: 0,
+        savingsRate: 0
+      };
     }
   }
 }

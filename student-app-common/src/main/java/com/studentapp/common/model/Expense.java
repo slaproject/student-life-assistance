@@ -48,6 +48,10 @@ public class Expense {
     @Column(name = "tags", length = 500)
     private String tags;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_type", nullable = false)
+    private TransactionType transactionType = TransactionType.EXPENSE;
+
     @Column(name = "is_recurring")
     private Boolean isRecurring = false;
 
@@ -117,6 +121,9 @@ public class Expense {
 
     public String getTags() { return tags; }
     public void setTags(String tags) { this.tags = tags; }
+
+    public TransactionType getTransactionType() { return transactionType; }
+    public void setTransactionType(TransactionType transactionType) { this.transactionType = transactionType; }
 
     public Boolean getIsRecurring() { return isRecurring; }
     public void setIsRecurring(Boolean isRecurring) { this.isRecurring = isRecurring; }
