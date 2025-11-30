@@ -29,8 +29,13 @@ function TabPanel({ children, value, index }: TabPanelProps) {
       hidden={value !== index}
       id={`task-tabpanel-${index}`}
       aria-labelledby={`task-tab-${index}`}
+      style={{ 
+        height: '100%',
+        display: value === index ? 'flex' : 'none',
+        flexDirection: 'column'
+      }}
     >
-      {value === index && <Box>{children}</Box>}
+      {value === index && <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>{children}</Box>}
     </div>
   );
 }
@@ -53,9 +58,12 @@ export default function TaskTabs() {
 
   return (
     <Box sx={{
-      minHeight: '100vh',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
       bgcolor: '#000000',
-      color: '#ffffff'
+      color: '#ffffff',
+      overflow: 'hidden'
     }}>
 
 
@@ -137,7 +145,15 @@ export default function TaskTabs() {
       </Paper>
 
       {/* Tab Content */}
-      <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+      <Box sx={{ 
+        maxWidth: 1400, 
+        mx: 'auto',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        width: '100%'
+      }}>
         <TabPanel value={activeTab} index={0}>
           <TaskBoard />
         </TabPanel>

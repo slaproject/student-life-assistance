@@ -38,11 +38,6 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
     isAfter(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), new Date(task.dueDate))
     : false;
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    onClick?.(task);
-  };
-
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onEdit?.(task);
@@ -65,53 +60,80 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
 
   return (
     <Draggable draggableId={task.id} index={index}>
-      {(provided, snapshot) => (
-        <Card
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          onClick={handleCardClick}
-          style={provided.draggableProps.style}
-          sx={{
-            mb: 2,
-            cursor: 'pointer',
-            transition: snapshot.isDragging ? 'none' : 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: snapshot.isDragging
-              ? `${provided.draggableProps.style?.transform || ''} rotate(5deg)`.trim()
-              : 'rotate(0deg)',
-            boxShadow: snapshot.isDragging
-              ? '0 8px 32px rgba(0,0,0,0.5)'
-              : '0 1px 3px rgba(0,0,0,0.2)',
-            border: '1px solid',
-            borderColor: snapshot.isDragging
-              ? 'primary.main'
-              : '#1e293b',
-            borderRadius: 3,
-            bgcolor: snapshot.isDragging ? '#1e293b' : '#0f172a',
-            '&:hover': !snapshot.isDragging ? {
-              boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-              transform: 'translateY(-2px)',
-              borderColor: '#3b82f6',
-            } : {},
-            '&:active': !snapshot.isDragging ? {
-              transform: 'translateY(0px)',
-            } : {},
-            // Priority indicator bar
-            borderLeft: `4px solid ${priorityColors[task.priority]}`,
-          }}
-        >
+      {(provided, snapshot) => {
+        // Ensure the drag preview follows the cursor correctly
+        // Use the library's style directly to maintain proper cursor tracking
+        const dragStyle = provided.draggableProps.style;
+
+        return (
+          <Card
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            onClick={(e) => {
+              // Only trigger click if we're not currently dragging
+              // The drag library will handle the drag, we just need to not interfere
+              if (!snapshot.isDragging && !snapshot.isDropAnimating) {
+                onClick?.(task);
+              }
+            }}
+            style={dragStyle}
+            sx={{
+              mb: 2,
+              cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+              transition: snapshot.isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: snapshot.isDragging
+                ? '0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(59, 130, 246, 0.3)'
+                : '0 2px 8px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1)',
+              border: '1px solid',
+              borderColor: snapshot.isDragging
+                ? 'rgba(59, 130, 246, 0.5)'
+                : 'rgba(30, 41, 59, 0.6)',
+              borderRadius: 3,
+              bgcolor: snapshot.isDragging 
+                ? 'rgba(30, 41, 59, 0.95)' 
+                : 'rgba(15, 23, 42, 0.8)',
+              backdropFilter: snapshot.isDragging ? 'blur(8px)' : 'blur(4px)',
+              // Ensure proper z-index during drag
+              zIndex: snapshot.isDragging ? 9999 : 'auto',
+              '&:hover': !snapshot.isDragging ? {
+                boxShadow: '0 8px 24px rgba(0,0,0,0.3), 0 2px 8px rgba(59, 130, 246, 0.2)',
+                transform: 'translateY(-4px)',
+                borderColor: 'rgba(59, 130, 246, 0.4)',
+                bgcolor: 'rgba(15, 23, 42, 0.95)',
+              } : {},
+              '&:active': !snapshot.isDragging ? {
+                transform: 'translateY(-2px)',
+              } : {},
+            // Priority indicator bar with gradient - make it more visible
+            borderLeft: `5px solid ${priorityColors[task.priority]}`,
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '3px',
+              background: `linear-gradient(90deg, ${priorityColors[task.priority]}, ${priorityColors[task.priority]}80, transparent)`,
+              opacity: 0.8,
+            },
+            }}
+          >
           <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
             {/* Header with title and menu */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
               <Typography
                 variant="body1"
                 sx={{
-                  fontWeight: 600,
+                  fontWeight: 700,
                   color: '#ffffff',
                   flex: 1,
-                  fontSize: '0.95rem',
-                  lineHeight: 1.3,
-                  pr: 1
+                  fontSize: '1rem',
+                  lineHeight: 1.4,
+                  pr: 1,
+                  letterSpacing: '-0.2px',
                 }}
               >
                 {task.title}
@@ -119,11 +141,18 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
               <IconButton
                 size="small"
                 onClick={handleEditClick}
+                onMouseDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
                 sx={{
-                  opacity: 0.6,
-                  color: '#94a3b8',
-                  '&:hover': { opacity: 1, color: '#ffffff' },
-                  p: 0.5
+                  opacity: 0.5,
+                  color: 'rgba(148, 163, 184, 0.8)',
+                  '&:hover': { 
+                    opacity: 1, 
+                    color: '#ffffff',
+                    bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                  p: 0.5,
+                  transition: 'all 0.2s ease',
                 }}
               >
                 <MoreVertIcon fontSize="small" />
@@ -135,14 +164,14 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
               <Typography
                 variant="body2"
                 sx={{
-                  color: '#94a3b8',
+                  color: 'rgba(148, 163, 184, 0.9)',
                   mb: 2,
-                  fontSize: '0.85rem',
-                  lineHeight: 1.4,
+                  fontSize: '0.875rem',
+                  lineHeight: 1.5,
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
                 }}
               >
                 {task.description}
@@ -160,12 +189,13 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
                       size="small"
                       sx={{
                         fontSize: '0.7rem',
-                        height: 22,
-                        bgcolor: 'rgba(59, 130, 246, 0.1)',
+                        height: 24,
+                        bgcolor: 'rgba(59, 130, 246, 0.15)',
                         color: '#60a5fa',
-                        fontWeight: 500,
+                        fontWeight: 600,
+                        border: '1px solid rgba(59, 130, 246, 0.2)',
                         '& .MuiChip-label': {
-                          px: 1
+                          px: 1.5
                         }
                       }}
                     />
@@ -199,8 +229,10 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
                       bgcolor: priorityColors[task.priority],
                       color: 'white',
                       fontSize: '0.7rem',
-                      height: 24,
-                      fontWeight: 600,
+                      height: 26,
+                      fontWeight: 700,
+                      boxShadow: `0 2px 8px ${priorityColors[task.priority]}60`,
+                      border: `1px solid ${priorityColors[task.priority]}`,
                       '& .MuiChip-icon': {
                         color: 'white',
                         fontSize: '14px'
@@ -256,15 +288,16 @@ export default function TaskCard({ task, index, onClick, onEdit }: TaskCardProps
             </Box>
 
             {/* Created time */}
-            <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center', color: '#64748b' }}>
-              <AccessTimeIcon sx={{ fontSize: 12, mr: 0.5 }} />
-              <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
+            <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center', color: 'rgba(100, 116, 139, 0.6)' }}>
+              <AccessTimeIcon sx={{ fontSize: 12, mr: 0.5, opacity: 0.7 }} />
+              <Typography variant="caption" sx={{ fontSize: '0.7rem', opacity: 0.8 }}>
                 Created {formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })}
               </Typography>
             </Box>
           </CardContent>
         </Card>
-      )}
+        );
+      }}
     </Draggable>
   );
 }
