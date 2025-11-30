@@ -98,13 +98,15 @@ export default function FinanceTabs() {
             value={activeTab}
             onChange={handleTabChange}
             aria-label="finance tabs"
-            variant={isMobile ? "fullWidth" : "standard"}
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
             sx={{
               borderBottom: 1,
               borderColor: '#1e293b',
               bgcolor: '#0a0a0a',
               '& .MuiTab-root': {
-                minHeight: { xs: 60, sm: 72 },
+                minHeight: { xs: 56, sm: 72 },
                 fontSize: { xs: '0.875rem', sm: '1rem' },
                 fontWeight: 600,
                 textTransform: 'none',
@@ -116,6 +118,12 @@ export default function FinanceTabs() {
               '& .MuiTabs-indicator': {
                 backgroundColor: '#3b82f6',
                 height: 3,
+              },
+              '& .MuiTabs-scrollButtons': {
+                color: '#94a3b8',
+                '&.Mui-disabled': {
+                  opacity: 0.3,
+                },
               }
             }}
           >
@@ -126,7 +134,8 @@ export default function FinanceTabs() {
               sx={{
                 flexDirection: 'row',
                 gap: 1,
-                minWidth: { xs: 120, sm: 180 }
+                minWidth: { xs: 'auto', sm: 180 },
+                px: { xs: 2, sm: 3 }
               }}
               {...a11yProps(0)}
             />
@@ -137,7 +146,8 @@ export default function FinanceTabs() {
               sx={{
                 flexDirection: 'row',
                 gap: 1,
-                minWidth: { xs: 120, sm: 140 }
+                minWidth: { xs: 'auto', sm: 140 },
+                px: { xs: 2, sm: 3 }
               }}
               {...a11yProps(1)}
             />
@@ -148,7 +158,8 @@ export default function FinanceTabs() {
               sx={{
                 flexDirection: 'row',
                 gap: 1,
-                minWidth: { xs: 120, sm: 160 }
+                minWidth: { xs: 'auto', sm: 160 },
+                px: { xs: 2, sm: 3 }
               }}
               {...a11yProps(2)}
             />

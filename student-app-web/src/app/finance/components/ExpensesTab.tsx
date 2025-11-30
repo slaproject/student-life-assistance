@@ -653,40 +653,37 @@ export default function ExpensesTab() {
 
       {/* Transactions Table */}
       <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', bgcolor: '#0a0a0a', border: '1px solid #1e293b', color: '#ffffff' }}>
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          p: 3,
-          borderBottom: '1px solid #1e293b'
-        }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <ReceiptIcon sx={{ mr: 1, color: '#3b82f6' }} />
-            <Typography variant="h6" fontWeight={600} sx={{ color: '#ffffff' }}>
-              Recent Transactions
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel sx={{ color: '#94a3b8' }}>Filter</InputLabel>
-              <Select
-                value={transactionFilter}
-                onChange={(e) => setTransactionFilter(e.target.value as 'all' | 'income' | 'expense')}
-                label="Filter"
-                sx={{
-                  color: '#ffffff',
-                  '.MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
-                  '.MuiSvgIcon-root': { color: '#94a3b8' }
-                }}
-              >
-                <MenuItem value="all">All Transactions</MenuItem>
-                <MenuItem value="income">Income Only</MenuItem>
-                <MenuItem value="expense">Expenses Only</MenuItem>
-              </Select>
-            </FormControl>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+        {isMobile ? (
+          <Box sx={{ p: 2, borderBottom: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <FormControl size="small" sx={{ minWidth: 150 }}>
+                <InputLabel sx={{ color: '#94a3b8' }}>Filter</InputLabel>
+                <Select
+                  value={transactionFilter}
+                  onChange={(e) => setTransactionFilter(e.target.value as 'all' | 'income' | 'expense')}
+                  label="Filter"
+                  sx={{
+                    color: '#ffffff',
+                    '.MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
+                    '.MuiSvgIcon-root': { color: '#94a3b8' }
+                  }}
+                >
+                  <MenuItem value="all">All Transactions</MenuItem>
+                  <MenuItem value="income">Income Only</MenuItem>
+                  <MenuItem value="expense">Expenses Only</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <ReceiptIcon sx={{ mr: 1, color: '#3b82f6' }} />
+                <Typography variant="h6" fontWeight={600} sx={{ color: '#ffffff', fontSize: '1rem' }}>
+                  Recent Transactions
+                </Typography>
+              </Box>
               <input
                 type="file"
                 ref={fileInputRef}
@@ -696,7 +693,8 @@ export default function ExpensesTab() {
               />
               <Button
                 variant="outlined"
-                startIcon={uploading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
+                size="small"
+                startIcon={uploading ? <CircularProgress size={16} /> : <CloudUploadIcon />}
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
                 sx={{
@@ -704,14 +702,19 @@ export default function ExpensesTab() {
                   color: '#3b82f6',
                   borderRadius: 2,
                   textTransform: 'none',
+                  fontSize: '0.8rem',
+                  py: 0.5,
                   '&:hover': {
                     borderColor: '#2563eb',
                     bgcolor: 'rgba(59, 130, 246, 0.1)'
                   }
                 }}
               >
-                {uploading ? 'Processing...' : 'Upload Bill'}
+                {uploading ? '...' : 'Upload Bill'}
               </Button>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
@@ -720,6 +723,7 @@ export default function ExpensesTab() {
                   bgcolor: '#ef4444',
                   borderRadius: 2,
                   textTransform: 'none',
+                  flex: 1,
                   '&:hover': { bgcolor: '#dc2626' }
                 }}
               >
@@ -733,6 +737,7 @@ export default function ExpensesTab() {
                   bgcolor: '#10b981',
                   borderRadius: 2,
                   textTransform: 'none',
+                  flex: 1,
                   '&:hover': { bgcolor: '#059669' }
                 }}
               >
@@ -740,7 +745,96 @@ export default function ExpensesTab() {
               </Button>
             </Box>
           </Box>
-        </Box>
+        ) : (
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            p: 3,
+            borderBottom: '1px solid #1e293b'
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <ReceiptIcon sx={{ mr: 1, color: '#3b82f6' }} />
+              <Typography variant="h6" fontWeight={600} sx={{ color: '#ffffff' }}>
+                Recent Transactions
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+              <FormControl size="small" sx={{ minWidth: 150 }}>
+                <InputLabel sx={{ color: '#94a3b8' }}>Filter</InputLabel>
+                <Select
+                  value={transactionFilter}
+                  onChange={(e) => setTransactionFilter(e.target.value as 'all' | 'income' | 'expense')}
+                  label="Filter"
+                  sx={{
+                    color: '#ffffff',
+                    '.MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
+                    '.MuiSvgIcon-root': { color: '#94a3b8' }
+                  }}
+                >
+                  <MenuItem value="all">All Transactions</MenuItem>
+                  <MenuItem value="income">Income Only</MenuItem>
+                  <MenuItem value="expense">Expenses Only</MenuItem>
+                </Select>
+              </FormControl>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                />
+                <Button
+                  variant="outlined"
+                  startIcon={uploading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  sx={{
+                    borderColor: '#3b82f6',
+                    color: '#3b82f6',
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    '&:hover': {
+                      borderColor: '#2563eb',
+                      bgcolor: 'rgba(59, 130, 246, 0.1)'
+                    }
+                  }}
+                >
+                  {uploading ? 'Processing...' : 'Upload Bill'}
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => handleOpenDialog(null, 'EXPENSE')}
+                  sx={{
+                    bgcolor: '#ef4444',
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    '&:hover': { bgcolor: '#dc2626' }
+                  }}
+                >
+                  Add Expense
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => handleOpenDialog(null, 'INCOME')}
+                  sx={{
+                    bgcolor: '#10b981',
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    '&:hover': { bgcolor: '#059669' }
+                  }}
+                >
+                  Add Income
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        )}
 
         <TableContainer sx={{ maxHeight: isMobile ? 400 : 600 }}>
           <Table stickyHeader>
