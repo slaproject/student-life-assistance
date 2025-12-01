@@ -137,6 +137,12 @@ public class CategoryInitializationService {
                 "Other expenses not categorized elsewhere", 
                 "#AED6F1", 
                 "📋"
+            ),
+            new DefaultCategoryTemplate(
+                "Income", 
+                "Salary, wages, grants, scholarships, gifts", 
+                "#2ECC71", 
+                "💰"
             )
         );
     }
